@@ -63,16 +63,16 @@ export const PatientRegister: React.FC = () => {
   if (registeredPatientId) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <div className="glass-card max-w-lg w-full p-8 text-center border-teal-200 shadow-lg bg-white animate-in fade-in zoom-in duration-300">
-          <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-200 flex items-center justify-center mx-auto mb-4 text-teal-600">
-            <CheckCircle2 className="w-8 h-8 text-teal-600" />
+        <div className="glass-card max-w-lg w-full p-8 text-center border-slate-200 shadow-xl bg-white animate-in fade-in zoom-in duration-300">
+          <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-4 text-blue-600">
+            <CheckCircle2 className="w-8 h-8 text-blue-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Registration Complete!</h2>
           <p className="text-xs text-slate-600 mb-6">
             Your secure longitudinal health profile has been created. Here is your unique Patient ID:
           </p>
 
-          <div className="p-5 bg-teal-50/60 rounded-2xl border border-teal-200 mb-6 flex flex-col items-center gap-2">
+          <div className="p-5 bg-blue-50/60 rounded-2xl border border-blue-200 mb-6 flex flex-col items-center gap-2">
             <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Your Public Identifier</span>
             <IdentityBadge id={registeredPatientId} type="PATIENT" size="lg" showLabel={false} />
             <p className="text-[11px] text-slate-500 max-w-xs mt-1">
@@ -82,7 +82,7 @@ export const PatientRegister: React.FC = () => {
 
           <button
             onClick={() => navigate('/patient/dashboard')}
-            className="w-full py-2.5 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-2"
           >
             <span>Proceed to Dashboard</span>
             <ArrowRight className="w-4 h-4" />
@@ -94,14 +94,14 @@ export const PatientRegister: React.FC = () => {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="glass-card max-w-lg w-full p-8 relative border-teal-200 shadow-md bg-white">
+      <div className="glass-card max-w-lg w-full p-8 relative border-slate-200 shadow-lg bg-white">
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center mx-auto mb-3 text-teal-600 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3 text-blue-600 shadow-sm">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Create Patient Account</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Receive your permanent <span className="font-mono text-teal-700 font-bold">PAT-XXXXXXXX</span> identifier
+            Receive your permanent <span className="font-mono text-blue-700 font-bold">PAT-XXXXXXXX</span> identifier
           </p>
         </div>
 
@@ -115,8 +115,8 @@ export const PatientRegister: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Full Name *</label>
-            <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <div className="relative flex items-center">
+              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 required
@@ -124,7 +124,8 @@ export const PatientRegister: React.FC = () => {
                 placeholder="Sarah Connor"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full glass-input pl-10 text-xs"
+                style={{ paddingLeft: '44px' }}
+                className="w-full glass-input text-xs"
               />
             </div>
           </div>
@@ -132,8 +133,8 @@ export const PatientRegister: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Email *</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <div className="relative flex items-center">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="email"
                   required
@@ -141,21 +142,23 @@ export const PatientRegister: React.FC = () => {
                   placeholder="name@mail.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full glass-input pl-9 text-xs"
+                  style={{ paddingLeft: '44px' }}
+                  className="w-full glass-input text-xs"
                 />
               </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Phone</label>
-              <div className="relative">
-                <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <div className="relative flex items-center">
+                <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="tel"
                   name="phone"
                   placeholder="+1..."
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full glass-input pl-9 text-xs"
+                  style={{ paddingLeft: '44px' }}
+                  className="w-full glass-input text-xs"
                 />
               </div>
             </div>
@@ -163,8 +166,8 @@ export const PatientRegister: React.FC = () => {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Password *</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <div className="relative flex items-center">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="password"
                 required
@@ -172,7 +175,8 @@ export const PatientRegister: React.FC = () => {
                 placeholder="Minimum 6 characters"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full glass-input pl-10 text-xs"
+                style={{ paddingLeft: '44px' }}
+                className="w-full glass-input text-xs"
               />
             </div>
           </div>
@@ -184,7 +188,7 @@ export const PatientRegister: React.FC = () => {
                 name="bloodGroup"
                 value={formData.bloodGroup}
                 onChange={handleChange}
-                className="w-full glass-input text-xs bg-white text-slate-800"
+                className="w-full glass-input text-xs bg-white text-slate-800 focus:border-blue-600"
               >
                 <option value="UNKNOWN">Select Blood Group</option>
                 <option value="A+">A+</option>
@@ -203,7 +207,7 @@ export const PatientRegister: React.FC = () => {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full glass-input text-xs bg-white text-slate-800"
+                className="w-full glass-input text-xs bg-white text-slate-800 focus:border-blue-600"
               >
                 <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
                 <option value="MALE">Male</option>
@@ -249,7 +253,7 @@ export const PatientRegister: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-4 py-2.5 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-4 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/20 hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -264,7 +268,7 @@ export const PatientRegister: React.FC = () => {
 
         <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
           Already registered?{' '}
-          <Link to="/patient/login" className="text-teal-600 font-bold hover:underline">
+          <Link to="/patient/login" className="text-blue-600 font-bold hover:underline">
             Sign In
           </Link>
         </div>

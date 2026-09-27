@@ -47,9 +47,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     },
     info: {
       bg: 'bg-white',
-      border: 'border-teal-200',
+      border: 'border-blue-200',
       Icon: Info,
-      iconColor: 'text-teal-600',
+      iconColor: 'text-blue-600',
       textColor: 'text-slate-800',
     },
   };

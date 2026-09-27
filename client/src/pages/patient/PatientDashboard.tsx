@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { api, getRecordFileUrl } from '../../services/api.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { AllergyModal } from '../../components/patient/AllergyModal.js';
@@ -21,10 +22,13 @@ import {
   CheckCircle2,
   Shield,
   ShieldAlert,
+  Droplets,
+  User,
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { t, formatDate } = useLanguage();
   const [summary, setSummary] = useState<any>(null);
   const [healthPaths, setHealthPaths] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -63,8 +67,8 @@ export const PatientDashboard: React.FC = () => {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-teal-500/20 border-t-teal-600 rounded-full animate-spin" />
-          <p className="text-xs text-slate-500 font-medium">Loading patient chart...</p>
+          <div className="w-10 h-10 border-2 border-[#0c8b77]/20 border-t-[#0c8b77] rounded-full animate-spin" />
+          <p className="text-xs text-[#999] font-medium">{t('dash.loading')}</p>
         </div>
       </div>
     );
@@ -72,289 +76,288 @@ export const PatientDashboard: React.FC = () => {
 
   const patient = summary?.patient;
   const critical = summary?.criticalInformation;
-  const stats = summary?.statistics;
 
   const pendingCount = grantsData?.pending?.length || 0;
   const approvedCount = grantsData?.approved?.length || 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Pending Access Request Alert Banner */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-5 page-enter">
+
+      {/* ── Pending Access Request Alert ── */}
       {pendingCount > 0 && (
-        <div className="glass-card p-4 sm:p-5 border-amber-300 bg-gradient-to-r from-amber-50 via-white to-amber-50 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div
+          className="rounded-2xl p-4 sm:p-5 border-2 border-[#c86a0a]/30 bg-[#fdf0e0] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          style={{ boxShadow: '0 2px 12px rgba(200,106,10,0.1)' }}
+        >
           <div className="flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-amber-100 text-amber-800 border border-amber-200">
-              <ShieldAlert className="w-5 h-5 text-amber-700" />
+            <div className="p-2.5 rounded-xl bg-[#c86a0a]/10 border border-[#c86a0a]/20">
+              <ShieldAlert className="w-5 h-5 text-[#c86a0a]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <span>Doctor Access Request Pending</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-extrabold">
+              <h3 className="text-sm font-bold text-[#111] flex items-center gap-2">
+                {t('dash.accessPendingTitle')}
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#c86a0a] text-white font-extrabold">
                   {pendingCount}
                 </span>
               </h3>
-              <p className="text-xs text-slate-600 mt-0.5">
+              <p className="text-xs text-[#777] mt-0.5">
                 {grantsData.pending[0].doctorName} ({grantsData.pending[0].doctorId}) has requested permission to view your medical chart.
               </p>
             </div>
           </div>
           <button
             onClick={() => setIsPermissionsOpen(true)}
-            className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl shadow-sm transition-all shrink-0"
+            className="px-4 py-2 bg-[#c86a0a] hover:bg-[#b05e09] text-white text-xs font-bold rounded-xl shadow-sm transition-all shrink-0"
           >
-            Review & Grant Permission
+            {t('dash.reviewGrant')}
           </button>
         </div>
       )}
 
-      {/* Hero Profile Banner */}
-      <div className="glass-card p-6 sm:p-8 border-slate-200 relative overflow-hidden bg-white shadow-sm">
+      {/* ── Hero Profile Banner (dark card) ── */}
+      <div className="card-dark p-7 sm:p-9">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 p-0.5 shadow-sm flex items-center justify-center shrink-0">
-              <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center font-bold text-xl text-teal-600">
-                {patient?.name?.charAt(0) || 'P'}
-              </div>
+          <div>
+            <p className="text-[#888] text-sm font-medium mb-1">
+              {formatDate(new Date(), { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                {patient?.name || user?.name}
+              </h1>
+              <IdentityBadge id={patient?.patientId || user?.publicId || ''} type="PATIENT" size="md" showLabel={false} />
             </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{patient?.name}</h1>
-                <IdentityBadge id={patient?.patientId || user?.publicId || ''} type="PATIENT" size="md" showLabel={false} />
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <div className="flex items-center gap-1.5 text-[#aaa]">
+                <Droplets className="w-4 h-4 text-[#f87171]" />
+                <span className="text-white font-bold">{patient?.bloodGroup || 'Unknown'}</span>
+                <span className="text-[#777]">{t('dash.bloodGroup')}</span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
-                <span>Blood Group: <strong className="text-rose-600 font-mono font-bold">{patient?.bloodGroup || 'UNKNOWN'}</strong></span>
-                <span>•</span>
-                <span>Gender: <strong className="text-slate-800 font-semibold">{patient?.gender || 'Unspecified'}</strong></span>
-                {patient?.emergencyContact && (
-                  <>
-                    <span>•</span>
-                    <span className="text-rose-700 font-medium">
-                      Emergency: {patient.emergencyContact.name} ({patient.emergencyContact.phone})
-                    </span>
-                  </>
-                )}
+              <div className="flex items-center gap-1.5 text-[#aaa]">
+                <User className="w-4 h-4 text-[#5eead4]" />
+                <span className="text-white font-semibold">{t('gender.' + (patient?.gender || 'OTHER'), patient?.gender || 'Unspecified')}</span>
               </div>
+              {patient?.emergencyContact && (
+                <div className="text-[#f87171] text-xs font-medium">
+                  {t('common.emergencyPrefix')} {patient.emergencyContact.name} · {patient.emergencyContact.phone}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <button
               onClick={() => setIsPermissionsOpen(true)}
-              className="px-3.5 py-2.5 bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
             >
-              <Shield className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Doctor Permissions {approvedCount > 0 ? `(${approvedCount})` : ''}</span>
+              <Shield className="w-3.5 h-3.5 text-[#5eead4]" />
+              {t('dash.permissions')} {approvedCount > 0 ? `(${approvedCount})` : ''}
             </button>
             <button
               onClick={() => setIsUploadOpen(true)}
-              className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2"
+              className="px-4 py-2.5 bg-[#5eead4] hover:bg-[#4dd6c0] text-[#111] font-bold text-xs rounded-xl transition-all flex items-center gap-2"
             >
               <UploadCloud className="w-4 h-4" />
-              <span>Upload Record</span>
+              {t('dash.uploadRecord')}
             </button>
             <button
               onClick={() => setIsAllergyOpen(true)}
-              className="px-3.5 py-2.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Allergy</span>
+              <Plus className="w-3.5 h-3.5 text-[#f87171]" />
+              {t('dash.addAllergy')}
             </button>
             <button
               onClick={() => setIsMedicationOpen(true)}
-              className="px-3.5 py-2.5 bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+              className="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Medication</span>
+              <Plus className="w-3.5 h-3.5 text-[#5eead4]" />
+              {t('dash.addMedication')}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Critical Information Summary Cards */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* 1. Allergies */}
-        <div className="glass-card p-6 border-rose-200 bg-white relative shadow-sm">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-rose-100">
-            <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
-              <AlertTriangle className="w-4 h-4 text-rose-600" />
-              <span>Allergies ({critical?.allergies?.length || 0})</span>
+      {/* ── Critical Information: 3-col ── */}
+      <div className="grid md:grid-cols-5 gap-4">
+
+        {/* Allergies */}
+        <div className="md:col-span-2 glass-card p-6 border-l-4 border-[#be3b2f]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#fdecea] flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-[#be3b2f]" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-[#111]">{t('dash.allergies')}</h2>
+                <p className="text-[11px] text-[#999]">{critical?.allergies?.length || 0} {t('dash.recorded')}</p>
+              </div>
             </div>
             <button
               onClick={() => setIsAllergyOpen(true)}
-              className="p-1 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+              className="w-7 h-7 rounded-xl bg-[#fdecea] flex items-center justify-center hover:bg-[#fbd5d1] transition-colors"
               title="Add Allergy"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5 text-[#be3b2f]" />
             </button>
           </div>
 
           {critical?.allergies && critical.allergies.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {critical.allergies.map((allergy: any, idx: number) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-rose-50/60 border border-rose-200/80 flex items-start justify-between"
+                  className="p-3 rounded-xl bg-[#fdecea]/60 flex items-start justify-between gap-2"
                 >
                   <div>
-                    <div className="text-xs font-bold text-slate-900">{allergy.substance}</div>
-                    {allergy.notes && <div className="text-[11px] text-slate-500 mt-0.5">{allergy.notes}</div>}
+                    <div className="text-xs font-bold text-[#111]">{t('allergy.' + allergy.substance, allergy.substance)}</div>
+                    {allergy.notes && <div className="text-[11px] text-[#888] mt-0.5">{allergy.notes}</div>}
                   </div>
                   <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-lg shrink-0 ${
                       allergy.severity === 'LIFE_THREATENING'
-                        ? 'bg-rose-600 text-white animate-pulse'
+                        ? 'bg-[#be3b2f] text-white animate-pulse'
                         : allergy.severity === 'SEVERE'
-                        ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                        : 'bg-amber-100 text-amber-800 border border-amber-200'
+                        ? 'bg-[#fbd5d1] text-[#be3b2f]'
+                        : 'bg-[#fdf0e0] text-[#c86a0a]'
                     }`}
                   >
-                    {allergy.severity}
+                    {t('severity.' + allergy.severity, allergy.severity)}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-6 text-xs text-slate-400">
-              No known allergies recorded. Click + to add.
-            </div>
+            <div className="text-center py-6 text-xs text-[#bbb]">{t('dash.noAllergies')}</div>
           )}
         </div>
 
-        {/* 2. Active Medications */}
-        <div className="glass-card p-6 border-teal-200 bg-white relative shadow-sm">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-teal-100">
-            <div className="flex items-center gap-2 text-teal-700 font-bold text-sm">
-              <Pill className="w-4 h-4 text-teal-600" />
-              <span>Active Medications ({critical?.currentMedications?.length || 0})</span>
+        {/* Active Medications */}
+        <div className="md:col-span-2 glass-card p-6 border-l-4 border-[#0c8b77]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#e3f4f0] flex items-center justify-center">
+                <Pill className="w-4 h-4 text-[#0c8b77]" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-[#111]">{t('dash.medications')}</h2>
+                <p className="text-[11px] text-[#999]">{critical?.currentMedications?.length || 0} {t('dash.active')}</p>
+              </div>
             </div>
             <button
               onClick={() => setIsMedicationOpen(true)}
-              className="p-1 text-slate-400 hover:text-teal-600 rounded-lg transition-colors"
+              className="w-7 h-7 rounded-xl bg-[#e3f4f0] flex items-center justify-center hover:bg-[#c5ebe3] transition-colors"
               title="Add Medication"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5 text-[#0c8b77]" />
             </button>
           </div>
 
           {critical?.currentMedications && critical.currentMedications.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {critical.currentMedications.map((med: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-xl bg-teal-50/60 border border-teal-200/80 flex items-start justify-between"
-                >
+                <div key={idx} className="p-3 rounded-xl bg-[#e3f4f0]/60 flex items-start justify-between gap-2">
                   <div>
-                    <div className="text-xs font-bold text-slate-900">{med.medicine}</div>
-                    <div className="text-[11px] text-teal-700 mt-0.5 font-mono">{med.dosage} • {med.frequency}</div>
+                    <div className="text-xs font-bold text-[#111]">{t('med.' + med.medicine, med.medicine)}</div>
+                    <div className="text-[11px] text-[#0c8b77] mt-0.5 font-mono">{med.dosage} · {t('freq.' + med.frequency, med.frequency)}</div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 border border-teal-300">
-                    ACTIVE
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#0c8b77] text-white shrink-0">
+                    {t('status.' + (med.status || 'ACTIVE'), 'ACTIVE')}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-6 text-xs text-slate-400">
-              No active medications recorded.
-            </div>
+            <div className="text-center py-6 text-xs text-[#bbb]">{t('dash.noMedications')}</div>
           )}
         </div>
 
-        {/* 3. Chronic Conditions */}
-        <div className="glass-card p-6 border-purple-200 bg-white relative shadow-sm">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
-            <div className="flex items-center gap-2 text-purple-700 font-bold text-sm">
-              <Activity className="w-4 h-4 text-purple-600" />
-              <span>Chronic Conditions ({critical?.chronicConditions?.length || 0})</span>
+        {/* Chronic Conditions */}
+        <div className="md:col-span-1 glass-card p-6 border-l-4 border-[#6d3ec8]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-[#f1eafb] flex items-center justify-center shrink-0">
+                <Activity className="w-4 h-4 text-[#6d3ec8]" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-sm font-bold text-[#111] truncate">{t('dash.conditions')}</h2>
+                <p className="text-[11px] text-[#999]">{critical?.chronicConditions?.length || 0} {t('dash.listed')}</p>
+              </div>
             </div>
             <button
               onClick={() => setIsConditionOpen(true)}
-              className="p-1 text-slate-400 hover:text-purple-600 rounded-lg transition-colors"
+              className="w-7 h-7 rounded-xl bg-[#f1eafb] flex items-center justify-center hover:bg-[#e0d0f8] transition-colors shrink-0"
               title="Add Condition"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5 text-[#6d3ec8]" />
             </button>
           </div>
 
           {critical?.chronicConditions && critical.chronicConditions.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {critical.chronicConditions.map((cond: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="p-3 rounded-xl bg-purple-50/60 border border-purple-200/80 flex items-start justify-between"
-                >
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">{cond.condition}</div>
-                    {cond.notes && <div className="text-[11px] text-slate-500 mt-0.5">{cond.notes}</div>}
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 border border-purple-300">
-                    {cond.status}
+                <div key={idx} className="p-3 rounded-xl bg-[#f1eafb]/60">
+                  <div className="text-xs font-bold text-[#111]">{t('cond.' + cond.condition, cond.condition)}</div>
+                  {cond.notes && <div className="text-[11px] text-[#888] mt-0.5 line-clamp-2">{cond.notes}</div>}
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#f1eafb] text-[#6d3ec8] mt-1.5 inline-block border border-[#6d3ec8]/20">
+                    {t('status.' + cond.status, cond.status)}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-6 text-xs text-slate-400">
-              No chronic conditions recorded.
-            </div>
+            <div className="text-center py-6 text-[11px] text-[#bbb]">{t('dash.noConditions')}</div>
           )}
         </div>
       </div>
 
-      {/* Active Health Paths Section */}
-      <div className="glass-card p-6 sm:p-8 border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+      {/* ── Active Health Paths ── */}
+      <div className="glass-card p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <HeartPulse className="w-5 h-5 text-teal-600" />
-              Active Health Path Treatments
+            <h2 className="text-base font-bold text-[#111] flex items-center gap-2">
+              <HeartPulse className="w-5 h-5 text-[#0c8b77]" />
+              {t('dash.activeTreatmentPlans')}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Ongoing physician-directed treatment plans and active courses
-            </p>
+            <p className="text-xs text-[#999] mt-0.5">{t('dash.activeTreatmentSubtitle')}</p>
           </div>
           <Link
             to="/patient/health-paths"
-            className="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#0c8b77] hover:text-[#0a7566] flex items-center gap-1 transition-colors"
           >
-            <span>View All Paths</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            {t('dash.viewAll')} <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {healthPaths.length > 0 ? (
           <div className="grid md:grid-cols-2 gap-4">
             {healthPaths.map((hp) => (
-              <div key={hp._id} className="p-5 rounded-2xl bg-teal-50/40 border border-teal-200/80 space-y-3">
+              <div key={hp._id} className="p-5 rounded-2xl bg-[#e3f4f0]/50 border border-[#0c8b77]/15 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">{hp.condition}</h3>
-                    <p className="text-xs text-slate-600 mt-0.5">{hp.description || 'Treatment course'}</p>
+                    <h3 className="text-sm font-bold text-[#111]">{t('cond.' + hp.condition, hp.condition)}</h3>
+                    <p className="text-xs text-[#777] mt-0.5">{hp.description || 'Treatment course'}</p>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800 border border-teal-300">
-                    ACTIVE
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#0c8b77] text-white">
+                    {t('status.' + (hp.status || 'ACTIVE'), 'ACTIVE')}
                   </span>
                 </div>
-
-                <div className="text-xs text-slate-600 flex items-center gap-4">
-                  <span>Prescribing Doctor: <strong className="text-slate-800">{hp.doctorName}</strong></span>
-                  <span>•</span>
-                  <span>Started: {new Date(hp.startDate).toLocaleDateString()}</span>
+                <div className="text-xs text-[#777] flex items-center gap-3 flex-wrap">
+                  <span>{t('common.byLabel')} <strong className="text-[#111]">Dr. {hp.doctorName}</strong></span>
+                  <span>·</span>
+                  <span>{t('common.startedLabel')} {formatDate(hp.startDate, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                 </div>
-
                 {hp.medications && hp.medications.length > 0 && (
-                  <div className="pt-2 border-t border-teal-200/60">
-                    <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-1.5">
-                      Prescribed Course Medicines:
-                    </span>
+                  <div className="pt-2 border-t border-[#0c8b77]/15">
+                    <p className="text-[10px] uppercase tracking-wider text-[#999] font-bold mb-2">{t('common.medicinesLabel')}</p>
                     <div className="flex flex-wrap gap-2">
                       {hp.medications.map((m: any, mIdx: number) => (
                         <span
                           key={mIdx}
-                          className="text-[11px] px-2.5 py-1 rounded-lg bg-white text-slate-800 border border-slate-200 font-mono shadow-xs"
+                          className="text-[11px] px-2.5 py-1 rounded-lg bg-white text-[#111] border border-[#ddd] font-mono"
                         >
-                          {m.medicine} ({m.dosage})
+                          {t('med.' + m.medicine, m.medicine)} ({m.dosage})
                         </span>
                       ))}
                     </div>
@@ -364,80 +367,108 @@ export const PatientDashboard: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 bg-slate-50 rounded-2xl border border-slate-200">
-            <CheckCircle2 className="w-8 h-8 text-teal-500 mx-auto mb-2" />
-            <p className="text-xs text-slate-700 font-semibold">No active treatment episodes at this time.</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">When a doctor creates a treatment path, it will appear here.</p>
+          <div className="text-center py-10 bg-[#f6f4f0] rounded-2xl">
+            <CheckCircle2 className="w-8 h-8 text-[#0c8b77] mx-auto mb-2" />
+            <p className="text-xs text-[#555] font-semibold">{t('dash.noTreatmentEpisodes')}</p>
+            <p className="text-[11px] text-[#999] mt-0.5">{t('dash.treatmentEpisodeHint')}</p>
           </div>
         )}
       </div>
 
-      {/* Recent Records & Timeline Quick View */}
-      <div className="glass-card p-6 sm:p-8 border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+      {/* ── Recent Records & Timeline ── */}
+      <div className="glass-card p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-teal-600" />
-              Recent Medical Timeline Events
+            <h2 className="text-base font-bold text-[#111] flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[#0c8b77]" />
+              {t('dash.recentRecords')}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Total records: <span className="text-teal-700 font-bold">{stats?.totalRecords || 0}</span>
+            <p className="text-xs text-[#999] mt-0.5">
+              {t('dash.recentRecordsSubtitle')}
             </p>
           </div>
           <Link
             to="/patient/timeline"
-            className="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-[#0c8b77] hover:text-[#0a7566] flex items-center gap-1 transition-colors"
           >
-            <span>Open Interactive Timeline</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            {t('dash.viewAllRecords')} <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {summary?.recentRecords && summary.recentRecords.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {summary.recentRecords.map((rec: any) => (
               <div
                 key={rec._id}
-                className="p-4 rounded-xl bg-slate-50/80 border border-slate-200 hover:border-teal-300 hover:bg-white transition-all flex items-center justify-between shadow-xs"
+                className="p-4 rounded-2xl bg-[#f6f4f0] hover:bg-[#f0ede7] transition-colors flex items-center justify-between"
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center shrink-0 font-bold text-xs">
+                  <div className="w-9 h-9 rounded-xl bg-[#e3f4f0] text-[#0c8b77] flex items-center justify-center shrink-0">
                     <FileText className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900">{rec.title}</h4>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
-                      <span className="text-teal-700 font-mono text-[10px] uppercase font-bold">{rec.recordType}</span>
-                      <span>•</span>
-                      <span>{new Date(rec.recordDate).toLocaleDateString()}</span>
+                    <h4 className="text-xs font-bold text-[#111]">{rec.title}</h4>
+                    <div className="text-[11px] text-[#999] flex items-center gap-2 mt-0.5">
+                      <span className="text-[#0c8b77] font-mono text-[10px] uppercase font-bold">
+                        {t('recType.' + rec.recordType, rec.recordType)}
+                      </span>
+                      <span>·</span>
+                      <span>{formatDate(rec.recordDate, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                       {rec.doctorName && (
                         <>
-                          <span>•</span>
-                          <span className="text-slate-700 font-medium">Dr. {rec.doctorName}</span>
+                          <span>·</span>
+                          <span className="text-[#555] font-medium">Dr. {rec.doctorName}</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
-
                 {rec.file && (
                   <a
                     href={getRecordFileUrl(rec._id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-bold text-teal-700 hover:text-teal-800 px-3 py-1.5 bg-white rounded-lg border border-teal-200 shadow-xs hover:shadow transition-all"
+                    className="text-xs font-bold text-[#0c8b77] hover:text-[#0a7566] px-3 py-1.5 bg-white rounded-xl border border-[#0c8b77]/25 hover:border-[#0c8b77]/50 shadow-sm transition-all"
                   >
-                    View File
+                    {t('common.viewFile')}
                   </a>
                 )}
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-xs text-slate-400">
-            No medical records uploaded yet. Click "Upload Record" to begin.
+          <div className="text-center py-10 text-xs text-[#bbb]">
+            {t('records.emptySubtitle')}
           </div>
         )}
+      </div>
+
+      {/* ── Quick Actions Row ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button onClick={() => setIsAllergyOpen(true)} className="action-tile group">
+          <div className="w-10 h-10 rounded-2xl bg-[#fdecea] flex items-center justify-center group-hover:bg-[#be3b2f] transition-colors">
+            <AlertTriangle className="w-5 h-5 text-[#be3b2f] group-hover:text-white transition-colors" />
+          </div>
+          <p className="text-xs font-bold text-[#111]">{t('dash.addAllergy')}</p>
+        </button>
+        <button onClick={() => setIsMedicationOpen(true)} className="action-tile group">
+          <div className="w-10 h-10 rounded-2xl bg-[#e3f4f0] flex items-center justify-center group-hover:bg-[#0c8b77] transition-colors">
+            <Pill className="w-5 h-5 text-[#0c8b77] group-hover:text-white transition-colors" />
+          </div>
+          <p className="text-xs font-bold text-[#111]">{t('dash.addMedication')}</p>
+        </button>
+        <button onClick={() => setIsConditionOpen(true)} className="action-tile group">
+          <div className="w-10 h-10 rounded-2xl bg-[#f1eafb] flex items-center justify-center group-hover:bg-[#6d3ec8] transition-colors">
+            <Activity className="w-5 h-5 text-[#6d3ec8] group-hover:text-white transition-colors" />
+          </div>
+          <p className="text-xs font-bold text-[#111]">{t('dash.addCondition')}</p>
+        </button>
+        <button onClick={() => setIsUploadOpen(true)} className="action-tile group">
+          <div className="w-10 h-10 rounded-2xl bg-[#e3f4f0] flex items-center justify-center group-hover:bg-[#0c8b77] transition-colors">
+            <UploadCloud className="w-5 h-5 text-[#0c8b77] group-hover:text-white transition-colors" />
+          </div>
+          <p className="text-xs font-bold text-[#111]">{t('dash.uploadRecord')}</p>
+        </button>
       </div>
 
       {/* Modals */}

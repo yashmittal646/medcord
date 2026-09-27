@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api, getRecordFileUrl } from '../../services/api.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import {
   FileText,
@@ -26,6 +27,7 @@ const typeConfig: Record<string, { label: string; color: string; Icon: any }> = 
 };
 
 export const PatientRecordsPage: React.FC = () => {
+  const { t } = useLanguage();
   const [records, setRecords] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -78,10 +80,10 @@ export const PatientRecordsPage: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <FileText className="w-5 h-5 text-teal-600" />
-            Medical Records Vault
+            {t('records.title')}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            {records.length} document{records.length !== 1 ? 's' : ''} in your secure cloud medical repository
+            {records.length} {t('records.subtitle')}
           </p>
         </div>
         <button
@@ -89,7 +91,7 @@ export const PatientRecordsPage: React.FC = () => {
           className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 hover:opacity-95 transition-all flex items-center gap-2 shrink-0"
         >
           <UploadCloud className="w-4 h-4" />
-          Upload New Record
+          {t('records.uploadBtn')}
         </button>
       </div>
 
@@ -99,7 +101,7 @@ export const PatientRecordsPage: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search records by title, doctor, facility, or tag..."
+            placeholder={t('records.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="glass-input w-full pl-9 text-sm bg-white"
@@ -112,9 +114,9 @@ export const PatientRecordsPage: React.FC = () => {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="glass-input text-xs bg-white py-2.5"
           >
-            <option value="">All Record Types</option>
-            {RECORD_TYPES.map((t) => (
-              <option key={t} value={t}>{typeConfig[t]?.label || t}</option>
+            <option value="">{t('records.allTypes')}</option>
+            {RECORD_TYPES.map((tVal) => (
+              <option key={tVal} value={tVal}>{typeConfig[tVal]?.label || tVal}</option>
             ))}
           </select>
         </div>
@@ -168,7 +170,7 @@ export const PatientRecordsPage: React.FC = () => {
 
                 {/* Date */}
                 <span className="text-xs text-slate-600 font-mono">
-                  {new Date(rec.recordDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  {new Date(rec.recordDate).toLocaleDateString()}
                 </span>
 
                 {/* Doctor / Facility */}
@@ -205,18 +207,18 @@ export const PatientRecordsPage: React.FC = () => {
       ) : (
         <div className="glass-card p-12 text-center">
           <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-semibold text-slate-800">No records found</h3>
+          <h3 className="text-sm font-semibold text-slate-800">{t('records.emptyTitle')}</h3>
           <p className="text-xs text-slate-500 mt-1">
             {searchQuery || typeFilter
               ? 'No records match your current filters.'
-              : 'Upload your first medical record to get started.'}
+              : t('records.emptySubtitle')}
           </p>
           <button
             onClick={() => setIsUploadOpen(true)}
             className="mt-4 px-4 py-2 bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 text-xs font-semibold rounded-xl transition-all inline-flex items-center gap-1.5"
           >
             <UploadCloud className="w-3.5 h-3.5" />
-            Upload First Record
+            {t('records.uploadFirst')}
           </button>
         </div>
       )}

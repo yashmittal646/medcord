@@ -1,4 +1,4 @@
-# 🏥 Medcord (Async Health Platform)
+# 🏥 MedCord (Async Health Platform)
 ### *Patient-Controlled Longitudinal Health Records & Consent-Driven Clinical Access Platform*
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -12,23 +12,24 @@
 
 ## 🌟 The Problem
 Modern electronic medical record (EMR) systems are fragmented and hospital-centric. When patients visit different clinics, specialists, or emergency rooms:
-- Medical history is trapped in disconnected databases or lost on paper.
-- Patients lack ownership and visibility over who accesses their health data.
-- Doctors make clinical decisions without full context of past allergies, medications, or lab tests.
-- In medical emergencies, first responders lose precious minutes trying to discover life-critical medical conditions.
+- Medical history is trapped in disconnected institutional silos or lost on paper.
+- Patients lack ownership and visibility over who accesses their sensitive health data.
+- Doctors make critical clinical decisions without full context of past allergies, medications, or diagnostic history.
+- In medical emergencies, first responders lose precious minutes trying to discover life-critical conditions.
 
 ---
 
-## 💡 The Solution: Medcord
-**Medcord** flips the traditional EMR paradigm by placing **the patient at the center of their healthcare data**. Patients carry a lifetime longitudinal health passport (`PAT-XXXXXX`), while doctors gain permissioned, consent-backed access to provide higher-quality, coordinated care.
+## 💡 The Solution: MedCord
+**MedCord** flips the traditional EMR paradigm by placing **the patient at the center of their healthcare data**. Patients carry a lifetime longitudinal health passport (`PAT-XXXXXX`), while doctors gain permissioned, consent-backed access to provide coordinated, high-quality care.
 
 ### 🛡️ Core Pillars:
 1. **Patient-Centric Ownership**: Patients own, manage, and view their complete medical timeline, allergies, active medications, and uploaded clinical files.
-2. **Granular Consent & Access Control**: Doctors must explicitly request access with a clinical reason. Patients can approve, deny, or revoke access at any time.
-3. **Emergency "Break-Glass" Access**: In life-threatening emergencies, verified medical personnel can instantly access vital emergency snapshots (blood group, anaphylactic allergies, active medications, emergency contacts) with a permanent security audit record.
-4. **Interactive Longitudinal Health Timeline**: Chronological, filterable visualization of a patient's lifetime consultations, prescriptions, checkups, and diagnostic reports.
-5. **Physician Care Plans ("Health Paths")**: Doctors can create structured treatment pathways for chronic condition management or recovery, allowing patients to track milestones and medications collaboratively.
-6. **Immutable Audit Trail**: Every access, download, consent grant, and emergency lookup is logged with timestamps, actor IDs, and clinical rationales for HIPAA/GDPR compliance.
+2. **Granular Consent & Access Control**: Doctors must explicitly request access with a stated clinical reason. Patients can approve, deny, or revoke access at any time.
+3. **Emergency "Break-Glass" HUD**: In life-threatening emergencies, first responders can instantly access vital triage data (blood group, anaphylactic allergies, active medications, emergency contacts) with a permanent security audit record.
+4. **Interactive Longitudinal Timeline**: Chronological, filterable visualization of a patient's lifetime consultations, prescriptions, checkups, and diagnostic reports.
+5. **Physician Care Plans ("Health Paths")**: Doctors formulate structured recovery pathways allowing patients to track milestones, habits, and medications collaboratively.
+6. **Immutable Audit Trail**: Every view, document access, consent grant, and emergency lookup is logged with timestamps, actor IDs, and clinical rationales.
+7. **Collision-Free Identity Separation**: Strict namespace separation between Patients (`PAT-XXXXXX`) and verified Doctors (`DOC-XXXXXX`) to eliminate authorization vulnerabilities.
 
 ---
 
@@ -39,7 +40,7 @@ graph TD
     Client["React + Vite Single Page App\n(Tailwind CSS, Lucide Icons)"] -->|REST API / JSON| API["Express.js API Server (TypeScript)"]
     API -->|Auth & RBAC| JWT["JWT Auth & Role-Based Middleware"]
     API -->|Validation| ZOD["Zod Request Schema Validation"]
-    API -->|Database| MONGO[("MongoDB Atlas Database")]
+    API -->|Database| MONGO[("MongoDB Database")]
     API -->|File Storage| STORAGE["Storage Service\n(Cloudinary / Local Fallback)"]
     API -->|Compliance| AUDIT["Immutable Audit Logger"]
 ```
@@ -52,17 +53,20 @@ graph TD
 ├── client/                     # Frontend Application (React + Vite + Tailwind CSS)
 │   ├── src/
 │   │   ├── components/         # Reusable UI components & modals
-│   │   │   ├── common/         # Navbar, ProtectedRoute, IdentityBadge
+│   │   │   ├── common/         # Navbar, Footer (with legal modals), ProtectedRoute, IdentityBadge
 │   │   │   ├── doctor/         # Care plan modals, Consultation modals
 │   │   │   └── patient/        # Allergy, Condition, Medication, Upload & Access modals
 │   │   ├── context/            # AuthContext (JWT session state) & ToastContext
 │   │   ├── pages/              # Role-specific dashboard & portal pages
 │   │   │   ├── auth/           # Patient & Doctor Login/Register views
-│   │   │   ├── doctor/         # Doctor Dashboard, Patient Lookup, Chart View, Health Paths
-│   │   │   ├── patient/        # Patient Dashboard, Records Vault, Timeline, Care Paths, Audit
+│   │   │   ├── doctor/         # Doctor Dashboard, Patient Lookup, Chart View, Health Paths, Emergency
+│   │   │   ├── patient/        # Patient Dashboard, Records Vault, Timeline, Care Paths, Privacy Audit
+│   │   │   ├── ContactPage.tsx # Reach Out To Us page (Direct helpline, Email, Address, Inquiry form)
 │   │   │   ├── EmergencyPage.tsx # Emergency Break-Glass portal
-│   │   │   └── LandingPage.tsx   # Landing page & feature overview
-│   │   ├── services/api.ts     # Centralized HTTP request client & helper utilities
+│   │   │   ├── FAQPage.tsx     # Searchable 6 Healthcare FAQs & Accordions
+│   │   │   ├── LandingPage.tsx # Homepage with live health card preview & on-page FAQs
+│   │   │   └── TeamPage.tsx    # Team members & project builder details
+│   │   ├── services/api.ts     # Centralized Axios HTTP client & API handlers
 │   │   └── types/              # Frontend TypeScript interfaces
 │   └── vite.config.ts          # Vite configuration with API proxy & allowed hosts
 │
@@ -90,6 +94,22 @@ graph TD
 ├── seed-demo.ts                # Comprehensive demo database seeder
 └── package.json                # Project dependencies & scripts
 ```
+
+---
+
+## 🌐 Public Routes & Navigation
+
+| Route | Description |
+|---|---|
+| `/` | Landing page with platform overview, interactive mockup demo, and FAQs |
+| `/patient/login` | Patient authentication portal |
+| `/patient/register` | Patient registration & `PAT-XXXXXX` ID generation |
+| `/doctor/login` | Doctor clinical authentication portal |
+| `/doctor/register` | Physician registration & `DOC-XXXXXX` ID verification |
+| `/emergency` | Public Emergency HUD search for first responders |
+| `/contact` | Reach out to us with direct helpline, email, and inquiry form |
+| `/team` | Project team members, architecture, and roles |
+| `/faq` | 6 interactive healthcare & consent FAQs with search filter |
 
 ---
 
@@ -156,8 +176,20 @@ npm run dev
 ---
 
 ## 🔒 Security & Compliance Design
-- **Password Hashing:** Passwords hashed with `bcryptjs` (salt rounds = 10).
-- **Stateless Authentication:** JSON Web Tokens (JWT) with configurable expiry.
+- **Password Hashing:** Passwords securely hashed with `bcryptjs` (salt rounds = 10).
+- **Stateless Authentication:** JSON Web Tokens (JWT) with configurable expiration.
 - **Role-Based Access Control (RBAC):** Strict separation between `PATIENT` and `DOCTOR` permissions.
 - **Input Sanitization & Validation:** Comprehensive Zod schemas preventing injection and malformed payloads.
 - **Audit Logging:** Every sensitive clinical access creates an unmodifiable `AuditLog` entry.
+- **Interactive Legal Modals:** In-app accessible Privacy Policy, Terms of Service, HIPAA Compliance Statement, and Security Safeguards.
+
+---
+
+## 👥 Project Team & Contact
+- **Project Founder & Lead Full-Stack Architect:** **Yash Mittal**
+- **Email:** [`yashmittal1973@gmail.com`](mailto:yashmittal1973@gmail.com)
+- **Phone:** `+91 93581 11009`
+- **GitHub:** [`https://github.com/yashmittal646/medcord`](https://github.com/yashmittal646/medcord)
+
+---
+*Built with ❤️ for Hackathon 2026 — Empowering patients with sovereign healthcare data.*

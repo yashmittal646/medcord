@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { api, getRecordFileUrl } from '../../services/api.js';
-import { Clock, Filter, Calendar, Download } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
+import { Clock, Filter, Download } from 'lucide-react';
 
 export const PatientTimelinePage: React.FC = () => {
+  const { t } = useLanguage();
   const [events, setEvents] = useState<any[]>([]);
   const [recordTypeFilter, setRecordTypeFilter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -47,10 +49,10 @@ export const PatientTimelinePage: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
             <Clock className="w-5 h-5 text-teal-600" />
-            Longitudinal Medical Timeline
+            {t('timeline.title')}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Unified chronological medical history across doctors, labs, and clinics
+            {t('timeline.subtitle')}
           </p>
         </div>
 
@@ -62,7 +64,7 @@ export const PatientTimelinePage: React.FC = () => {
             onChange={(e) => setRecordTypeFilter(e.target.value)}
             className="glass-input text-xs bg-white py-1.5"
           >
-            <option value="">All Record Types</option>
+            <option value="">{t('records.allTypes')}</option>
             <option value="PRESCRIPTION">Prescriptions</option>
             <option value="LAB_REPORT">Lab Reports</option>
             <option value="CONSULTATION">Consultations</option>
@@ -90,63 +92,42 @@ export const PatientTimelinePage: React.FC = () => {
                       {event.recordType}
                     </span>
                     <span className="text-xs text-slate-500 font-mono">
-                      {new Date(event.recordDate).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
+                      {new Date(event.recordDate).toLocaleDateString()}
                     </span>
                   </div>
 
-                  {event.hasAttachment && (
+                  {event.file && (
                     <a
                       href={getRecordFileUrl(event.id)}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors"
+                      className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1"
                     >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>{event.fileDetails?.originalName || 'Download Document'}</span>
+                      <Download className="w-3.5 h-3.5" /> Download
                     </a>
                   )}
                 </div>
 
-                <h3 className="text-base font-bold text-slate-900">{event.title}</h3>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">{event.title}</h3>
+                  {event.description && <p className="text-xs text-slate-600 mt-1 leading-relaxed">{event.description}</p>}
+                </div>
 
-                {event.diagnosis && (
-                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
-                    <strong>Diagnosis / Assessment:</strong> {event.diagnosis}
-                  </div>
-                )}
-
-                {event.description && (
-                  <p className="text-xs text-slate-600 leading-relaxed">{event.description}</p>
-                )}
-
-                <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100 flex-wrap">
                   {event.doctorName && (
-                    <span>Physician: <strong className="text-slate-800">Dr. {event.doctorName}</strong></span>
+                    <span>Doctor: <strong className="text-slate-800 font-medium">Dr. {event.doctorName}</strong></span>
                   )}
                   {event.facilityName && (
-                    <>
-                      <span>•</span>
-                      <span>Clinic: <strong className="text-slate-800">{event.facilityName}</strong></span>
-                    </>
+                    <span>Facility: <strong className="text-slate-800 font-medium">{event.facilityName}</strong></span>
                   )}
-                  <span>•</span>
-                  <span>Recorded by: {event.uploadedBy.name} ({event.uploadedBy.role})</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="glass-card p-12 text-center text-slate-500">
-          <Calendar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-semibold text-slate-800">No timeline records found</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            {recordTypeFilter ? 'No records match the selected filter.' : 'Upload prescriptions or lab reports to populate your medical timeline.'}
-          </p>
+        <div className="glass-card p-12 text-center text-slate-400 text-xs">
+          {t('timeline.empty')}
         </div>
       )}
     </div>

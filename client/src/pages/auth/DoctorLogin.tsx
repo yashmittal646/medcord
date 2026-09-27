@@ -33,9 +33,9 @@ export const DoctorLogin: React.FC = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-      <div className="glass-card max-w-md w-full p-8 relative border-emerald-200 shadow-md bg-white">
+      <div className="glass-card max-w-md w-full p-8 relative border-slate-200 shadow-lg bg-white">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-3 text-emerald-600 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center mx-auto mb-3 text-indigo-600 shadow-sm">
             <Stethoscope className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Physician Portal Sign In</h2>
@@ -54,30 +54,32 @@ export const DoctorLogin: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">Hospital / Work Email</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <div className="relative flex items-center">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="email"
                 required
                 placeholder="dr.name@hospital.org"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full glass-input pl-10 text-xs"
+                style={{ paddingLeft: '44px' }}
+                className="w-full glass-input text-xs"
               />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <div className="relative flex items-center">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="password"
                 required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full glass-input pl-10 text-xs"
+                style={{ paddingLeft: '44px' }}
+                className="w-full glass-input text-xs"
               />
             </div>
           </div>
@@ -85,7 +87,7 @@ export const DoctorLogin: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-2 py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md shadow-slate-900/20 hover:shadow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -100,7 +102,7 @@ export const DoctorLogin: React.FC = () => {
 
         <div className="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
           New physician without a Doctor ID?{' '}
-          <Link to="/doctor/register" className="text-emerald-600 font-bold hover:underline">
+          <Link to="/doctor/register" className="text-indigo-600 font-bold hover:underline">
             Register Credentials
           </Link>
         </div>

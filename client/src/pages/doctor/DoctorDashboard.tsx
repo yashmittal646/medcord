@@ -52,216 +52,218 @@ export const DoctorDashboard: React.FC = () => {
     (a) => a.action === 'DOCTOR_VIEW' || a.action === 'PATIENT_RECORD_VIEW' || a.action === 'DOCTOR_LOOKUP'
   );
 
-  const stats = [
-    {
-      label: 'Patients Accessed Today',
-      value: activity.filter((a) => {
-        const today = new Date().toDateString();
-        return new Date(a.createdAt).toDateString() === today;
-      }).length,
-      Icon: Users,
-      color: 'text-emerald-700',
-      bg: 'border-emerald-200 bg-emerald-50/70',
-    },
-    {
-      label: 'Active Health Paths',
-      value: healthPaths.length,
-      Icon: HeartPulse,
-      color: 'text-teal-700',
-      bg: 'border-teal-200 bg-teal-50/70',
-    },
-    {
-      label: 'Total Chart Lookups',
-      value: recentLookups.length,
-      Icon: Eye,
-      color: 'text-sky-700',
-      bg: 'border-sky-200 bg-sky-50/70',
-    },
-  ];
+  const todayActivity = activity.filter((a) => {
+    const today = new Date().toDateString();
+    return new Date(a.createdAt).toDateString() === today;
+  }).length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Hero Banner */}
-      <div className="glass-card p-6 sm:p-8 border-slate-200 bg-white relative overflow-hidden shadow-sm">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-5 page-enter">
+
+      {/* ── Hero Banner (dark card) ── */}
+      <div className="card-dark p-7 sm:p-9">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-500 p-0.5 shadow-sm flex items-center justify-center shrink-0">
-              <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center font-bold text-xl text-emerald-700">
-                {user?.name?.charAt(0) || 'D'}
-              </div>
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-1.5">
-                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                  Dr. {user?.name}
-                </h1>
-                <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="md" showLabel={false} />
-              </div>
-              <p className="text-xs text-slate-500">
-                Clinical Command Portal — Controlled longitudinal patient chart access & Health Paths
-              </p>
+          <div>
+            <p className="text-[#a0a0a0] text-sm font-medium mb-1">
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Welcome back, <span className="text-[#5eead4]">Dr. {user?.name}</span>
+            </h1>
+            <div className="flex items-center gap-3 mt-3">
+              <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="md" showLabel={false} />
+              <p className="text-[#888] text-xs font-medium">Clinical Command Portal · Patient Chart Access & Health Paths</p>
             </div>
           </div>
 
           {/* Quick Lookup */}
-          <form onSubmit={handleQuickLookup} className="flex gap-2 items-center">
+          <form onSubmit={handleQuickLookup} className="flex gap-2 items-center shrink-0">
             <input
               type="text"
-              placeholder="PAT-XXXXXX quick lookup"
+              placeholder="PAT-XXXXXX lookup"
               value={lookupId}
               onChange={(e) => setLookupId(e.target.value.toUpperCase())}
-              className="glass-input text-sm w-52 font-mono uppercase"
+              className="text-sm w-48 font-mono uppercase px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 outline-none focus:border-[#5eead4]/60 focus:bg-white/15 transition-all"
               id="quick-lookup-input"
             />
             <button
               type="submit"
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-sm"
+              className="px-4 py-2.5 bg-[#5eead4] hover:bg-[#4dd6c0] text-[#111] font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0"
             >
               <Search className="w-3.5 h-3.5" />
-              Lookup
+              Search
             </button>
           </form>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid sm:grid-cols-3 gap-5">
-        {stats.map(({ label, value, Icon, color, bg }) => (
-          <div key={label} className={`glass-card p-6 border ${bg} shadow-xs`}>
-            <div className="flex items-center justify-between mb-3">
-              <Icon className={`w-5 h-5 ${color}`} />
-              <span className={`text-3xl font-extrabold ${color}`}>{isLoading ? '—' : value}</span>
+      {/* ── Stat Cards Row ── */}
+      <div className="grid sm:grid-cols-3 gap-4">
+        {/* Patients Today — big dark-accent */}
+        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#0c8b77]">
+          <div className="flex items-center justify-between">
+            <div className="w-9 h-9 rounded-xl bg-[#e3f4f0] flex items-center justify-center">
+              <Users className="w-4.5 h-4.5 text-[#0c8b77]" />
             </div>
-            <p className="text-xs text-slate-700 font-bold">{label}</p>
+            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
+              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : todayActivity}
+            </span>
           </div>
-        ))}
+          <p className="text-xs font-semibold text-[#555] mt-3">Patients Accessed Today</p>
+        </div>
+
+        {/* Active Paths */}
+        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#6d3ec8]">
+          <div className="flex items-center justify-between">
+            <div className="w-9 h-9 rounded-xl bg-[#f1eafb] flex items-center justify-center">
+              <HeartPulse className="w-4.5 h-4.5 text-[#6d3ec8]" />
+            </div>
+            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
+              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : healthPaths.length}
+            </span>
+          </div>
+          <p className="text-xs font-semibold text-[#555] mt-3">Active Treatment Plans</p>
+        </div>
+
+        {/* Total Lookups */}
+        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#c86a0a]">
+          <div className="flex items-center justify-between">
+            <div className="w-9 h-9 rounded-xl bg-[#fdf0e0] flex items-center justify-center">
+              <Eye className="w-4.5 h-4.5 text-[#c86a0a]" />
+            </div>
+            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
+              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : recentLookups.length}
+            </span>
+          </div>
+          <p className="text-xs font-semibold text-[#555] mt-3">Total Chart Lookups</p>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* ── Main Content: 2 columns ── */}
+      <div className="grid lg:grid-cols-2 gap-5">
+
         {/* Recent Patient Lookups */}
-        <div className="glass-card p-6 sm:p-7 border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-600" />
-              Recent Patient Lookups
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-bold text-[#111] flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#0c8b77]" />
+              Recent Lookups
             </h2>
             <Link
               to="/doctor/lookup"
-              className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#0c8b77] hover:text-[#0a7566] flex items-center gap-1 transition-colors"
             >
               New Lookup <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
+            <div className="space-y-2.5">
+              {[1,2,3].map(i => <div key={i} className="skeleton h-14" />)}
             </div>
           ) : recentLookups.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {recentLookups.slice(0, 6).map((a: any) => (
                 <div
                   key={a._id}
-                  className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 shadow-xs"
+                  className="p-3.5 rounded-2xl bg-[#f6f4f0] hover:bg-[#f0ede7] transition-colors flex items-center justify-between gap-3"
                 >
                   <div>
-                    <p className="text-xs font-bold text-slate-800">
+                    <p className="text-xs font-semibold text-[#111]">
                       {a.description || a.details || 'Patient chart accessed'}
                     </p>
-                    <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                    <p className="text-[11px] text-[#999] font-mono mt-0.5">
                       {new Date(a.createdAt).toLocaleString()}
                     </p>
                   </div>
-                  <Eye className="w-4 h-4 text-slate-400 shrink-0" />
+                  <Eye className="w-4 h-4 text-[#bbb] shrink-0" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-xs text-slate-400">
+            <div className="text-center py-10 text-xs text-[#bbb]">
               No patient lookups yet. Use the lookup tool to access patient charts.
             </div>
           )}
         </div>
 
         {/* Active Health Paths */}
-        <div className="glass-card p-6 sm:p-7 border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <HeartPulse className="w-4 h-4 text-teal-600" />
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-bold text-[#111] flex items-center gap-2">
+              <HeartPulse className="w-4 h-4 text-[#6d3ec8]" />
               Active Treatment Plans
             </h2>
             <Link
               to="/doctor/health-paths"
-              className="text-xs font-bold text-teal-700 hover:text-teal-800 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-[#6d3ec8] hover:text-[#5d34b8] flex items-center gap-1 transition-colors"
             >
               View All <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-6 h-6 border-2 border-teal-500/20 border-t-teal-600 rounded-full animate-spin" />
+            <div className="space-y-2.5">
+              {[1,2,3].map(i => <div key={i} className="skeleton h-16" />)}
             </div>
           ) : healthPaths.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {healthPaths.slice(0, 5).map((hp: any) => (
                 <div
                   key={hp._id}
-                  className="p-3.5 rounded-xl bg-teal-50/40 border border-teal-200 flex items-start justify-between gap-3 shadow-xs"
+                  className="p-3.5 rounded-2xl bg-[#f1eafb] hover:bg-[#ebe2f8] transition-colors flex items-start justify-between gap-3"
                 >
                   <div>
-                    <p className="text-xs font-bold text-slate-900">{hp.condition}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      Patient: <span className="text-teal-700 font-mono font-bold">{hp.patientId}</span>
+                    <p className="text-xs font-bold text-[#111]">{hp.condition}</p>
+                    <p className="text-[11px] text-[#777] mt-0.5">
+                      Patient: <span className="text-[#6d3ec8] font-mono font-bold">{hp.patientId}</span>
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-300 shrink-0">
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#6d3ec8] text-white shrink-0">
                     ACTIVE
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-xs text-slate-400">
+            <div className="text-center py-10 text-xs text-[#bbb]">
               No active treatment plans. Look up a patient to create one.
             </div>
           )}
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="glass-card p-6 sm:p-7 border-slate-200 bg-white shadow-sm">
-        <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <Stethoscope className="w-4 h-4 text-emerald-600" />
+      {/* ── Quick Action Tiles ── */}
+      <div className="glass-card p-6">
+        <h2 className="text-sm font-bold text-[#111] mb-5 flex items-center gap-2">
+          <Stethoscope className="w-4 h-4 text-[#0c8b77]" />
           Quick Actions
         </h2>
         <div className="grid sm:grid-cols-3 gap-3">
-          <Link
-            to="/doctor/lookup"
-            className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100/80 transition-all text-center group shadow-xs"
-          >
-            <Search className="w-6 h-6 text-emerald-700 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-bold text-emerald-900">Look Up Patient</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Search by PAT-ID with consent</p>
+          <Link to="/doctor/lookup" className="action-tile group">
+            <div className="w-10 h-10 rounded-2xl bg-[#e3f4f0] flex items-center justify-center group-hover:bg-[#0c8b77] transition-colors">
+              <Search className="w-5 h-5 text-[#0c8b77] group-hover:text-white transition-colors" />
+            </div>
+            <p className="text-xs font-bold text-[#111]">Look Up Patient</p>
+            <p className="text-[11px] text-[#999]">Search by PAT-ID</p>
           </Link>
-          <Link
-            to="/doctor/health-paths"
-            className="p-4 rounded-xl bg-teal-50 border border-teal-200 hover:bg-teal-100/80 transition-all text-center group shadow-xs"
-          >
-            <HeartPulse className="w-6 h-6 text-teal-700 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-bold text-teal-900">Manage Health Paths</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">View active treatment plans</p>
+          <Link to="/doctor/health-paths" className="action-tile group">
+            <div className="w-10 h-10 rounded-2xl bg-[#f1eafb] flex items-center justify-center group-hover:bg-[#6d3ec8] transition-colors">
+              <HeartPulse className="w-5 h-5 text-[#6d3ec8] group-hover:text-white transition-colors" />
+            </div>
+            <p className="text-xs font-bold text-[#111]">Health Paths</p>
+            <p className="text-[11px] text-[#999]">Manage treatment plans</p>
           </Link>
-          <Link
-            to="/doctor/activity"
-            className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-all text-center group shadow-xs"
-          >
-            <Activity className="w-6 h-6 text-slate-700 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-            <p className="text-xs font-bold text-slate-900">My Access Log</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Audit trail of your chart views</p>
+          <Link to="/doctor/activity" className="action-tile group">
+            <div className="w-10 h-10 rounded-2xl bg-[#f6f4f0] flex items-center justify-center group-hover:bg-[#111] transition-colors">
+              <Activity className="w-5 h-5 text-[#555] group-hover:text-white transition-colors" />
+            </div>
+            <p className="text-xs font-bold text-[#111]">Access Log</p>
+            <p className="text-[11px] text-[#999]">Audit trail of chart views</p>
           </Link>
         </div>
       </div>
+
     </div>
   );
 };

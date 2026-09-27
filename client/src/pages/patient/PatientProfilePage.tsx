@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 import { AllergyModal } from '../../components/patient/AllergyModal.js';
 import { ConditionModal } from '../../components/patient/ConditionModal.js';
 import { MedicationModal } from '../../components/patient/MedicationModal.js';
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 
 export const PatientProfilePage: React.FC = () => {
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -116,10 +118,10 @@ export const PatientProfilePage: React.FC = () => {
       <div className="glass-card p-6 border-slate-200/90">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <User className="w-5 h-5 text-teal-600" />
-          Medical Profile & Health Passport
+          {t('profile.title')}
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Manage your baseline health information, emergency contact, allergies, chronic conditions, and active medications.
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -127,13 +129,13 @@ export const PatientProfilePage: React.FC = () => {
       <div className="glass-card p-6 border-slate-200/90 space-y-5">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2 pb-2 border-b border-slate-100">
           <User className="w-4 h-4 text-teal-600" />
-          Basic Clinical Information
+          {t('profile.basicInfo')}
         </h2>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-              Blood Group
+              {t('profile.bloodGroup')}
             </label>
             <select
               value={editData.bloodGroup}
@@ -149,7 +151,7 @@ export const PatientProfilePage: React.FC = () => {
 
           <div>
             <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-              Gender
+              {t('profile.gender')}
             </label>
             <select
               value={editData.gender}
@@ -157,9 +159,9 @@ export const PatientProfilePage: React.FC = () => {
               className="glass-input w-full text-sm bg-white"
             >
               <option value="">Prefer not to say</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
+              <option value="MALE">{t('profile.male')}</option>
+              <option value="FEMALE">{t('profile.female')}</option>
+              <option value="OTHER">{t('profile.other')}</option>
             </select>
           </div>
         </div>
@@ -167,11 +169,11 @@ export const PatientProfilePage: React.FC = () => {
         {/* Emergency Contact */}
         <div className="pt-4 border-t border-slate-100">
           <h3 className="text-xs font-bold text-rose-600 flex items-center gap-2 mb-4">
-            <Phone className="w-3.5 h-3.5" /> Emergency Contact
+            <Phone className="w-3.5 h-3.5" /> {t('profile.emergencyContact')}
           </h3>
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Name</label>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.name')}</label>
               <input
                 type="text"
                 placeholder="Full name"
@@ -181,7 +183,7 @@ export const PatientProfilePage: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Phone</label>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.phone')}</label>
               <input
                 type="tel"
                 placeholder="+91 XXXXXXXXXX"
@@ -191,7 +193,7 @@ export const PatientProfilePage: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Relation</label>
+              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.relation')}</label>
               <input
                 type="text"
                 placeholder="e.g. Spouse, Parent"
@@ -210,7 +212,7 @@ export const PatientProfilePage: React.FC = () => {
             className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 hover:opacity-95 transition-all flex items-center gap-2 disabled:opacity-60"
           >
             <Save className="w-3.5 h-3.5" />
-            {isSaving ? 'Saving...' : 'Save Profile'}
+            {isSaving ? 'Saving...' : t('profile.save')}
           </button>
           {saveMsg && <span className="text-xs text-emerald-600 font-semibold">{saveMsg}</span>}
         </div>
@@ -221,13 +223,13 @@ export const PatientProfilePage: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-100">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-500" />
-            Allergies ({profile?.allergies?.length || 0})
+            {t('profile.allergiesTitle')} ({profile?.allergies?.length || 0})
           </h2>
           <button
             onClick={() => { setEditAllergy(null); setIsAllergyOpen(true); }}
             className="px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Allergy
+            <Plus className="w-3.5 h-3.5" /> {t('profile.addBtn')}
           </button>
         </div>
 
@@ -260,7 +262,7 @@ export const PatientProfilePage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-400 text-center py-4">No known allergies recorded.</p>
+          <p className="text-xs text-slate-400 text-center py-4">{t('profile.noAllergies')}</p>
         )}
       </div>
 
@@ -269,13 +271,13 @@ export const PatientProfilePage: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-100">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <Activity className="w-4 h-4 text-sky-600" />
-            Chronic Conditions ({profile?.chronicConditions?.length || 0})
+            {t('profile.conditionsTitle')} ({profile?.chronicConditions?.length || 0})
           </h2>
           <button
             onClick={() => { setEditCondition(null); setIsConditionOpen(true); }}
             className="px-3 py-1.5 bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Condition
+            <Plus className="w-3.5 h-3.5" /> {t('profile.addConditionBtn')}
           </button>
         </div>
 
@@ -303,7 +305,7 @@ export const PatientProfilePage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-400 text-center py-4">No chronic conditions recorded.</p>
+          <p className="text-xs text-slate-400 text-center py-4">{t('profile.noConditions')}</p>
         )}
       </div>
 
@@ -312,13 +314,13 @@ export const PatientProfilePage: React.FC = () => {
         <div className="flex items-center justify-between pb-2 border-b border-slate-100">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
             <Pill className="w-4 h-4 text-teal-600" />
-            Current Medications ({profile?.currentMedications?.length || 0})
+            {t('profile.medicationsTitle')} ({profile?.currentMedications?.length || 0})
           </h2>
           <button
             onClick={() => { setEditMedication(null); setIsMedicationOpen(true); }}
             className="px-3 py-1.5 bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" /> Add Medication
+            <Plus className="w-3.5 h-3.5" /> {t('profile.addMedicationBtn')}
           </button>
         </div>
 
@@ -352,7 +354,7 @@ export const PatientProfilePage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-slate-400 text-center py-4">No active medications recorded.</p>
+          <p className="text-xs text-slate-400 text-center py-4">{t('profile.noMedications')}</p>
         )}
       </div>
 
