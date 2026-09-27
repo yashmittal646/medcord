@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: medcord
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: UPLOAD_STORAGE_TYPE
+        value: cloudinary
+      - key: MAX_FILE_SIZE_MB
+        value: "10"
+      - key: VITE_GEMINI_API_KEY
+        sync: false

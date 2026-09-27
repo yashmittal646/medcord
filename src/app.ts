@@ -66,10 +66,21 @@ export const createApp = (): Application => {
   app.use('/api/audit', auditRouter);
   app.use('/api/access-grants', accessGrantRoutes);
 
-  // Catch-all 404 for undefined routes
-  app.all('*', (req: Request, _res: Response, next: NextFunction) => {
-    next(new AppError(`Cannot find ${req.method} ${req.originalUrl} on this server`, 404));
-  });
+  // ─── Serve client build in production ───────────────────────
+  const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');
+  if (fs.existsSync(clientDistPath)) {
+    app.use(express.static(clientDistPath));
+
+    // Client-side routing: serve index.html for any non-API route
+    app.get('*', (_req: Request, res: Response) => {
+      res.sendFile(path.join(clientDistPath, 'index.html'));
+    });
+  } else {
+    // Catch-all 404 for undefined routes (dev mode, no client build)
+    app.all('*', (req: Request, _res: Response, next: NextFunction) => {
+      next(new AppError(`Cannot find ${req.method} ${req.originalUrl} on this server`, 404));
+    });
+  }
 
   // Central Error Handler
   app.use(errorHandler);
