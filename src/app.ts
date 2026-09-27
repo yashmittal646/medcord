@@ -1,0 +1,78 @@
+import express, { Application, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import path from 'path';
+import fs from 'fs';
+import { ENV } from './config/environment.js';
+import { requestLogger } from './middleware/requestLogger.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { AppError } from './utils/appError.js';
+import healthRouter from './routes/health.routes.js';
+import authRouter from './routes/auth.routes.js';
+import patientRouter from './routes/patient.routes.js';
+import recordRouter from './routes/record.routes.js';
+import timelineRouter from './routes/timeline.routes.js';
+import doctorRouter from './routes/doctor.routes.js';
+import healthPathRouter from './routes/healthPath.routes.js';
+import emergencyRouter from './routes/emergency.routes.js';
+import auditRouter from './routes/audit.routes.js';
+import { accessGrantRoutes } from './routes/accessGrant.routes.js';
+
+export const createApp = (): Application => {
+  const app = express();
+
+  // Ensure uploads directory exists
+  if (!fs.existsSync(ENV.UPLOAD_DIR)) {
+    fs.mkdirSync(ENV.UPLOAD_DIR, { recursive: true });
+  }
+
+  // Security Middleware
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+  }));
+
+  // CORS Middleware
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || ENV.NODE_ENV === 'development' || ENV.CORS_ORIGIN.includes('*') || ENV.CORS_ORIGIN.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Blocked by CORS policy'));
+        }
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+  );
+
+  // Request Parsers
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Logging
+  app.use(requestLogger);
+
+  // Routes
+  app.use('/api', healthRouter);
+  app.use('/api/auth', authRouter);
+  app.use('/api/patient', patientRouter);
+  app.use('/api/records', recordRouter);
+  app.use('/api/timeline', timelineRouter);
+  app.use('/api/doctor', doctorRouter);
+  app.use('/api/health-paths', healthPathRouter);
+  app.use('/api/emergency', emergencyRouter);
+  app.use('/api/audit', auditRouter);
+  app.use('/api/access-grants', accessGrantRoutes);
+
+  // Catch-all 404 for undefined routes
+  app.all('*', (req: Request, _res: Response, next: NextFunction) => {
+    next(new AppError(`Cannot find ${req.method} ${req.originalUrl} on this server`, 404));
+  });
+
+  // Central Error Handler
+  app.use(errorHandler);
+
+  return app;
+};

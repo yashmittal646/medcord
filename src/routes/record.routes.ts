@@ -1,0 +1,33 @@
+import { Router } from 'express';
+import { RecordController } from '../controllers/record.controller.js';
+import { authenticateToken } from '../middleware/auth.js';
+import { upload } from '../utils/fileUpload.js';
+import { validateRequest } from '../middleware/validate.js';
+import { createMedicalRecordSchema } from '../validators/record.validator.js';
+
+const router = Router();
+
+// Protect all record endpoints with JWT authentication
+router.use(authenticateToken);
+
+// Upload a new medical record (with optional multipart document attachment)
+router.post(
+  '/upload',
+  upload.single('file'),
+  validateRequest(createMedicalRecordSchema),
+  RecordController.uploadRecord
+);
+
+// Get medical records for a patient (with filtering and pagination)
+router.get('/', RecordController.getRecords);
+
+// Get a single medical record details
+router.get('/:id', RecordController.getRecordById);
+
+// Securely view/download the attached medical file
+router.get('/:id/download', RecordController.downloadRecordFile);
+
+// Delete a medical record
+router.delete('/:id', RecordController.deleteRecord);
+
+export default router;

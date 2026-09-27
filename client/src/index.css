@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#F8FAFC] text-slate-800 antialiased;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(20, 184, 166, 0.07) 0px, transparent 45%),
+      radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 40%),
+      radial-gradient(at 50% 100%, rgba(240, 253, 250, 0.8) 0px, transparent 100%);
+    background-attachment: fixed;
+  }
+
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  /* Clean, Positive Light Cards */
+  .glass-card {
+    @apply bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)] rounded-2xl;
+  }
+  .glass-card-hover {
+    @apply glass-card hover:border-teal-300 hover:shadow-[0_8px_30px_-6px_rgba(20,184,166,0.12)] transition-all duration-300;
+  }
+
+  /* Clean Crisp Form Inputs */
+  .glass-input {
+    @apply bg-white border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-2.5 outline-none transition-all duration-200 shadow-sm;
+  }
+
+  /* Positive Vibrant Text Gradients */
+  .gradient-text-cyan {
+    @apply bg-gradient-to-r from-teal-600 via-cyan-600 to-sky-600 bg-clip-text text-transparent;
+  }
+  .gradient-text-rose {
+    @apply bg-gradient-to-r from-rose-600 to-amber-600 bg-clip-text text-transparent;
+  }
+  .gradient-text-emerald {
+    @apply bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent;
+  }
+
+  /* Soft Ambient Glows for Badges & Buttons */
+  .shadow-glow-cyan {
+    box-shadow: 0 4px 20px rgba(13, 148, 136, 0.25);
+  }
+  .shadow-glow-emerald {
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.25);
+  }
+  .shadow-glow-rose {
+    box-shadow: 0 4px 20px rgba(225, 29, 72, 0.2);
+  }
+
+  /* Animated Subtle Pulses */
+  .glow-pulse-cyan {
+    animation: glowCyan 2.5s ease-in-out infinite;
+  }
+  .glow-pulse-emerald {
+    animation: glowEmerald 2.5s ease-in-out infinite;
+  }
+
+  /* Skeleton Loader */
+  .skeleton {
+    @apply bg-slate-100 animate-pulse rounded-xl;
+  }
+
+  /* Page Section Transition */
+  .page-enter {
+    animation: pageEnter 0.35s ease-out forwards;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes glowCyan {
+  0%, 100% { box-shadow: 0 0 10px rgba(13, 148, 136, 0.15); }
+  50% { box-shadow: 0 0 24px rgba(13, 148, 136, 0.35); }
+}
+@keyframes glowEmerald {
+  0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.15); }
+  50% { box-shadow: 0 0 24px rgba(16, 185, 129, 0.35); }
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Custom Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Date input picker styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: opacity(0.6);
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: opacity(0.9);
+}
+
+/* Print styles for Emergency HUD */
+@media print {
+  nav, .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .glass-card { border: 1px solid #ccc !important; background: white !important; box-shadow: none !important; }
+  .gradient-text-cyan, .gradient-text-emerald { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+}
