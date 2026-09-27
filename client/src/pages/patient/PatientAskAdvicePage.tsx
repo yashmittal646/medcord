@@ -37,7 +37,7 @@ const SPEECH_LANG_MAP: Record<LangCode, string> = {
 
 function getSystemInstruction(langCode: LangCode): string {
   const langName = LANGUAGE_NAMES[langCode] || 'English';
-  return `You are MedCord Health Advisor, a helpful and empathetic medical advisor embedded in the MedCord patient portal. Your goal is to guide patients with clear, practical, and easily understandable health information.
+  return `You are FollowUp Health Advisor, a helpful and empathetic medical advisor embedded in the FollowUp patient portal. Your goal is to guide patients with clear, practical, and easily understandable health information.
 
 CRITICAL LANGUAGE & COMMUNICATION RULES:
 1. Converse naturally in ${langName} (${langCode}).

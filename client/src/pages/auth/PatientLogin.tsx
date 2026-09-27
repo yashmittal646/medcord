@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
-import { HeartPulse, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 
 export const PatientLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -38,12 +38,17 @@ export const PatientLogin: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="glass-card max-w-md w-full p-8 relative border-slate-200 shadow-lg bg-white">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3 text-blue-600 shadow-sm">
-            <HeartPulse className="w-6 h-6" />
+          <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
+            <img
+              src="/logo.png"
+              alt="FollowUp Logo"
+              className="w-full h-full"
+              style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
+            />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Patient Sign In</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Access your longitudinal medical records & active treatments
+            Access your longitudinal medical records on <span className="font-semibold text-slate-700">FollowUp</span>
           </p>
         </div>
 

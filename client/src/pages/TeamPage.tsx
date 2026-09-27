@@ -8,11 +8,11 @@ export const TeamPage: React.FC = () => {
       name: 'Yash Mittal',
       role: 'Project Founder & Lead Full-Stack Architect',
       tag: 'Core Creator',
-      bio: 'Architected the core MedCord engine: patient-controlled consent protocol, collision-resistant identifier namespace (PAT-/DOC-), longitudinal timeline indexing, and real-time clinical audit ledgers.',
+      bio: 'Architected the core FollowUp engine: patient-controlled consent protocol, collision-resistant identifier namespace (PAT-/DOC-), longitudinal timeline indexing, and real-time clinical audit ledgers.',
       skills: ['TypeScript', 'Node.js / Express', 'React & Tailwind', 'Distributed State', 'Health Tech Security'],
       email: 'yashmittal1973@gmail.com',
       phone: '+91 93581 11009',
-      github: 'https://github.com/yashmittal646/medcord',
+      github: 'https://github.com/yashmittal646/FollowUp',
       avatarBg: 'bg-blue-600',
     },
     {
@@ -23,7 +23,7 @@ export const TeamPage: React.FC = () => {
       skills: ['HIPAA Safeguards', 'Clinical Workflow', 'Emergency Triage HUD', 'Medical Data Privacy'],
       email: 'yashmittal1973@gmail.com',
       phone: '+91 93581 11009',
-      github: 'https://github.com/yashmittal646/medcord',
+      github: 'https://github.com/yashmittal646/FollowUp',
       avatarBg: 'bg-indigo-600',
     },
   ];
@@ -36,7 +36,7 @@ export const TeamPage: React.FC = () => {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200 mb-4">
             <Users className="w-3.5 h-3.5 text-blue-600" />
-            The Minds Behind MedCord
+            The Minds Behind FollowUp
           </div>
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight mb-4">
             Meet the <span className="text-blue-600">Team</span>
@@ -115,13 +115,13 @@ export const TeamPage: React.FC = () => {
               Built with purpose for next-gen healthcare
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              MedCord was developed to solve real-world healthcare fragmentation. Our open-source platform replaces siloed hospital databases with patient-sovereign cryptographic records.
+              FollowUp was developed to solve real-world healthcare fragmentation. Our open-source platform replaces siloed hospital databases with patient-sovereign cryptographic records.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full md:w-auto">
             <a
-              href="https://github.com/yashmittal646/medcord"
+              href="https://github.com/yashmittal646/FollowUp"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs bg-white text-slate-900 hover:bg-slate-100 transition-all shadow-sm"

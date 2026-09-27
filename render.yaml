@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: medcord
+    name: followup
     runtime: node
     region: oregon
     plan: free

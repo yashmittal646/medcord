@@ -44,13 +44,18 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-2xl bg-slate-900 flex items-center justify-center">
-              <HeartPulse className="w-4.5 h-4.5 text-blue-400" />
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl overflow-hidden bg-black flex items-center justify-center">
+              <img
+                src="/logo.png"
+                alt="FollowUp"
+                className="w-full h-full"
+                style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
+              />
             </div>
             <div>
-              <span className="text-base font-extrabold tracking-tight text-slate-900 flex items-center gap-1">
-                Med<span className="text-blue-600">Cord</span>
+              <span className="text-base font-extrabold tracking-tight text-slate-900 flex items-center gap-0.5">
+                Follow<span className="text-blue-600">Up</span>
               </span>
               <span className="hidden sm:block text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
                 Medical Records Platform

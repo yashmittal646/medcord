@@ -180,7 +180,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Subtitle */}
             <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-8 font-normal">
-              MedCord brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.
+              FollowUp brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.
             </p>
 
             {/* Action buttons */}
@@ -821,14 +821,14 @@ export const LandingPage: React.FC = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
-            Learn how MedCord keeps your healthcare records safe, universal, and strictly consent-controlled.
+            Learn how FollowUp keeps your healthcare records safe, universal, and strictly consent-controlled.
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4 mb-8">
           {[
             {
-              q: 'How does patient-controlled consent work on MedCord?',
+              q: 'How does patient-controlled consent work on FollowUp?',
               a: 'You own and hold your records. When a doctor wants to view your charts, they must submit a request with a clinical reason. You approve or deny instantly, and can revoke access anytime with one click.',
             },
             {

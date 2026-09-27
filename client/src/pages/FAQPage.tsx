@@ -13,14 +13,14 @@ const faqsData: FAQItem[] = [
   {
     id: 1,
     category: 'Consent & Privacy',
-    question: 'How does patient-controlled consent work on MedCord?',
-    answer: 'Traditional hospital systems store medical records in closed institutional databases. On MedCord, you own and hold your records. When a doctor wants to review your medical history or consultation chart, they must submit an access request specifying their clinical reason. You receive an instant alert to approve or deny the request. Furthermore, you can revoke any doctor’s access at any point in the future with a single click.',
+    question: 'How does patient-controlled consent work on FollowUp?',
+    answer: 'Traditional hospital systems store medical records in closed institutional databases. On FollowUp, you own and hold your records. When a doctor wants to review your medical history or consultation chart, they must submit an access request specifying their clinical reason. You receive an instant alert to approve or deny the request. Furthermore, you can revoke any doctor’s access at any point in the future with a single click.',
   },
   {
     id: 2,
     category: 'Identity System',
     question: 'What is the difference between my PAT-ID and a doctor’s DOC-ID?',
-    answer: 'MedCord utilizes strictly separated identifier namespaces: Patients receive a unique collision-resistant PAT-XXXXXX ID (e.g. PAT-A3F92B), which is safe to share with clinicians and emergency personnel. Doctors receive a verified DOC-XXXXXX credential upon clinical verification. Because these two namespaces never overlap, a patient credential can never accidentally gain doctor privileges, guaranteeing zero cross-portal authorization vulnerabilities.',
+    answer: 'FollowUp utilizes strictly separated identifier namespaces: Patients receive a unique collision-resistant PAT-XXXXXX ID (e.g. PAT-A3F92B), which is safe to share with clinicians and emergency personnel. Doctors receive a verified DOC-XXXXXX credential upon clinical verification. Because these two namespaces never overlap, a patient credential can never accidentally gain doctor privileges, guaranteeing zero cross-portal authorization vulnerabilities.',
   },
   {
     id: 3,
@@ -32,7 +32,7 @@ const faqsData: FAQItem[] = [
     id: 4,
     category: 'Access & Security',
     question: 'Can doctors view or download my medical records without my permission?',
-    answer: 'No. MedCord enforces cryptographic and database-level role-based access control (RBAC). A doctor cannot query or decrypt your prescriptions, lab reports, or diagnostic images unless there is an active, valid consent grant recorded in the system. Every attempt to access a chart without active consent is strictly blocked and logged.',
+    answer: 'No. FollowUp enforces cryptographic and database-level role-based access control (RBAC). A doctor cannot query or decrypt your prescriptions, lab reports, or diagnostic images unless there is an active, valid consent grant recorded in the system. Every attempt to access a chart without active consent is strictly blocked and logged.',
   },
   {
     id: 5,
@@ -44,7 +44,7 @@ const faqsData: FAQItem[] = [
     id: 6,
     category: 'Data Protection',
     question: 'How is my medical data encrypted and protected?',
-    answer: 'All data on MedCord is encrypted in transit using TLS 1.3 and encrypted at rest using industry-standard AES-256 encryption. We adhere to strict HIPAA technical standards. Furthermore, MedCord never sells, rents, or monetizes patient data with third parties or advertisers.',
+    answer: 'All data on FollowUp is encrypted in transit using TLS 1.3 and encrypted at rest using industry-standard AES-256 encryption. We adhere to strict HIPAA technical standards. Furthermore, FollowUp never sells, rents, or monetizes patient data with third parties or advertisers.',
   },
 ];
 

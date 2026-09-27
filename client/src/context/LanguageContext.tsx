@@ -879,8 +879,8 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'medcord_language';
-const PICKER_SHOWN_KEY = 'medcord_lang_picker_shown';
+const STORAGE_KEY = 'FollowUp_language';
+const PICKER_SHOWN_KEY = 'FollowUp_lang_picker_shown';
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState<LangCode>(() => {

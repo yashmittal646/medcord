@@ -50,7 +50,7 @@ export const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
             {t('lang.title') || 'Choose Your Language'}
           </h2>
           <p className="text-xs text-blue-100 mt-1 max-w-xs mx-auto">
-            {t('lang.subtitle') || 'Select your preferred language for the MedCord portal'}
+            {t('lang.subtitle') || 'Select your preferred language for the FollowUp portal'}
           </p>
         </div>
 

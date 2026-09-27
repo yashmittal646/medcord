@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
-import { Mail, Lock, User, Phone, ShieldCheck, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const PatientRegister: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -96,12 +96,17 @@ export const PatientRegister: React.FC = () => {
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="glass-card max-w-lg w-full p-8 relative border-slate-200 shadow-lg bg-white">
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-3 text-blue-600 shadow-sm">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
+            <img
+              src="/logo.png"
+              alt="FollowUp Logo"
+              className="w-full h-full"
+              style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
+            />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">Create Patient Account</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Receive your permanent <span className="font-mono text-blue-700 font-bold">PAT-XXXXXXXX</span> identifier
+            Join <span className="font-semibold text-slate-700">FollowUp</span> and receive your permanent <span className="font-mono text-blue-700 font-bold">PAT-XXXXXXXX</span> identifier
           </p>
         </div>
 

@@ -77,7 +77,7 @@ export const ContactPage: React.FC = () => {
             <div>
               <div className="text-xs font-semibold text-slate-500 mb-1">Communication address</div>
               <div className="text-base font-bold text-slate-900 mb-1.5">
-                MedCord Health Innovation Labs
+                FollowUp Health Innovation Labs
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Tech Hub, Innovation Corridor, Bengaluru - 560102, India
@@ -107,7 +107,7 @@ export const ContactPage: React.FC = () => {
         <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h3 className="text-2xl font-bold text-slate-900">Send us a message</h3>
-            <p className="text-xs text-slate-500 mt-1">Have a question about MedCord or clinical integration? Drop us a note.</p>
+            <p className="text-xs text-slate-500 mt-1">Have a question about FollowUp or clinical integration? Drop us a note.</p>
           </div>
 
           {isSubmitted ? (

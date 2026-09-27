@@ -1,4 +1,4 @@
-# 🏥 MedCord (Async Health Platform)
+# 🏥 FollowUp (Health Platform)
 ### *Patient-Controlled Longitudinal Health Records & Consent-Driven Clinical Access Platform*
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -19,8 +19,8 @@ Modern electronic medical record (EMR) systems are fragmented and hospital-centr
 
 ---
 
-## 💡 The Solution: MedCord
-**MedCord** flips the traditional EMR paradigm by placing **the patient at the center of their healthcare data**. Patients carry a lifetime longitudinal health passport (`PAT-XXXXXX`), while doctors gain permissioned, consent-backed access to provide coordinated, high-quality care.
+## 💡 The Solution: FollowUp
+**FollowUp** flips the traditional EMR paradigm by placing **the patient at the center of their healthcare data**. Patients carry a lifetime longitudinal health passport (`PAT-XXXXXX`), while doctors gain permissioned, consent-backed access to provide coordinated, high-quality care.
 
 ### 🛡️ Core Pillars:
 1. **Patient-Centric Ownership**: Patients own, manage, and view their complete medical timeline, allergies, active medications, and uploaded clinical files.

@@ -35,11 +35,16 @@ export const Footer: React.FC = () => {
             {/* Column 1: Brand & Mission (2 cols on lg) */}
             <div className="sm:col-span-2 lg:col-span-2 flex flex-col gap-4">
               <Link to="/" className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-slate-900 text-blue-400 flex items-center justify-center shadow-sm">
-                  <HeartPulse className="w-5 h-5" />
+                <div className="w-9 h-9 rounded-xl overflow-hidden bg-black flex items-center justify-center">
+                  <img
+                    src="/logo.png"
+                    alt="FollowUp"
+                    className="w-full h-full"
+                    style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
+                  />
                 </div>
                 <span className="text-xl font-black text-slate-900 tracking-tight">
-                  Med<span className="text-blue-600">Cord</span>
+                  Follow<span className="text-blue-600">Up</span>
                 </span>
               </Link>
               
@@ -212,7 +217,7 @@ export const Footer: React.FC = () => {
           {/* Bottom Bar */}
           <div className="mt-12 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <div>
-              © 2026 MedCord Health Platform. All rights reserved.
+              © 2026 FollowUp Health Platform. All rights reserved.
             </div>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -263,7 +268,7 @@ export const Footer: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-slate-900">
-                    {activeModal === 'privacy' && 'MedCord Privacy Policy'}
+                    {activeModal === 'privacy' && 'FollowUp Privacy Policy'}
                     {activeModal === 'terms' && 'Terms of Service'}
                     {activeModal === 'hipaa' && 'HIPAA Compliance & Security Standard'}
                     {activeModal === 'security' && 'Security Architecture & Data Protection'}
@@ -291,7 +296,7 @@ export const Footer: React.FC = () => {
 
                   <h4 className="text-sm font-bold text-slate-900 mt-2">1. Data Ownership</h4>
                   <p>
-                    All health records, lab reports, prescriptions, and clinical notes uploaded to MedCord remain the sole property of the patient. MedCord operates strictly as an encrypted custodian.
+                    All health records, lab reports, prescriptions, and clinical notes uploaded to FollowUp remain the sole property of the patient. FollowUp operates strictly as an encrypted custodian.
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">2. Explicit Doctor Consent</h4>
@@ -306,7 +311,7 @@ export const Footer: React.FC = () => {
 
                   <h4 className="text-sm font-bold text-slate-900">4. Zero Data Selling</h4>
                   <p>
-                    MedCord does not sell, rent, or trade patient health data, anonymized or otherwise, to pharmaceutical companies, insurance agencies, or advertisers.
+                    FollowUp does not sell, rent, or trade patient health data, anonymized or otherwise, to pharmaceutical companies, insurance agencies, or advertisers.
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">5. Right to Erasure</h4>
@@ -320,17 +325,17 @@ export const Footer: React.FC = () => {
                 <>
                   <h4 className="text-sm font-bold text-slate-900">1. Acceptance of Terms</h4>
                   <p>
-                    By registering an account as a Patient or Doctor on MedCord, you agree to adhere to these Terms of Service and all applicable federal and international healthcare privacy laws.
+                    By registering an account as a Patient or Doctor on FollowUp, you agree to adhere to these Terms of Service and all applicable federal and international healthcare privacy laws.
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">2. Healthcare Professional Responsibility</h4>
                   <p>
-                    Licensed clinicians accessing MedCord agree that chart access requests must strictly correspond to genuine clinical necessity. Unauthorized access or falsification of clinical justifications constitutes grounds for immediate credential revocation and regulatory reporting.
+                    Licensed clinicians accessing FollowUp agree that chart access requests must strictly correspond to genuine clinical necessity. Unauthorized access or falsification of clinical justifications constitutes grounds for immediate credential revocation and regulatory reporting.
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">3. Not a Replacement for 911 / Immediate Care</h4>
                   <p>
-                    MedCord is a longitudinal record aggregator and clinical coordination tool. In case of an acute life-threatening emergency, users must immediately contact their local emergency services (e.g. 911 / 112).
+                    FollowUp is a longitudinal record aggregator and clinical coordination tool. In case of an acute life-threatening emergency, users must immediately contact their local emergency services (e.g. 911 / 112).
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">4. Accurate Information</h4>
@@ -368,7 +373,7 @@ export const Footer: React.FC = () => {
                 <>
                   <h4 className="text-sm font-bold text-slate-900">1. Collision-Free Identifier Architecture</h4>
                   <p>
-                    MedCord utilizes distinct identity namespaces for patients (<code className="font-mono text-blue-700 bg-blue-50 px-1 py-0.5 rounded">PAT-XXXXXX</code>) and doctors (<code className="font-mono text-indigo-700 bg-indigo-50 px-1 py-0.5 rounded">DOC-XXXXXX</code>). This prevents privilege escalation or accidental cross-portal authentication.
+                    FollowUp utilizes distinct identity namespaces for patients (<code className="font-mono text-blue-700 bg-blue-50 px-1 py-0.5 rounded">PAT-XXXXXX</code>) and doctors (<code className="font-mono text-indigo-700 bg-indigo-50 px-1 py-0.5 rounded">DOC-XXXXXX</code>). This prevents privilege escalation or accidental cross-portal authentication.
                   </p>
 
                   <h4 className="text-sm font-bold text-slate-900">2. Role-Based Access Control (RBAC)</h4>
@@ -387,7 +392,7 @@ export const Footer: React.FC = () => {
                 <>
                   <h4 className="text-sm font-bold text-slate-900">1. The Consent-First Model</h4>
                   <p>
-                    Traditional Electronic Medical Records (EMRs) trap patient charts in institutional silos. MedCord shifts complete custody to the patient:
+                    Traditional Electronic Medical Records (EMRs) trap patient charts in institutional silos. FollowUp shifts complete custody to the patient:
                   </p>
                   <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
                     <li>Doctors search by public PAT-ID and must state their clinical reason.</li>
