@@ -17,6 +17,7 @@ import healthPathRouter from './routes/healthPath.routes.js';
 import emergencyRouter from './routes/emergency.routes.js';
 import auditRouter from './routes/audit.routes.js';
 import { accessGrantRoutes } from './routes/accessGrant.routes.js';
+import aiAdviceRouter from './routes/aiAdvice.routes.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -65,6 +66,7 @@ export const createApp = (): Application => {
   app.use('/api/emergency', emergencyRouter);
   app.use('/api/audit', auditRouter);
   app.use('/api/access-grants', accessGrantRoutes);
+  app.use('/api/ai', aiAdviceRouter);
 
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');

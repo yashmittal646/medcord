@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useLanguage, LangCode, LANGUAGE_NAMES } from '../../context/LanguageContext.js';
+import { useLanguage, LangCode } from '../../context/LanguageContext.js';
+import { useAuth } from '../../context/AuthContext.js';
 import {
   MessageSquareHeart,
   Send,
@@ -23,9 +24,7 @@ interface ChatMessage {
   isDisclaimer?: boolean;
 }
 
-/* ─── Gemini API helper ──────────────────────────────────────── */
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const CANDIDATE_MODELS = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+/* ─── Backend AI proxy helper ───────────────────────────────── */
 
 const SPEECH_LANG_MAP: Record<LangCode, string> = {
   en: 'en-US',
@@ -35,78 +34,33 @@ const SPEECH_LANG_MAP: Record<LangCode, string> = {
   te: 'te-IN',
 };
 
-function getSystemInstruction(langCode: LangCode): string {
-  const langName = LANGUAGE_NAMES[langCode] || 'English';
-  return `You are FollowUp Health Advisor, a helpful and empathetic medical advisor embedded in the FollowUp patient portal. Your goal is to guide patients with clear, practical, and easily understandable health information.
 
-CRITICAL LANGUAGE & COMMUNICATION RULES:
-1. Converse naturally in ${langName} (${langCode}).
-2. DO NOT use literal, artificial, or hyper-formal textbook translations. Instead, use natural, everyday "like-for-like" conversational replacements that ordinary people actually speak, hear, and understand daily in their home language.
-3. For medical or technical terms, use the familiar, everyday words that patients commonly use when talking to a local doctor or family (e.g. in Hindi: 'सिरदर्द', 'पेट दर्द', 'दवाइयाँ', 'बुखार', 'जाँच/टेस्ट', 'ब्लड प्रेशर/BP', 'आराम', 'पानी पिएं', avoiding stiff Sanskritized/archaic terms).
-4. Explain health conditions simply so any reader immediately grasps what is happening, what to look out for, and what to do next.
 
-CLINICAL INTERACTION PROTOCOL:
-1. You are an AI health advisor, NOT a licensed doctor.
-2. When the patient first asks a question or shares a symptom, greet them warmly and ask 1-2 focused, conversational follow-up questions to understand the duration, severity, and any accompanying symptoms.
-3. Once you have enough context (or if they provide full details), give structured guidance with practical tips, lifestyle remedies, and when to see a physician.
-4. BEFORE giving your final health assessment/guidance, ALWAYS include a clear, everyday medical disclaimer block at the beginning, enclosed in triple asterisks:
-***⚠️ [ज़रूरी ध्यान दें / Important Note: यह AI द्वारा दी गई सामान्य स्वास्थ्य सलाह है और असली डॉक्टर के इलाज का विकल्प नहीं है। किसी भी गंभीर परेशानी के लिए कृपया योग्य डॉक्टर से सलाह लें।]*** (translate into natural, simple ${langName})
+async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: string | null): Promise<string> {
+  if (!token) throw new Error('Not authenticated. Please log in and try again.');
 
-5. If symptoms suggest an emergency (e.g., severe chest pain, sudden paralysis/numbness, acute breathing difficulty, uncontrolled bleeding), immediately and prominently advise urgent hospital/emergency care.
-6. Never prescribe specific medication dosages or prescription-only drugs.
-7. Keep tone supportive, clear, and reassuring.`;
-}
-
-async function callGemini(messages: ChatMessage[], langCode: LangCode): Promise<string> {
-  // Build conversation history for Gemini
-  const contents = messages.map((msg) => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.content }],
-  }));
-
-  const body = {
-    system_instruction: {
-      parts: [{ text: getSystemInstruction(langCode) }],
+  const res = await fetch('/api/ai/advice', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
-    contents,
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 2048,
-    },
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-    ],
-  };
+    body: JSON.stringify({
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      langCode,
+    }),
+  });
 
-  let lastError = '';
-  for (const modelName of CANDIDATE_MODELS) {
-    try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (responseText) return responseText;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        lastError = errData?.error?.message || `Error ${res.status}`;
-      }
-    } catch (e: any) {
-      lastError = e?.message || 'Network error';
-    }
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(
+      errData?.message || `Server error ${res.status}. Please try again.`
+    );
   }
 
-  throw new Error(lastError || 'Failed to get AI advice. Please try again.');
+  const data = await res.json();
+  if (!data?.reply) throw new Error('No response received from the AI advisor.');
+  return data.reply;
 }
 
 /* ─── Markdown-light renderer ────────────────────────────────── */
@@ -199,6 +153,7 @@ function renderInline(text: string) {
 /* ─── Main Component ─────────────────────────────────────────── */
 export const PatientAskAdvicePage: React.FC = () => {
   const { lang, t } = useLanguage();
+  const { token } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -282,7 +237,7 @@ export const PatientAskAdvicePage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const reply = await callGemini(updatedMessages, lang);
+      const reply = await callAiAdvice(updatedMessages, lang, token);
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
