@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { api, getRecordFileUrl } from '../../services/api.js';
+import { api } from '../../services/api.js';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import { Clock, Filter, Download } from 'lucide-react';
 
 export const PatientTimelinePage: React.FC = () => {
   const { t } = useLanguage();
   const [events, setEvents] = useState<any[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [recordTypeFilter, setRecordTypeFilter] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -85,7 +87,10 @@ export const PatientTimelinePage: React.FC = () => {
               {/* Timeline Marker Dot */}
               <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-teal-500 group-hover:bg-teal-500 group-hover:scale-125 transition-all shadow-md shadow-teal-500/30" />
 
-              <div className="glass-card p-5 border-slate-200/80 hover:border-teal-300 hover:shadow-md transition-all space-y-3">
+              <div
+                onClick={() => setSelectedRecord(event)}
+                className="glass-card p-5 border-slate-200/80 hover:border-teal-300 hover:shadow-md transition-all space-y-3 cursor-pointer group/card"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getBadgeColor(event.recordType)}`}>
@@ -96,20 +101,19 @@ export const PatientTimelinePage: React.FC = () => {
                     </span>
                   </div>
 
-                  {event.file && (
-                    <a
-                      href={getRecordFileUrl(event.id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1"
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => setSelectedRecord(event)}
+                      className="text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2 py-1 rounded-md flex items-center gap-1 transition-colors"
                     >
-                      <Download className="w-3.5 h-3.5" /> Download
-                    </a>
-                  )}
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download / View</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{event.title}</h3>
+                  <h3 className="text-base font-bold text-slate-900 group-hover/card:text-teal-700 transition-colors">{event.title}</h3>
                   {event.description && <p className="text-xs text-slate-600 mt-1 leading-relaxed">{event.description}</p>}
                 </div>
 
@@ -130,6 +134,13 @@ export const PatientTimelinePage: React.FC = () => {
           {t('timeline.empty')}
         </div>
       )}
+
+      {/* Official Medical Prescription / Document Viewer & Download Modal */}
+      <MedicalDocumentModal
+        record={selectedRecord}
+        isOpen={!!selectedRecord}
+        onClose={() => setSelectedRecord(null)}
+      />
     </div>
   );
 };

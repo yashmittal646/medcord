@@ -194,8 +194,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
 
 /* ── Print ────────────────────────────────────────────── */
 @media print {
-  nav, .no-print { display: none !important; }
-  body { background: #fff !important; color: #000 !important; }
-  .glass-card { border: 1px solid #ccc !important; background: white !important; box-shadow: none !important; }
-  .gradient-text-cyan, .gradient-text-emerald { color: #000 !important; -webkit-text-fill-color: #000 !important; }
+  nav, header, footer, aside, .no-print, .print\:hidden { display: none !important; }
+  body { background: #fff !important; color: #000 !important; margin: 0 !important; padding: 0 !important; }
+  .glass-card { border: 1px solid #ddd !important; background: white !important; box-shadow: none !important; }
+  #printable-medical-document {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 }

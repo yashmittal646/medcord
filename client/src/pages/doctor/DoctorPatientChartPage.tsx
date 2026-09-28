@@ -4,6 +4,7 @@ import { api, getRecordFileUrl } from '../../services/api.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { CreateHealthPathModal } from '../../components/doctor/CreateHealthPathModal.js';
 import { DoctorConsultationModal } from '../../components/doctor/DoctorConsultationModal.js';
+import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import {
   AlertTriangle,
   Pill,
@@ -41,6 +42,7 @@ export const DoctorPatientChartPage: React.FC = () => {
   const [recordTypeFilter, setRecordTypeFilter] = useState<string>('ALL');
   const [isHealthPathOpen, setIsHealthPathOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
 
   const fetchChart = async () => {
     if (!patientId) return;
@@ -324,17 +326,28 @@ export const DoctorPatientChartPage: React.FC = () => {
                         {rec.facilityName && <><span>•</span><span>{rec.facilityName}</span></>}
                       </div>
                     </div>
-                    {rec.file?.url && (
-                      <a
-                        href={rec.file.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 font-bold transition-colors shrink-0"
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => setSelectedRecord(rec)}
+                        title="View & Download Prescription / Document"
+                        className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 font-bold transition-colors"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        {rec.file.originalName || 'Download'}
-                      </a>
-                    )}
+                        <span>Download / View</span>
+                      </button>
+
+                      {rec.file?.url && (
+                        <a
+                          href={rec.file.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>File</span>
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -463,6 +476,13 @@ export const DoctorPatientChartPage: React.FC = () => {
         onClose={() => setIsConsultationOpen(false)}
         onSuccess={fetchChart}
         patientId={patientId || ''}
+      />
+
+      {/* Official Medical Prescription / Document Viewer & Download Modal */}
+      <MedicalDocumentModal
+        record={selectedRecord}
+        isOpen={!!selectedRecord}
+        onClose={() => setSelectedRecord(null)}
       />
     </div>
   );

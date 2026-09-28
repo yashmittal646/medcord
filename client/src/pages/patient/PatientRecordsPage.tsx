@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { api, getRecordFileUrl } from '../../services/api.js';
+import { api } from '../../services/api.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
+import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import {
   FileText,
   UploadCloud,
@@ -14,6 +15,7 @@ import {
   ClipboardList,
   HeartPulse,
   File,
+  Eye,
 } from 'lucide-react';
 
 const RECORD_TYPES = ['PRESCRIPTION', 'LAB_REPORT', 'CONSULTATION', 'CHECKUP', 'OTHER'];
@@ -29,6 +31,7 @@ const typeConfig: Record<string, { label: string; color: string; Icon: any }> = 
 export const PatientRecordsPage: React.FC = () => {
   const { t } = useLanguage();
   const [records, setRecords] = useState<any[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
@@ -144,7 +147,8 @@ export const PatientRecordsPage: React.FC = () => {
             return (
               <div
                 key={rec._id}
-                className="grid sm:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center px-6 py-4 hover:bg-slate-50/70 transition-colors"
+                className="grid sm:grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center px-6 py-4 hover:bg-teal-50/40 transition-colors cursor-pointer group"
+                onClick={() => setSelectedRecord(rec)}
               >
                 {/* Record Title */}
                 <div className="flex items-center gap-3">
@@ -152,7 +156,9 @@ export const PatientRecordsPage: React.FC = () => {
                     <Icon className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-slate-900">{rec.title}</p>
+                    <p className="text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors flex items-center gap-1.5">
+                      {rec.title}
+                    </p>
                     {rec.tags?.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {rec.tags.map((tag: string) => (
@@ -180,18 +186,25 @@ export const PatientRecordsPage: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
-                  {rec.file && (
-                    <a
-                      href={getRecordFileUrl(rec._id)}
-                      target="_blank"
-                      rel="noreferrer"
-                      title="Download file"
-                      className="p-1.5 text-slate-500 hover:text-teal-600 rounded-lg hover:bg-slate-100 transition-colors"
-                    >
-                      <Download className="w-4 h-4" />
-                    </a>
-                  )}
+                <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                  {/* View / Download Prescription or Document */}
+                  <button
+                    onClick={() => setSelectedRecord(rec)}
+                    title="View & Download Prescription / Document"
+                    className="px-2.5 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition-colors shadow-xs"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Download</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedRecord(rec)}
+                    title="View Document Details"
+                    className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+
                   <button
                     onClick={() => handleDelete(rec._id)}
                     title="Delete record"
@@ -223,10 +236,18 @@ export const PatientRecordsPage: React.FC = () => {
         </div>
       )}
 
+      {/* Upload Modal */}
       <UploadRecordModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onSuccess={fetchRecords}
+      />
+
+      {/* Official Medical Prescription / Document Viewer & Download Modal */}
+      <MedicalDocumentModal
+        record={selectedRecord}
+        isOpen={!!selectedRecord}
+        onClose={() => setSelectedRecord(null)}
       />
     </div>
   );
