@@ -162,13 +162,35 @@ npm run dev
 
 ---
 
+## 🔑 Demo Accounts & Hackathon Showcase Credentials
+
+Pre-seeded ready-to-test accounts for judging and live demonstrations:
+
+### 🩺 Doctor Account (Physician Portal)
+- **Portal URL:** `/doctor/login`
+- **Email:** `demo.doctor@asynchealth.dev`
+- **Password:** `Demo@1234`
+- **Doctor ID:** `DOC-DEMO01`
+- **Name:** Dr. Priya Sharma
+- **Pre-loaded Access:** Has active, approved consent to view patient Arjun Mehta (`PAT-DEMO01`), active Health Paths, and clinical audit records.
+
+### 👤 Patient Account (Patient Portal)
+- **Portal URL:** `/patient/login`
+- **Email:** `demo.patient@asynchealth.dev`
+- **Password:** `Demo@1234`
+- **Patient ID:** `PAT-DEMO01`
+- **Name:** Arjun Mehta
+- **Pre-loaded Records:** Complete medical passport (Blood Group B+, Penicillin & Sulfa allergies, Hypertension & Type 2 Diabetes history, 6 medical records, active Care Pathways).
+
+---
+
 ## 🧪 Testing & Seeding Demo Data
 
 - **Run Automated E2E Test Suite:**
   ```bash
   npm test
   ```
-- **Seed Demo Data (Sample Patients, Doctors, Records & Care Paths):**
+- **Re-seed Demo Data (Sample Patients, Doctors, Records & Care Paths):**
   ```bash
   npx tsx seed-demo.ts
   ```
