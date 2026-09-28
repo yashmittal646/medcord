@@ -27,7 +27,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
-    return <Navigate to="/patient/login" state={{ from: location }} replace />;
+    const isDoctorRoute = allowedRoles?.includes('DOCTOR') || location.pathname.startsWith('/doctor');
+    const redirectPath = isDoctorRoute ? '/doctor/login' : '/patient/login';
+    return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
