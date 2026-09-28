@@ -12,12 +12,6 @@ export const DoctorLogin: React.FC = () => {
   const { login, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleFillDemo = () => {
-    setEmail('demo.doctor@asynchealth.dev');
-    setPassword('Demo@1234');
-    setError(null);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -109,15 +103,6 @@ export const DoctorLogin: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
-          </button>
-
-          {/* Quick Demo Doctor Button */}
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            className="w-full py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5"
-          >
-            <span>⚡ Use Demo Account (Dr. Priya Sharma)</span>
           </button>
         </form>
 
