@@ -9,8 +9,14 @@ export const DoctorLogin: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleFillDemo = () => {
+    setEmail('demo.doctor@asynchealth.dev');
+    setPassword('Demo@1234');
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +26,8 @@ export const DoctorLogin: React.FC = () => {
     try {
       const data = await login({ email, password });
       if (data.user.role !== 'DOCTOR') {
-        setError('This account is registered as a Patient. Please use the Patient Login portal.');
+        logout();
+        setError('This account is registered as a Patient. Please use the Patient Login portal, or sign in with verified Doctor credentials (e.g. demo.doctor@asynchealth.dev).');
         return;
       }
       navigate('/doctor/dashboard');
@@ -102,6 +109,15 @@ export const DoctorLogin: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
+          </button>
+
+          {/* Quick Demo Doctor Button */}
+          <button
+            type="button"
+            onClick={handleFillDemo}
+            className="w-full py-2.5 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs rounded-xl border border-indigo-200 transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>⚡ Use Demo Account (Dr. Priya Sharma)</span>
           </button>
         </form>
 

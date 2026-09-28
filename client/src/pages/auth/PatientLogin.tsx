@@ -9,11 +9,17 @@ export const PatientLogin: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = (location.state as any)?.from?.pathname || '/patient/dashboard';
+
+  const handleFillDemo = () => {
+    setEmail('demo.patient@asynchealth.dev');
+    setPassword('Demo@1234');
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,11 +28,12 @@ export const PatientLogin: React.FC = () => {
 
     try {
       const data = await login({ email, password });
-      if (data.user.role === 'DOCTOR') {
-        navigate('/doctor/dashboard');
-      } else {
-        navigate(from, { replace: true });
+      if (data.user.role !== 'PATIENT') {
+        logout();
+        setError('This account is registered as a Doctor. Please use the Physician Portal to sign in.');
+        return;
       }
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -105,6 +112,15 @@ export const PatientLogin: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
+          </button>
+
+          {/* Quick Demo Patient Button */}
+          <button
+            type="button"
+            onClick={handleFillDemo}
+            className="w-full py-2.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs rounded-xl border border-blue-200 transition-all flex items-center justify-center gap-1.5"
+          >
+            <span>⚡ Use Demo Account (Arjun Mehta)</span>
           </button>
         </form>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.js';
 import { api } from '../../services/api.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import {
@@ -10,9 +11,11 @@ import {
   ArrowRight,
   Loader2,
   Info,
+  UserCheck,
 } from 'lucide-react';
 
 export const DoctorPatientLookupPage: React.FC = () => {
+  const { user, logout } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [patientId, setPatientId] = useState(searchParams.get('id') || '');
@@ -108,9 +111,29 @@ export const DoctorPatientLookupPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
-            {error}
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-rose-800">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{error.includes('Role \'PATIENT\'') ? 'Authorization Role Mismatch' : error}</span>
+            </div>
+            {error.includes('Role \'PATIENT\'') ? (
+              <div className="space-y-2">
+                <p className="text-rose-700 text-[11px] leading-relaxed">
+                  Your active session is currently signed in as a <strong>Patient</strong> ({user?.name || 'Arjun Mehta'}). Patient lookup requires a verified <strong>Doctor credential</strong> (such as Dr. Priya Sharma).
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    navigate('/doctor/login');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Switch to Doctor Account (Dr. Priya Sharma)</span>
+                </button>
+              </div>
+            ) : null}
           </div>
         )}
 
