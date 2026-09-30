@@ -57,6 +57,14 @@ export const SERVER_MESSAGES = [
   tx('Medical record not found'),
   tx('Medication entry not found'),
   tx('Medication not found'),
+  // Health Tracker
+  tx('Invalid record ID'),
+  tx('Please enter a valid date that is not in the future'),
+  tx('Reading not found'),
+  tx('Add or analyse some lab results first to get insights.'),
+  tx('Please choose a test or enter its name'),
+  tx('Please enter a number'),
+  tx('Too many AI requests. Please wait a few minutes and try again.'),
   tx('Invalid medication ID'),
   tx('Access denied'),
   tx('Notification not found'),
@@ -113,6 +121,7 @@ export const SERVER_MESSAGES = [
 
 /** Messages with variable parts. `{name}` matches any text. */
 export const SERVER_TEMPLATES = [
+  tx('Please enter this value in {unit}'),
   tx("No patient found with ID '{id}'"),
   tx("Emergency lookup failed: No patient found with ID '{id}'"),
   tx("Patient with ID '{id}' not found"),

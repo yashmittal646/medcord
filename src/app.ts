@@ -22,6 +22,7 @@ import metaRouter from './routes/meta.routes.js';
 import notificationRouter from './routes/notification.routes.js';
 import { accessRequestRoutes, consentRoutes } from './routes/consent.routes.js';
 import medicationRouter from './routes/medication.routes.js';
+import healthTrackerRouter from './routes/healthTracker.routes.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -76,6 +77,7 @@ export const createApp = (): Application => {
   app.use('/api/consent', consentRoutes);
   app.use('/api/notifications', notificationRouter);
   app.use('/api/medications', medicationRouter);
+  app.use('/api/health-tracker', healthTrackerRouter);
 
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');

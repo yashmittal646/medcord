@@ -27,6 +27,7 @@ import { PatientActivityPage } from './pages/patient/PatientActivityPage.js';
 import { PatientAskAdvicePage } from './pages/patient/PatientAskAdvicePage.js';
 import { PatientPrivacyPage } from './pages/patient/PatientPrivacyPage.js';
 import { PatientMedicationsPage } from './pages/patient/PatientMedicationsPage.js';
+import { PatientHealthTrackerPage } from './pages/patient/PatientHealthTrackerPage.js';
 
 // Doctor Portal
 import { DoctorLayout }              from './components/doctor/DoctorLayout.js';
@@ -81,6 +82,7 @@ export const App: React.FC = () => {
                   <Route path="profile" element={<PatientProfilePage />} />
                   <Route path="records" element={<PatientRecordsPage />} />
                   <Route path="timeline" element={<PatientTimelinePage />} />
+                  <Route path="health-tracker" element={<PatientHealthTrackerPage />} />
                   <Route path="health-paths" element={<PatientHealthPathsPage />} />
                   <Route path="ask-advice" element={<PatientAskAdvicePage />} />
                   <Route path="privacy" element={<PatientPrivacyPage />} />

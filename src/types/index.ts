@@ -152,6 +152,11 @@ export interface IMedicalRecord extends Document {
   file?: IFileAttachment;
   tags?: string[];
   classification: IRecordClassification;
+  labExtraction?: {
+    status?: 'DONE' | 'NO_VALUES' | 'FAILED' | 'UNSUPPORTED';
+    extractedAt?: Date;
+    valueCount?: number;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { Types } from 'mongoose';
 import { MedicalRecord } from '../models/MedicalRecord.js';
+import { LabResult } from '../models/LabResult.js';
 import { User } from '../models/User.js';
 import { StorageService } from './storage.service.js';
 import { AccessGrantService } from './accessGrant.service.js';
@@ -271,6 +272,8 @@ export class RecordService {
     }
 
     await MedicalRecord.findByIdAndDelete(recordId);
+    // Values the Health Tracker read out of this report go with it
+    await LabResult.deleteMany({ record: record._id });
     await AccessPolicy.audit(
       requestingUser,
       record,

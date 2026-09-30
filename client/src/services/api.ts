@@ -181,6 +181,18 @@ export const api = {
   getTodaySchedule: () => request<any>('/medications/schedule/today'),
   getMedicationAdherence: (id: string, days = 30) => request<any>(`/medications/${id}/adherence?days=${days}`),
 
+  // ── Health Tracker (lab trends + AI insights) ─────────────────────────────
+  getHealthTracker: () => request<any>('/health-tracker'),
+  getLabCatalog: () => request<any>('/health-tracker/catalog'),
+  getLabReports: () => request<any>('/health-tracker/reports'),
+  analyzeLabReports: (recordId?: string) =>
+    request<any>('/health-tracker/extract', { method: 'POST', body: JSON.stringify(recordId ? { recordId } : {}) }),
+  addLabReading: (body: { key?: string; name?: string; value: number; unit?: string; takenAt: string }) =>
+    request<any>('/health-tracker/readings', { method: 'POST', body: JSON.stringify(body) }),
+  deleteLabReading: (id: string) => request<any>(`/health-tracker/readings/${id}`, { method: 'DELETE' }),
+  getHealthInsights: (langCode: string, refresh = false) =>
+    request<any>('/health-tracker/insights', { method: 'POST', body: JSON.stringify({ langCode, refresh }) }),
+
   // Notifications
   listNotifications: () => request<any>('/notifications'),
   markNotificationRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'POST' }),

@@ -125,6 +125,30 @@ try {
         { id: '8', date: '2024-01-01', type: 'allergy', title: 'Penicillin', description: '', status: 'Severe', critical: true },
       ],
     }],
+    // Health Tracker pieces with sample data (AI-written insight text arrives already in the patient's language)
+    HealthTrackerCard: ['/src/pages/patient/PatientHealthTrackerPage.tsx', 'ParameterCard', {
+      active: true, onSelect() {},
+      series: { key: 'VITAMIN_D', name: 'Vitamin D', group: 'VITAMINS', unit: 'ng/mL', range: { low: 30, high: 100 }, custom: false, trend: 'UP',
+        latest: { id: 'b', date: '2026-06-01', value: 24, flag: 'LOW', source: 'AI_EXTRACTED', recordTitle: 'CBC' },
+        previous: { id: 'a', date: '2026-01-01', value: 18, flag: 'LOW', source: 'MANUAL' },
+        points: [{ id: 'a', date: '2026-01-01', value: 18, flag: 'LOW', source: 'MANUAL' }, { id: 'b', date: '2026-06-01', value: 24, flag: 'LOW', source: 'AI_EXTRACTED', recordTitle: 'CBC' }] },
+    }],
+    HealthTrackerDetail: ['/src/pages/patient/PatientHealthTrackerPage.tsx', 'SeriesDetail', {
+      onDelete() {}, onAdd() {},
+      series: { key: 'HBA1C', name: 'HbA1c', group: 'DIABETES', unit: '%', range: { low: 4, high: 5.6 }, custom: false, trend: 'DOWN',
+        latest: { id: 'b', date: '2026-06-01', value: 6.1, flag: 'HIGH', source: 'AI_EXTRACTED', recordTitle: 'CBC' },
+        previous: { id: 'a', date: '2026-01-01', value: 7.2, flag: 'HIGH', source: 'MANUAL' },
+        points: [{ id: 'a', date: '2026-01-01', value: 7.2, flag: 'HIGH', source: 'MANUAL' }, { id: 'b', date: '2026-06-01', value: 6.1, flag: 'HIGH', source: 'AI_EXTRACTED', recordTitle: 'CBC' }] },
+    }],
+    HealthInsights: ['/src/components/healthTracker/InsightsPanel.tsx', 'InsightsPanel', {
+      isLoading: false, error: null, canGenerate: true, onGenerate() {},
+      insights: { summary: '…', highlights: [{ test: 'HbA1c', status: 'WATCH', insight: '…' }], eatMore: ['…'], limit: ['…'], lifestyle: ['…'], followUp: ['…'], urgent: '…', generatedAt: '2026-06-01T10:00:00Z' },
+    }],
+    HealthInsightsEmpty: ['/src/components/healthTracker/InsightsPanel.tsx', 'InsightsPanel', { insights: null, isLoading: false, error: null, canGenerate: true, onGenerate() {} }],
+    AddReadingModal: ['/src/components/healthTracker/AddReadingModal.tsx', 'AddReadingModal', {
+      isOpen: true, onClose() {}, onSaved() {}, initialKey: 'OTHER',
+      catalog: [{ key: 'GLUCOSE_FASTING', name: 'Fasting Blood Sugar', group: 'DIABETES', unit: 'mg/dL' }, { key: 'VITAMIN_B12', name: 'Vitamin B12', group: 'VITAMINS', unit: 'pg/mL' }],
+    }],
     // Dialogs, rendered open
     AllergyModal: ['/src/components/patient/AllergyModal.tsx', 'AllergyModal', { isOpen: true, onClose() {}, onSuccess() {} }],
     ConditionModal: ['/src/components/patient/ConditionModal.tsx', 'ConditionModal', { isOpen: true, onClose() {}, onSuccess() {} }],
@@ -173,6 +197,7 @@ try {
         PatientActivity: ['/src/pages/patient/PatientActivityPage.tsx', 'PatientActivityPage'],
         PatientPrivacy: ['/src/pages/patient/PatientPrivacyPage.tsx', 'PatientPrivacyPage'],
         PatientAskAdvice: ['/src/pages/patient/PatientAskAdvicePage.tsx', 'PatientAskAdvicePage'],
+        PatientHealthTracker: ['/src/pages/patient/PatientHealthTrackerPage.tsx', 'PatientHealthTrackerPage'],
       },
     },
     DOCTOR: {
