@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
-import { useLanguage } from '../../context/LanguageContext.js';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import { RecordTagsModal } from '../../components/patient/RecordTagsModal.js';
@@ -21,38 +21,41 @@ import {
   File,
   Eye,
 } from 'lucide-react';
+import { tx } from '../../i18n/index.js';
 
 const RECORD_TYPES = ['PRESCRIPTION', 'LAB_REPORT', 'CONSULTATION', 'CHECKUP', 'OTHER'];
 
 const typeConfig: Record<string, { label: string; color: string; Icon: any }> = {
-  PRESCRIPTION: { label: 'Prescription', color: 'text-teal-700 bg-teal-50 border-teal-200', Icon: ClipboardList },
-  LAB_REPORT: { label: 'Lab Report', color: 'text-sky-700 bg-sky-50 border-sky-200', Icon: FlaskConical },
-  CONSULTATION: { label: 'Consultation', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', Icon: Stethoscope },
-  CHECKUP: { label: 'Checkup', color: 'text-amber-700 bg-amber-50 border-amber-200', Icon: HeartPulse },
-  OTHER: { label: 'Other', color: 'text-slate-700 bg-slate-50 border-slate-200', Icon: File },
+  PRESCRIPTION: { label: tx('Prescription'), color: 'text-teal-700 bg-teal-50 border-teal-200', Icon: ClipboardList },
+  LAB_REPORT: { label: tx('Lab Report'), color: 'text-sky-700 bg-sky-50 border-sky-200', Icon: FlaskConical },
+  CONSULTATION: { label: tx('Consultation'), color: 'text-emerald-700 bg-emerald-50 border-emerald-200', Icon: Stethoscope },
+  CHECKUP: { label: tx('Checkup'), color: 'text-amber-700 bg-amber-50 border-amber-200', Icon: HeartPulse },
+  OTHER: { label: tx('Other'), color: 'text-slate-700 bg-slate-50 border-slate-200', Icon: File },
 };
 
 /** One-line summary of who can open a record, with a prompt when tags need attention */
 const VisibilityBadge: React.FC<{ classification?: any }> = ({ classification: c }) => {
+  const { t } = useLanguage();
   if (!c || c.source === 'UNCLASSIFIED') {
     return (
       <p className="text-[10px] mt-1 font-semibold text-amber-700 flex items-center gap-1">
-        <Tags className="w-3 h-3" /> Needs tags · only you can open this
+        <Tags className="w-3 h-3" />  {t('Needs tags · only you can open this')}
       </p>
     );
   }
   if (c.sensitivityLevel === 'HIGHLY_CONFIDENTIAL') {
     return (
       <p className="text-[10px] mt-1 font-semibold text-rose-700 flex items-center gap-1">
-        <Lock className="w-3 h-3" /> Highly confidential · shared only with doctors you approve
+        <Lock className="w-3 h-3" />  {t('Highly confidential · shared only with doctors you approve')}
       </p>
     );
   }
   const specs: string[] = c.targetSpecializations ?? [];
   return (
     <p className="text-[10px] mt-1 text-slate-500">
-      {c.source === 'AI' && !c.patientReviewed && <span className="font-semibold text-amber-700">Suggested tags, please review · </span>}
-      Visible to: {specs.length ? specs.map(prettify).join(', ') : 'only you'}
+      {c.source === 'AI' && !c.patientReviewed && <span className="font-semibold text-amber-700">{t('Suggested tags, please review ·')} </span>}
+      
+      {t('Visible to:')} {specs.length ? specs.map(prettify).join(', ') : t('only you')}
     </p>
   );
 };
@@ -86,7 +89,7 @@ export const PatientRecordsPage: React.FC = () => {
   }, [typeFilter]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Permanently delete this medical record?')) return;
+    if (!confirm(t('Permanently delete this medical record?'))) return;
     try {
       await api.deleteRecord(id);
       await fetchRecords();
@@ -149,7 +152,7 @@ export const PatientRecordsPage: React.FC = () => {
           >
             <option value="">{t('records.allTypes')}</option>
             {RECORD_TYPES.map((tVal) => (
-              <option key={tVal} value={tVal}>{typeConfig[tVal]?.label || tVal}</option>
+              <option key={tVal} value={tVal}>{t(typeConfig[tVal]?.label || tVal)}</option>
             ))}
           </select>
         </div>
@@ -164,11 +167,11 @@ export const PatientRecordsPage: React.FC = () => {
         <div className="glass-card divide-y divide-slate-100 overflow-hidden shadow-sm">
           {/* Table Header */}
           <div className="hidden sm:grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50/80">
-            <span>Record</span>
-            <span>Type</span>
-            <span>Date</span>
-            <span>Physician / Facility</span>
-            <span>Actions</span>
+            <span>{t('Record')}</span>
+            <span>{t('Type')}</span>
+            <span>{t('Date')}</span>
+            <span>{t('Physician / Facility')}</span>
+            <span>{t('Actions')}</span>
           </div>
 
           {filteredRecords.map((rec) => {
@@ -202,17 +205,17 @@ export const PatientRecordsPage: React.FC = () => {
 
                 {/* Type Badge */}
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${conf.color} w-fit`}>
-                  {conf.label}
+                  {t(conf.label)}
                 </span>
 
                 {/* Date */}
                 <span className="text-xs text-slate-600 font-mono">
-                  {new Date(rec.recordDate).toLocaleDateString()}
+                  {new Date(rec.recordDate).toLocaleDateString(getLocale())}
                 </span>
 
                 {/* Doctor / Facility */}
                 <div className="text-xs text-slate-600">
-                  {rec.doctorName && <div className="text-slate-800 font-medium">Dr. {rec.doctorName}</div>}
+                  {rec.doctorName && <div className="text-slate-800 font-medium">{t('Dr. {doctorName}', { doctorName: rec.doctorName })}</div>}
                   {rec.facilityName && <div className="text-slate-400">{rec.facilityName}</div>}
                 </div>
 
@@ -221,16 +224,16 @@ export const PatientRecordsPage: React.FC = () => {
                   {/* View / Download Prescription or Document */}
                   <button
                     onClick={() => setSelectedRecord(rec)}
-                    title="View & Download Prescription / Document"
+                    title={t('View & Download Prescription / Document')}
                     className="px-2.5 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition-colors shadow-xs"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span className="hidden md:inline">Download</span>
+                    <span className="hidden md:inline">{t('Download')}</span>
                   </button>
 
                   <button
                     onClick={() => setSelectedRecord(rec)}
-                    title="View Document Details"
+                    title={t('View Document Details')}
                     className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
                   >
                     <Eye className="w-4 h-4" />
@@ -238,7 +241,7 @@ export const PatientRecordsPage: React.FC = () => {
 
                   <button
                     onClick={() => setTagRecord(rec)}
-                    title="Choose who can see this record"
+                    title={t('Choose who can see this record')}
                     className="p-1.5 text-slate-500 hover:text-teal-700 rounded-lg hover:bg-teal-50 transition-colors"
                   >
                     <Tags className="w-4 h-4" />
@@ -246,7 +249,7 @@ export const PatientRecordsPage: React.FC = () => {
 
                   <button
                     onClick={() => handleDelete(rec._id)}
-                    title="Delete record"
+                    title={t('Delete record')}
                     className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -262,7 +265,7 @@ export const PatientRecordsPage: React.FC = () => {
           <h3 className="text-sm font-semibold text-slate-800">{t('records.emptyTitle')}</h3>
           <p className="text-xs text-slate-500 mt-1">
             {searchQuery || typeFilter
-              ? 'No records match your current filters.'
+              ? t('No records match your current filters.')
               : t('records.emptySubtitle')}
           </p>
           <button

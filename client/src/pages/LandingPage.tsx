@@ -18,6 +18,7 @@ import {
   Check,
   Award,
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext.js';
 
 /* ─── Stat card with trustworthy clinical styling ─── */
 const StatCard: React.FC<{
@@ -133,6 +134,7 @@ const StepItem: React.FC<{
 );
 
 export const LandingPage: React.FC = () => {
+  const { t, tn } = useLanguage();
   const [activeHeroTab, setActiveHeroTab] = useState<'timeline' | 'consent' | 'emergency' | 'path'>('timeline');
 
   return (
@@ -141,9 +143,10 @@ export const LandingPage: React.FC = () => {
       {/* ══════════ TOP ALERT BAR (Clean Navy & Blue) ══════════ */}
       <div className="bg-slate-900 text-slate-200 py-2.5 px-4 text-xs font-semibold text-center tracking-wide flex items-center justify-center gap-2 border-b border-slate-800">
         <ShieldCheck className="w-4 h-4 text-blue-400" />
-        <span>100% Patient-Owned Longitudinal Health Records • Instant Consent Revocation & Emergency Access</span>
+        <span>{t('100% Patient-Owned Longitudinal Health Records • Instant Consent Revocation & Emergency Access')}</span>
         <Link to="/patient/register" className="underline font-bold text-blue-300 hover:text-white ml-2 inline-flex items-center gap-1">
-          Create Free ID <ChevronRight className="w-3 h-3" />
+          
+          {t('Create Free ID')} <ChevronRight className="w-3 h-3" />
         </Link>
       </div>
 
@@ -165,22 +168,21 @@ export const LandingPage: React.FC = () => {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 bg-white border border-slate-200 text-slate-700 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-blue-600" />
               <Shield className="w-3.5 h-3.5 text-blue-600" />
-              Patient-Controlled Health Platform
+              
+              {t('Patient-Controlled Health Platform')}
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.08] mb-6">
-              Your health,{' '}
-              <span className="text-blue-600">
-                your records,
-              </span>
+              {tn('Your health, {records}', { records: <span className="text-blue-600">{t('your records,')}</span> })}
               <br />
-              always in your hands.
+              {t('always in your hands.')}
             </h1>
 
             {/* Subtitle */}
             <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-8 font-normal">
-              FollowUp brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.
+              
+              {t('FollowUp brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.')}
             </p>
 
             {/* Action buttons */}
@@ -190,7 +192,8 @@ export const LandingPage: React.FC = () => {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-bold text-base text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all duration-150 hover:-translate-y-0.5"
               >
                 <HeartPulse className="w-5 h-5 text-blue-200" />
-                Get Your Patient ID Free
+                
+                {t('Get Your Patient ID Free')}
                 <ArrowRight className="w-4 h-4" />
               </Link>
 
@@ -199,7 +202,8 @@ export const LandingPage: React.FC = () => {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-bold text-base text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm hover:border-slate-300 transition-all duration-150 hover:-translate-y-0.5"
               >
                 <Stethoscope className="w-5 h-5 text-indigo-600" />
-                Doctor Portal Login
+                
+                {t('Doctor Portal Login')}
               </Link>
             </div>
 
@@ -207,19 +211,19 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-wrap items-center justify-center gap-y-2.5 gap-x-8 text-xs text-slate-600 font-medium">
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>100% Free for Patients</span>
+                <span>{t('100% Free for Patients')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>Instant Emergency HUD</span>
+                <span>{t('Instant Emergency HUD')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>Zero Data Sold</span>
+                <span>{t('Zero Data Sold')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>Immutable Audit History</span>
+                <span>{t('Immutable Audit History')}</span>
               </div>
             </div>
 
@@ -238,12 +242,13 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-slate-900 text-sm sm:text-base">Sarah Jenkins</span>
+                      <span className="font-extrabold text-slate-900 text-sm sm:text-base">{t('Sarah Jenkins')}</span>
                       <span className="bg-blue-50 text-blue-700 border border-blue-200 font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                        PAT-A892F1
+                        
+                        {t('PAT-A892F1')}
                       </span>
                     </div>
-                    <span className="text-xs text-slate-500">Blood Group: O+ • 29 yrs • Active Medical Record</span>
+                    <span className="text-xs text-slate-500">{t('Blood Group: O+ • 29 yrs • Active Medical Record')}</span>
                   </div>
                 </div>
 
@@ -257,7 +262,7 @@ export const LandingPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Clock className="w-3.5 h-3.5" /> Timeline
+                    <Clock className="w-3.5 h-3.5" />  {t('Timeline')}
                   </button>
                   <button
                     onClick={() => setActiveHeroTab('consent')}
@@ -267,7 +272,7 @@ export const LandingPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Lock className="w-3.5 h-3.5" /> Consents
+                    <Lock className="w-3.5 h-3.5" />  {t('Consents')}
                   </button>
                   <button
                     onClick={() => setActiveHeroTab('emergency')}
@@ -277,7 +282,7 @@ export const LandingPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Zap className="w-3.5 h-3.5" /> Emergency HUD
+                    <Zap className="w-3.5 h-3.5" />  {t('Emergency HUD')}
                   </button>
                   <button
                     onClick={() => setActiveHeroTab('path')}
@@ -287,7 +292,7 @@ export const LandingPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Activity className="w-3.5 h-3.5" /> Health Path
+                    <Activity className="w-3.5 h-3.5" />  {t('Health Path')}
                   </button>
                 </div>
               </div>
@@ -299,42 +304,45 @@ export const LandingPage: React.FC = () => {
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
                       <div>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full">
-                          Prescription
+                          
+                          {t('Prescription')}
                         </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">Amoxicillin 500mg</h4>
-                        <p className="text-xs text-slate-600 mt-1">Prescribed by Dr. Marcus Reed for acute bronchitis.</p>
+                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Amoxicillin 500mg')}</h4>
+                        <p className="text-xs text-slate-600 mt-1">{t('Prescribed by Dr. Marcus Reed for acute bronchitis.')}</p>
                       </div>
                       <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>2 days ago</span>
-                        <span className="font-semibold text-blue-600">Verified ✓</span>
+                        <span>{t('2 days ago')}</span>
+                        <span className="font-semibold text-blue-600">{t('Verified ✓')}</span>
                       </div>
                     </div>
 
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
                       <div>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full">
-                          Lab Report
+                          
+                          {t('Lab Report')}
                         </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">Complete Blood Count (CBC)</h4>
-                        <p className="text-xs text-slate-600 mt-1">WBC: 6.8 • Hemoglobin: 14.2 g/dL (Normal Range)</p>
+                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Complete Blood Count (CBC)')}</h4>
+                        <p className="text-xs text-slate-600 mt-1">{t('WBC: 6.8 • Hemoglobin: 14.2 g/dL (Normal Range)')}</p>
                       </div>
                       <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>1 week ago</span>
-                        <span className="font-semibold text-indigo-600">PDF Attached</span>
+                        <span>{t('1 week ago')}</span>
+                        <span className="font-semibold text-indigo-600">{t('PDF Attached')}</span>
                       </div>
                     </div>
 
                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
                       <div>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full">
-                          Consultation
+                          
+                          {t('Consultation')}
                         </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">Cardiology Review</h4>
-                        <p className="text-xs text-slate-600 mt-1">Normal rhythm. Scheduled 6-month routine follow-up.</p>
+                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Cardiology Review')}</h4>
+                        <p className="text-xs text-slate-600 mt-1">{t('Normal rhythm. Scheduled 6-month routine follow-up.')}</p>
                       </div>
                       <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>3 weeks ago</span>
-                        <span className="font-semibold text-amber-700">Dr. Sharma</span>
+                        <span>{t('3 weeks ago')}</span>
+                        <span className="font-semibold text-amber-700">{t('Dr. Sharma')}</span>
                       </div>
                     </div>
                   </div>
@@ -345,19 +353,22 @@ export const LandingPage: React.FC = () => {
                     <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
-                          DR
+                          
+                          {t('DR')}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Dr. Marcus Reed (Cardiology) • DOC-491B28</div>
-                          <div className="text-[11px] text-slate-500">Reason: Routine Follow-up Consultation</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Dr. Marcus Reed (Cardiology) • DOC-491B28')}</div>
+                          <div className="text-[11px] text-slate-500">{t('Reason: Routine Follow-up Consultation')}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-                          Active Access ✓
+                          
+                          {t('Active Access ✓')}
                         </span>
                         <button className="text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-1">
-                          Revoke
+                          
+                          {t('Revoke')}
                         </button>
                       </div>
                     </div>
@@ -365,19 +376,22 @@ export const LandingPage: React.FC = () => {
                     <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                          DR
+                          
+                          {t('DR')}
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Dr. Emily Chen (Orthopedic) • DOC-774A12</div>
-                          <div className="text-[11px] text-slate-500">Reason: Pre-Op Knee Evaluation</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Dr. Emily Chen (Orthopedic) • DOC-774A12')}</div>
+                          <div className="text-[11px] text-slate-500">{t('Reason: Pre-Op Knee Evaluation')}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg">
-                          Approve
+                          
+                          {t('Approve')}
                         </button>
                         <button className="text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded-lg">
-                          Deny
+                          
+                          {t('Deny')}
                         </button>
                       </div>
                     </div>
@@ -387,16 +401,16 @@ export const LandingPage: React.FC = () => {
                 {activeHeroTab === 'emergency' && (
                   <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200 grid sm:grid-cols-3 gap-3">
                     <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-rose-600 uppercase">🩸 Blood Group</span>
-                      <div className="text-xl font-black text-slate-900 mt-1">O Positive (O+)</div>
+                      <span className="text-[11px] font-bold text-rose-600 uppercase">{t('🩸 Blood Group')}</span>
+                      <div className="text-xl font-black text-slate-900 mt-1">{t('O Positive (O+)')}</div>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-amber-600 uppercase">⚠️ Allergies</span>
-                      <div className="text-sm font-bold text-slate-900 mt-1">Penicillin (Severe)</div>
+                      <span className="text-[11px] font-bold text-amber-600 uppercase">{t('⚠️ Allergies')}</span>
+                      <div className="text-sm font-bold text-slate-900 mt-1">{t('Penicillin (Severe)')}</div>
                     </div>
                     <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-slate-700 uppercase">📞 Emergency Contact</span>
-                      <div className="text-sm font-bold text-slate-900 mt-1">David (Spouse): +1 555-0192</div>
+                      <span className="text-[11px] font-bold text-slate-700 uppercase">{t('📞 Emergency Contact')}</span>
+                      <div className="text-sm font-bold text-slate-900 mt-1">{t('David (Spouse): +1 555-0192')}</div>
                     </div>
                   </div>
                 )}
@@ -405,11 +419,12 @@ export const LandingPage: React.FC = () => {
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <span className="text-xs font-bold text-slate-900">Post-Op Recovery & Rehab Plan</span>
-                        <div className="text-[11px] text-slate-500">Prescribed by Dr. Emily Chen • 4-Week Path</div>
+                        <span className="text-xs font-bold text-slate-900">{t('Post-Op Recovery & Rehab Plan')}</span>
+                        <div className="text-[11px] text-slate-500">{t('Prescribed by Dr. Emily Chen • 4-Week Path')}</div>
                       </div>
                       <span className="text-xs font-bold text-blue-700 bg-white px-2.5 py-1 rounded-full border border-blue-200">
-                        75% Complete
+                        
+                        {t('75% Complete')}
                       </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2 mb-3">
@@ -417,16 +432,16 @@ export const LandingPage: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                       <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" /> Week 1 Mobility
+                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Week 1 Mobility')}
                       </div>
                       <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" /> Meds Protocol
+                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Meds Protocol')}
                       </div>
                       <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" /> Physical Therapy
+                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Physical Therapy')}
                       </div>
                       <div className="bg-blue-50 p-2 rounded-lg border border-blue-200 flex items-center gap-1.5 text-blue-900 font-bold">
-                        <Clock className="w-3.5 h-3.5 text-blue-600" /> Final Check-in
+                        <Clock className="w-3.5 h-3.5 text-blue-600" />  {t('Final Check-in')}
                       </div>
                     </div>
                   </div>
@@ -443,32 +458,32 @@ export const LandingPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             value="100%"
-            label="Patient-Approved"
-            subtext="Zero unauthorized doctor access"
+            label={t('Patient-Approved')}
+            subtext={t('Zero unauthorized doctor access')}
             icon={<ShieldCheck className="w-6 h-6" />}
             accentColor="#2563EB"
             bgLight="#EFF6FF"
           />
           <StatCard
-            value="< 2s"
-            label="Emergency Lookup"
-            subtext="Immediate access to vital allergies & blood type"
+            value={t("< 2s")}
+            label={t('Emergency Lookup')}
+            subtext={t('Immediate access to vital allergies & blood type')}
             icon={<Zap className="w-6 h-6" />}
             accentColor="#E11D48"
             bgLight="#FFE4E6"
           />
           <StatCard
-            value="Lifetime"
-            label="Unified Timeline"
-            subtext="Chronological archive of all consultations"
+            value={t("Lifetime")}
+            label={t('Unified Timeline')}
+            subtext={t('Chronological archive of all consultations')}
             icon={<Clock className="w-6 h-6" />}
             accentColor="#4F46E5"
             bgLight="#EEF2FF"
           />
           <StatCard
-            value="1 ID"
-            label="Collision-Free"
-            subtext="PAT-ID & DOC-ID strict role separation"
+            value={t("1 ID")}
+            label={t('Collision-Free')}
+            subtext={t('PAT-ID & DOC-ID strict role separation')}
             icon={<Award className="w-6 h-6" />}
             accentColor="#D97706"
             bgLight="#FEF3C7"
@@ -480,79 +495,82 @@ export const LandingPage: React.FC = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            Platform Capabilities
+            
+            {t('Platform Capabilities')}
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Everything your medical history requires
+            
+            {t('Everything your medical history requires')}
           </h2>
           <p className="text-base text-slate-600">
-            A cohesive clinical ecosystem designed to replace scattered physical papers and stressful hospital record requests.
+            
+            {t('A cohesive clinical ecosystem designed to replace scattered physical papers and stressful hospital record requests.')}
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <FeatureCard
             icon={<FileText className="w-6 h-6" />}
-            title="Unified Health Vault"
-            description="Upload prescriptions, lab reports, MRI scans, and discharge notes in seconds. Tagged, indexed, and available anywhere."
+            title={t('Unified Health Vault')}
+            description={t('Upload prescriptions, lab reports, MRI scans, and discharge notes in seconds. Tagged, indexed, and available anywhere.')}
             iconBg="#EFF6FF"
             iconColor="#2563EB"
-            badgeText="All Formats"
+            badgeText={t('All Formats')}
             badgeBg="#DBEAFE"
             badgeColor="#1D4ED8"
           />
 
           <FeatureCard
             icon={<Clock className="w-6 h-6" />}
-            title="Longitudinal Timeline"
-            description="Scroll through your entire medical journey chronologically. From early treatments to recent specialist reviews."
+            title={t('Longitudinal Timeline')}
+            description={t('Scroll through your entire medical journey chronologically. From early treatments to recent specialist reviews.')}
             iconBg="#EEF2FF"
             iconColor="#4F46E5"
-            badgeText="Chronological"
+            badgeText={t('Chronological')}
             badgeBg="#E0E7FF"
             badgeColor="#3730A3"
           />
 
           <FeatureCard
             icon={<Activity className="w-6 h-6" />}
-            title="Doctor-Prescribed Paths"
-            description="Clinicians establish clear recovery plans, medication schedules, and milestone checklists for continuous care."
+            title={t('Doctor-Prescribed Paths')}
+            description={t('Clinicians establish clear recovery plans, medication schedules, and milestone checklists for continuous care.')}
             iconBg="#F0FDF4"
             iconColor="#166534"
-            badgeText="Care Paths"
+            badgeText={t('Care Paths')}
             badgeBg="#DCFCE7"
             badgeColor="#15803D"
           />
 
           <FeatureCard
             icon={<UserCheck className="w-6 h-6" />}
-            title="Consent-First Doctor Access"
-            description="Doctors must provide a valid clinical justification. You review, approve, or deny requests in real time."
+            title={t('Consent-First Doctor Access')}
+            description={t('Doctors must provide a valid clinical justification. You review, approve, or deny requests in real time.')}
             iconBg="#F8FAFC"
             iconColor="#0F172A"
-            badgeText="Patient Controlled"
+            badgeText={t('Patient Controlled')}
             badgeBg="#E2E8F0"
             badgeColor="#334155"
           />
 
           <FeatureCard
             icon={<Zap className="w-6 h-6" />}
-            title="Emergency Medical HUD"
-            description="Critical blood type, active medication list, and severe allergies surfaced instantly via emergency link without requiring login."
+            title={t('Emergency Medical HUD')}
+            description={t('Critical blood type, active medication list, and severe allergies surfaced instantly via emergency link without requiring login.')}
             iconBg="#FFE4E6"
             iconColor="#E11D48"
-            badgeText="Zero Login"
+            badgeText={t('Zero Login')}
             badgeBg="#FFF1F2"
             badgeColor="#BE123C"
           />
 
           <FeatureCard
             icon={<Bell className="w-6 h-6" />}
-            title="Immutable Audit Trail"
-            description="Every record access, upload, and consultation note is logged with timestamps. Full transparency on who looked at your chart."
+            title={t('Immutable Audit Trail')}
+            description={t('Every record access, upload, and consultation note is logged with timestamps. Full transparency on who looked at your chart.')}
             iconBg="#FEF3C7"
             iconColor="#D97706"
-            badgeText="Audit Log"
+            badgeText={t('Audit Log')}
             badgeBg="#FFFBEB"
             badgeColor="#B45309"
           />
@@ -564,13 +582,16 @@ export const LandingPage: React.FC = () => {
         <div className="bg-white rounded-2xl p-8 sm:p-14 border border-slate-200 shadow-sm">
           <div className="text-center max-w-xl mx-auto mb-14">
             <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 mb-3">
-              Clear & Intuitive
+              
+              {t('Clear & Intuitive')}
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-              Designed for ease from day one
+              
+              {t('Designed for ease from day one')}
             </h2>
             <p className="text-sm sm:text-base text-slate-600">
-              Straightforward workflows built for both patients and clinicians.
+              
+              {t('Straightforward workflows built for both patients and clinicians.')}
             </p>
           </div>
 
@@ -578,38 +599,38 @@ export const LandingPage: React.FC = () => {
             {/* Patient Flow */}
             <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
               <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-600 text-white shadow-sm">
-                <HeartPulse className="w-4 h-4 text-blue-100" /> Patient Experience
+                <HeartPulse className="w-4 h-4 text-blue-100" />  {t('Patient Experience')}
               </div>
 
               <StepItem
                 num={1}
-                title="Create your unique PAT-ID"
-                body="Takes under 45 seconds. Receive your collision-free identifier (e.g. PAT-A3F92B) that stays with you for life."
-                badge="Instant Setup"
+                title={t('Create your unique PAT-ID')}
+                body={t('Takes under 45 seconds. Receive your collision-free identifier (e.g. PAT-A3F92B) that stays with you for life.')}
+                badge={t('Instant Setup')}
                 color="#2563EB"
                 bgLight="#EFF6FF"
               />
               <StepItem
                 num={2}
-                title="Upload & organize health documents"
-                body="Drag and drop prescriptions, lab scans, or blood work. Everything gets categorized and indexed."
-                badge="Drag & Drop"
+                title={t('Upload & organize health documents')}
+                body={t('Drag and drop prescriptions, lab scans, or blood work. Everything gets categorized and indexed.')}
+                badge={t('Drag & Drop')}
                 color="#0284C7"
                 bgLight="#E0F2FE"
               />
               <StepItem
                 num={3}
-                title="Approve or deny doctor requests"
-                body="When a physician needs access to your chart, they submit a reason. You grant or revoke access anytime."
-                badge="Granular Consent"
+                title={t('Approve or deny doctor requests')}
+                body={t('When a physician needs access to your chart, they submit a reason. You grant or revoke access anytime.')}
+                badge={t('Granular Consent')}
                 color="#4F46E5"
                 bgLight="#EEF2FF"
               />
               <StepItem
                 num={4}
-                title="Track your Health Paths & Recovery"
-                body="Follow physician-prescribed steps, check off milestone achievements, and stay on top of your health."
-                badge="Care Progress"
+                title={t('Track your Health Paths & Recovery')}
+                body={t('Follow physician-prescribed steps, check off milestone achievements, and stay on top of your health.')}
+                badge={t('Care Progress')}
                 color="#0F172A"
                 bgLight="#F1F5F9"
                 isLast
@@ -619,38 +640,38 @@ export const LandingPage: React.FC = () => {
             {/* Doctor Flow */}
             <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
               <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-slate-900 text-white shadow-sm">
-                <Stethoscope className="w-4 h-4 text-blue-300" /> Doctor Experience
+                <Stethoscope className="w-4 h-4 text-blue-300" />  {t('Doctor Experience')}
               </div>
 
               <StepItem
                 num={1}
-                title="Register your verified DOC-ID"
-                body="Physicians receive a dedicated DOC-XXXXXX identifier, strictly separated from patient credentials."
-                badge="Verified ID"
+                title={t('Register your verified DOC-ID')}
+                body={t('Physicians receive a dedicated DOC-XXXXXX identifier, strictly separated from patient credentials.')}
+                badge={t('Verified ID')}
                 color="#0F172A"
                 bgLight="#F1F5F9"
               />
               <StepItem
                 num={2}
-                title="Search patient by PAT-ID & request access"
-                body="Quickly lookup the patient and provide clinical justification for chart inspection."
-                badge="Clinical Reason"
+                title={t('Search patient by PAT-ID & request access')}
+                body={t('Quickly lookup the patient and provide clinical justification for chart inspection.')}
+                badge={t('Clinical Reason')}
                 color="#2563EB"
                 bgLight="#EFF6FF"
               />
               <StepItem
                 num={3}
-                title="Review longitudinal clinical chart"
-                body="View allergies, conditions, active medications, past surgeries, and lab history in one view."
-                badge="Full Overview"
+                title={t('Review longitudinal clinical chart')}
+                body={t('View allergies, conditions, active medications, past surgeries, and lab history in one view.')}
+                badge={t('Full Overview')}
                 color="#4F46E5"
                 bgLight="#EEF2FF"
               />
               <StepItem
                 num={4}
-                title="Prescribe Health Paths & record consults"
-                body="Create structured recovery roadmaps, log encounter notes, and coordinate follow-up appointments."
-                badge="Care Plans"
+                title={t('Prescribe Health Paths & record consults')}
+                body={t('Create structured recovery roadmaps, log encounter notes, and coordinate follow-up appointments.')}
+                badge={t('Care Plans')}
                 color="#D97706"
                 bgLight="#FEF3C7"
                 isLast
@@ -664,13 +685,16 @@ export const LandingPage: React.FC = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-xl mx-auto mb-10">
           <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 mb-3">
-            Identity Separation
+            
+            {t('Identity Separation')}
           </span>
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-            Two distinct ID formats for security
+            
+            {t('Two distinct ID formats for security')}
           </h2>
           <p className="text-sm text-slate-600">
-            Patients and doctors use distinct identity schemes to prevent credential cross-contamination.
+            
+            {t('Patients and doctors use distinct identity schemes to prevent credential cross-contamination.')}
           </p>
         </div>
 
@@ -682,23 +706,24 @@ export const LandingPage: React.FC = () => {
                 <HeartPulse className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 uppercase">
-                Patient Identifier
+                
+                {t('Patient Identifier')}
               </span>
             </div>
-            <div className="font-mono text-3xl font-black text-slate-900 mb-2">PAT-XXXXXX</div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Patient Credential</h3>
+            <div className="font-mono text-3xl font-black text-slate-900 mb-2">{t('PAT-XXXXXX')}</div>
+            <h3 className="text-lg font-bold text-slate-900 mb-4">{t('Patient Credential')}</h3>
             <ul className="space-y-2.5 text-sm text-slate-600">
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-blue-600 shrink-0 font-bold" />
-                <span>Given to doctors to request access to your records</span>
+                <span>{t('Given to doctors to request access to your records')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Publicly usable for emergency HUD scan</span>
+                <span>{t('Publicly usable for emergency HUD scan')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Cannot be used in doctor portal</span>
+                <span>{t('Cannot be used in doctor portal')}</span>
               </li>
             </ul>
           </div>
@@ -710,23 +735,24 @@ export const LandingPage: React.FC = () => {
                 <Stethoscope className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 uppercase">
-                Doctor Identifier
+                
+                {t('Doctor Identifier')}
               </span>
             </div>
-            <div className="font-mono text-3xl font-black text-slate-900 mb-2">DOC-XXXXXX</div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Clinical Credential</h3>
+            <div className="font-mono text-3xl font-black text-slate-900 mb-2">{t('DOC-XXXXXX')}</div>
+            <h3 className="text-lg font-bold text-slate-900 mb-4">{t('Clinical Credential')}</h3>
             <ul className="space-y-2.5 text-sm text-slate-600">
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>Issued upon clinician registration</span>
+                <span>{t('Issued upon clinician registration')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>Attached to every access request for accountability</span>
+                <span>{t('Attached to every access request for accountability')}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>Cannot be used in patient login portal</span>
+                <span>{t('Cannot be used in patient login portal')}</span>
               </li>
             </ul>
           </div>
@@ -737,10 +763,12 @@ export const LandingPage: React.FC = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-xl mx-auto mb-12">
           <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            Get Started
+            
+            {t('Get Started')}
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-            Choose your portal
+            
+            {t('Choose your portal')}
           </h2>
         </div>
 
@@ -756,9 +784,10 @@ export const LandingPage: React.FC = () => {
             <div className="w-18 h-18 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 p-4">
               <HeartPulse className="w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">I am a Patient</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('I am a Patient')}</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8 max-w-xs">
-              Own your medical timeline, grant doctor permissions, and access your emergency profile.
+              
+              {t('Own your medical timeline, grant doctor permissions, and access your emergency profile.')}
             </p>
 
             <div className="flex flex-col w-full gap-3">
@@ -766,13 +795,15 @@ export const LandingPage: React.FC = () => {
                 to="/patient/register"
                 className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all text-center"
               >
-                Create Free Patient ID
+                
+                {t('Create Free Patient ID')}
               </Link>
               <Link
                 to="/patient/login"
                 className="w-full py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all text-center"
               >
-                Sign In to Patient Portal
+                
+                {t('Sign In to Patient Portal')}
               </Link>
             </div>
           </div>
@@ -788,9 +819,10 @@ export const LandingPage: React.FC = () => {
             <div className="w-18 h-18 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mb-6 p-4">
               <Stethoscope className="w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">I am a Doctor</h3>
+            <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('I am a Doctor')}</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8 max-w-xs">
-              Request patient access, view full clinical charts, establish treatment plans, and log notes.
+              
+              {t('Request patient access, view full clinical charts, establish treatment plans, and log notes.')}
             </p>
 
             <div className="flex flex-col w-full gap-3">
@@ -798,13 +830,15 @@ export const LandingPage: React.FC = () => {
                 to="/doctor/register"
                 className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all text-center"
               >
-                Create Doctor Account
+                
+                {t('Create Doctor Account')}
               </Link>
               <Link
                 to="/doctor/login"
                 className="w-full py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all text-center"
               >
-                Sign In to Doctor Portal
+                
+                {t('Sign In to Doctor Portal')}
               </Link>
             </div>
           </div>
@@ -815,41 +849,44 @@ export const LandingPage: React.FC = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            Got Questions?
+            
+            {t('Got Questions?')}
           </span>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
-            Frequently Asked Questions
+            
+            {t('Frequently Asked Questions')}
           </h2>
           <p className="text-sm sm:text-base text-slate-600">
-            Learn how FollowUp keeps your healthcare records safe, universal, and strictly consent-controlled.
+            
+            {t('Learn how FollowUp keeps your healthcare records safe, universal, and strictly consent-controlled.')}
           </p>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-4 mb-8">
           {[
             {
-              q: 'How does patient-controlled consent work on FollowUp?',
-              a: 'You own and hold your records. When a doctor wants to view your charts, they must submit a request with a clinical reason. You approve or deny instantly, and can revoke access anytime with one click.',
+              q: t('How does patient-controlled consent work on FollowUp?'),
+              a: t('You own and hold your records. When a doctor wants to view your charts, they must submit a request with a clinical reason. You approve or deny instantly, and can revoke access anytime with one click.'),
             },
             {
-              q: 'What is the difference between my PAT-ID and a doctor’s DOC-ID?',
-              a: 'Patients receive collision-resistant PAT-XXXXXX IDs, while doctors receive verified DOC-XXXXXX IDs. The two namespaces never overlap, ensuring zero privilege escalation or portal confusion.',
+              q: t('What is the difference between my PAT-ID and a doctor’s DOC-ID?'),
+              a: t('Patients receive collision-resistant PAT-XXXXXX IDs, while doctors receive verified DOC-XXXXXX IDs. The two namespaces never overlap, ensuring zero privilege escalation or portal confusion.'),
             },
             {
-              q: 'How do first responders access the Emergency HUD without logging in?',
-              a: 'First responders can look up your PAT-ID to view life-saving triage data (Blood Group, Severe Allergies, Emergency Contacts). No sensitive consultation notes are exposed without login, and all lookups are logged.',
+              q: t('How do first responders access the Emergency HUD without logging in?'),
+              a: t('First responders can look up your PAT-ID to view life-saving triage data (Blood Group, Severe Allergies, Emergency Contacts). No sensitive consultation notes are exposed without login, and all lookups are logged.'),
             },
             {
-              q: 'Can doctors view or download my medical records without my permission?',
-              a: 'No. Cryptographic role-based access control blocks all unauthorized queries. Without an active consent grant recorded by you, doctors cannot access your documents.',
+              q: t('Can doctors view or download my medical records without my permission?'),
+              a: t('No. Cryptographic role-based access control blocks all unauthorized queries. Without an active consent grant recorded by you, doctors cannot access your documents.'),
             },
             {
-              q: 'What are Doctor-Prescribed Health Paths?',
-              a: 'Health Paths are structured recovery and treatment roadmaps created by attending physicians. You can track and check off recovery milestones, giving your doctor real-time progress visibility.',
+              q: t('What are Doctor-Prescribed Health Paths?'),
+              a: t('Health Paths are structured recovery and treatment roadmaps created by attending physicians. You can track and check off recovery milestones, giving your doctor real-time progress visibility.'),
             },
             {
-              q: 'How is my medical data encrypted and protected?',
-              a: 'All data is encrypted in transit using TLS 1.3 and encrypted at rest using AES-256 in compliance with HIPAA technical safeguards. We never sell or monetize your data.',
+              q: t('How is my medical data encrypted and protected?'),
+              a: t('All data is encrypted in transit using TLS 1.3 and encrypted at rest using AES-256 in compliance with HIPAA technical safeguards. We never sell or monetize your data.'),
             },
           ].map((item, idx) => (
             <div
@@ -872,7 +909,8 @@ export const LandingPage: React.FC = () => {
             to="/faq"
             className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
           >
-            View All FAQs with Search Filter <ChevronRight className="w-3.5 h-3.5" />
+            
+            {t('View All FAQs with Search Filter')} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </section>
@@ -885,16 +923,18 @@ export const LandingPage: React.FC = () => {
               <Shield className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="text-lg font-bold text-white">Your Privacy & Consent Are Fully Protected</h4>
+              <h4 className="text-lg font-bold text-white">{t('Your Privacy & Consent Are Fully Protected')}</h4>
               <p className="text-sm text-slate-300 mt-1">
-                Data is encrypted at rest and in transit. Doctors can only see records you explicitly authorize.
+                
+                {t('Data is encrypted at rest and in transit. Doctors can only see records you explicitly authorize.')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 bg-slate-800 border border-slate-700 px-4 py-2 rounded-full shadow-sm">
               <Lock className="w-3.5 h-3.5 text-blue-400" />
-              End-to-End Encrypted
+              
+              {t('End-to-End Encrypted')}
             </div>
           </div>
         </div>

@@ -3,36 +3,33 @@ import { KeyRound, X, Clock, AlertCircle, Send } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../context/ToastContext.js';
 import { NEW_NOTIFICATION_EVENT } from '../../context/NotificationContext.js';
+import { timeLeftText } from '../../utils/timeText.js';
 import { prettify, useTaxonomy } from '../common/TagPicker.js';
+import { useLanguage } from '../../context/LanguageContext.js';
+import { tr } from '../../context/LanguageContext.js';
 
 type Duration = '24H' | '7D' | '30D';
 
 const describeScope = (scope: any, labels: Record<string, string>) =>
   [
-    ...(scope.categories ?? []).map((c: string) => `${prettify(c)} records`),
+    ...(scope.categories ?? []).map((c: string) => tr('{value} records', { value: prettify(c) })),
     ...(scope.conditions ?? []).map((c: string) => labels[c] ?? prettify(c)),
-    ...(scope.specializations ?? []).map((s: string) => `${prettify(s)} records`),
-  ].join(', ') || 'Selected records';
-
-const timeLeft = (iso: string) => {
-  const mins = Math.max(0, Math.floor((new Date(iso).getTime() - Date.now()) / 60_000));
-  if (mins < 60) return `${mins}m left`;
-  const hours = Math.floor(mins / 60);
-  return hours < 48 ? `${hours}h left` : `${Math.floor(hours / 24)}d left`;
-};
+    ...(scope.specializations ?? []).map((s: string) => tr('{value} records', { value: prettify(s) })),
+  ].join(', ') || tr('Selected records');
 
 /** Shows a doctor what extra access they hold for a patient, and lets them ask for more */
 export const DoctorAccessPanel: React.FC<{ patientId: string; onAccessChanged?: () => void }> = ({
   patientId,
   onAccessChanged,
 }) => {
+  const { t } = useLanguage();
   const { showToast } = useToast();
   const taxonomy = useTaxonomy();
   const [requests, setRequests] = useState<any[]>([]);
   const [grants, setGrants] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
 
-  const labels = Object.fromEntries((taxonomy?.conditions ?? []).map((c) => [c.key, c.label]));
+  const labels = Object.fromEntries((taxonomy?.conditions ?? []).map((c) => [c.key, tr(c.label)]));
 
   const load = useCallback(async () => {
     try {
@@ -57,7 +54,7 @@ export const DoctorAccessPanel: React.FC<{ patientId: string; onAccessChanged?: 
   const cancel = async (id: string) => {
     try {
       await api.cancelAccessRequest(id);
-      showToast('Request withdrawn.', 'success');
+      showToast(t('Request withdrawn.'), 'success');
       load();
     } catch (err: any) {
       showToast(err.message, 'error');
@@ -69,37 +66,39 @@ export const DoctorAccessPanel: React.FC<{ patientId: string; onAccessChanged?: 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <KeyRound className="w-4 h-4 text-indigo-600" /> Records outside your specialty
+            <KeyRound className="w-4 h-4 text-indigo-600" />  {t('Records outside your specialty')}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            You see records that match your specialty. For anything else, ask the patient for time-limited access.
+            
+            {t('You see records that match your specialty. For anything else, ask the patient for time-limited access.')}
           </p>
         </div>
         <button
           onClick={() => setOpen(true)}
           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm"
         >
-          <Send className="w-3.5 h-3.5" /> Request more records
+          <Send className="w-3.5 h-3.5" />  {t('Request more records')}
         </button>
       </div>
 
       {requests.map((r) => (
         <div key={r._id} className="flex items-center justify-between gap-3 text-xs bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
           <span className="text-amber-900">
-            <strong>Pending:</strong> {describeScope(r.scope, labels)}
+            <strong>{t('Pending:')}</strong> {describeScope(r.scope, labels)}
           </span>
           <button onClick={() => cancel(r._id)} className="text-amber-800 font-semibold hover:underline shrink-0">
-            Withdraw
+            
+            {t('Withdraw')}
           </button>
         </div>
       ))}
       {grants.map((g) => (
         <div key={g._id} className="flex items-center justify-between gap-3 text-xs bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
           <span className="text-emerald-900">
-            <strong>Approved:</strong> {describeScope(g.scope, labels)}
+            <strong>{t('Approved:')}</strong> {describeScope(g.scope, labels)}
           </span>
           <span className="text-emerald-800 flex items-center gap-1 shrink-0">
-            <Clock className="w-3 h-3" /> {timeLeft(g.expiresAt)}
+            <Clock className="w-3 h-3" /> {timeLeftText(g.expiresAt)}
           </span>
         </div>
       ))}
@@ -123,6 +122,7 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
   onClose,
   onSent,
 }) => {
+  const { t } = useLanguage();
   const { showToast } = useToast();
   const taxonomy = useTaxonomy();
   const [specializations, setSpecializations] = useState<string[]>([]);
@@ -160,10 +160,10 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
         reason,
         requestedDuration: duration,
       });
-      showToast('Request sent. The patient has been notified.', 'success');
+      showToast(t('Request sent. The patient has been notified.'), 'success');
       onSent();
     } catch (err: any) {
-      setError(err.errors?.reason || err.errors?.scope || err.message || 'Could not send request');
+      setError(err.errors?.reason || err.errors?.scope || err.message || t('Could not send request'));
     } finally {
       setSending(false);
     }
@@ -173,7 +173,7 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
       <div className="glass-card max-w-lg w-full p-6 border-slate-200/90 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">Request access to more records</h3>
+          <h3 className="text-lg font-bold text-slate-900">{t('Request access to more records')}</h3>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
             <X className="w-5 h-5" />
           </button>
@@ -186,11 +186,11 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
         )}
 
         {!taxonomy ? (
-          <p className="text-xs text-slate-400">Loading…</p>
+          <p className="text-xs text-slate-400">{t('Loading…')}</p>
         ) : (
           <>
             <div>
-              <p className="text-xs font-semibold text-slate-700 mb-1.5">By specialty</p>
+              <p className="text-xs font-semibold text-slate-700 mb-1.5">{t('By specialty')}</p>
               <div className="flex flex-wrap gap-1.5">
                 {taxonomy.specializations.map((s) => (
                   <Chip key={s} on={specializations.includes(s)} onClick={() => flip(specializations, setSpecializations, s)}>
@@ -200,17 +200,17 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-700 mb-1.5">By condition</p>
+              <p className="text-xs font-semibold text-slate-700 mb-1.5">{t('By condition')}</p>
               <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
                 {taxonomy.conditions.map((c) => (
                   <Chip key={c.key} on={conditions.includes(c.key)} onClick={() => flip(conditions, setConditions, c.key)}>
-                    {c.label}
+                    {t(c.label)}
                   </Chip>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-700 mb-1.5">By document type</p>
+              <p className="text-xs font-semibold text-slate-700 mb-1.5">{t('By document type')}</p>
               <div className="flex flex-wrap gap-1.5">
                 {taxonomy.categories.map((c) => (
                   <Chip key={c} on={categories.includes(c)} onClick={() => flip(categories, setCategories, c)}>
@@ -223,19 +223,19 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Clinical reason (shown to the patient)</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">{t('Clinical reason (shown to the patient)')}</label>
           <textarea
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="e.g. Reviewing renal function before adjusting ACE-inhibitor dose"
+            placeholder={t('e.g. Reviewing renal function before adjusting ACE-inhibitor dose')}
             className="w-full glass-input text-xs resize-none bg-white"
           />
-          <p className="text-[10px] text-slate-400 mt-0.5">At least 10 characters. This is saved in the audit log.</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">{t('At least 10 characters. This is saved in the audit log.')}</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-slate-700 mb-1.5">How long do you need it?</p>
+          <p className="text-xs font-semibold text-slate-700 mb-1.5">{t('How long do you need it?')}</p>
           <div className="grid grid-cols-3 gap-2">
             {(['24H', '7D', '30D'] as Duration[]).map((d) => (
               <button
@@ -246,23 +246,25 @@ const RequestModal: React.FC<{ patientId: string; onClose: () => void; onSent: (
                   duration === d ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200'
                 }`}
               >
-                {d === '24H' ? '24 hours' : d === '7D' ? '7 days' : '30 days'}
+                {d === '24H' ? t('24 hours') : d === '7D' ? t('7 days') : t('30 days')}
               </button>
             ))}
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">The patient decides the final duration and can approve less.</p>
+          <p className="text-[10px] text-slate-400 mt-1">{t('The patient decides the final duration and can approve less.')}</p>
         </div>
 
         <div className="flex justify-end gap-2 pt-1">
           <button onClick={onClose} className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800">
-            Cancel
+            
+            {t('Cancel')}
           </button>
           <button
             onClick={send}
             disabled={sending || nothingSelected || reason.trim().length < 10}
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl disabled:opacity-40"
           >
-            Send request
+            
+            {t('Send request')}
           </button>
         </div>
       </div>

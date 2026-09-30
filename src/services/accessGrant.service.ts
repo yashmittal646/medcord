@@ -94,7 +94,7 @@ export class AccessGrantService {
       type: 'CONNECTION_REQUESTED',
       title: 'A doctor wants to connect',
       body: `${doctorUser.name} asked for access to your health chart.`,
-      data: { grantId: grant._id.toString() },
+      data: { grantId: grant._id.toString(), doctorName: doctorUser.name },
     });
 
     return grant;
@@ -244,7 +244,7 @@ export class AccessGrantService {
       type: 'CONNECTION_RESPONDED',
       title: 'Patient responded',
       body: `${patientUser.name} ${newStatus.toLowerCase()} your access request.`,
-      data: { grantId: grant._id.toString() },
+      data: { grantId: grant._id.toString(), patientName: patientUser.name, outcome: newStatus.toLowerCase() },
     });
 
     return grant;

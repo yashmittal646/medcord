@@ -198,7 +198,7 @@ export class ClassificationService {
       body: confident
         ? 'Check the suggested tags so the right specialists can see it.'
         : 'Add tags so the right specialists can see it. Until then only you can open it.',
-      data: { recordId: record._id.toString(), method: llm ? 'llm' : 'keywords' },
+      data: { recordId: record._id.toString(), method: llm ? 'llm' : 'keywords', suggested: confident ? 'true' : 'false' },
     });
   }
 

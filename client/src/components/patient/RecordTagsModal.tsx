@@ -3,6 +3,7 @@ import { X, Tags, AlertCircle, Check } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { TagPicker } from '../common/TagPicker.js';
 import { useToast } from '../../context/ToastContext.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface RecordTagsModalProps {
   record: any | null;
@@ -12,6 +13,7 @@ interface RecordTagsModalProps {
 
 /** Lets a patient review or change the tags that decide which specialists can open a record */
 export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClose, onSaved }) => {
+  const { t } = useLanguage();
   const { showToast } = useToast();
   const c = record?.classification;
   const [tags, setTags] = useState({
@@ -31,11 +33,11 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
     setError(null);
     try {
       await api.updateRecordClassification(record._id, tags);
-      showToast('Tags saved. Doctors’ access to this record has been updated.', 'success');
+      showToast(t('Tags saved. Doctors’ access to this record has been updated.'), 'success');
       onSaved();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Could not save tags');
+      setError(err.message || t('Could not save tags'));
     } finally {
       setSaving(false);
     }
@@ -45,11 +47,11 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
     setSaving(true);
     try {
       await api.confirmRecordClassification(record._id);
-      showToast('Tags confirmed.', 'success');
+      showToast(t('Tags confirmed.'), 'success');
       onSaved();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Could not confirm tags');
+      setError(err.message || t('Could not confirm tags'));
     } finally {
       setSaving(false);
     }
@@ -62,7 +64,8 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
           <div>
             <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
               <Tags className="w-5 h-5 text-teal-600" />
-              Who can see this record?
+              
+              {t('Who can see this record?')}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5 truncate max-w-xs">{record.title}</p>
           </div>
@@ -73,7 +76,8 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
 
         {suggested && (
           <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-            These tags were suggested automatically. Check them, then confirm or adjust.
+            
+            {t('These tags were suggested automatically. Check them, then confirm or adjust.')}
           </div>
         )}
         {error && (
@@ -87,7 +91,8 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
 
         <div className="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-slate-100">
           <button onClick={onClose} className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800">
-            Cancel
+            
+            {t('Cancel')}
           </button>
           {suggested && (
             <button
@@ -95,7 +100,8 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
               disabled={saving}
               className="px-4 py-2 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl hover:bg-teal-100 disabled:opacity-50"
             >
-              Confirm suggested tags
+              
+              {t('Confirm suggested tags')}
             </button>
           )}
           <button
@@ -104,7 +110,8 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
             className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 flex items-center gap-2 disabled:opacity-50"
           >
             <Check className="w-4 h-4" />
-            Save tags
+            
+            {t('Save tags')}
           </button>
         </div>
       </div>

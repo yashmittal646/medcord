@@ -12,6 +12,8 @@ import {
   ShieldAlert,
   ClipboardList,
 } from 'lucide-react';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 const SeverityBadge: React.FC<{ severity: string }> = ({ severity }) => {
   const map: Record<string, string> = {
@@ -22,7 +24,7 @@ const SeverityBadge: React.FC<{ severity: string }> = ({ severity }) => {
   };
   return (
     <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${map[severity] || 'bg-slate-100 text-slate-700'}`}>
-      {severity.replace('_', ' ')}
+      {enumLabel(severity)}
     </span>
   );
 };
@@ -35,12 +37,13 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   };
   return (
     <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${map[status] || 'bg-slate-100 text-slate-700'}`}>
-      {status}
+      {enumLabel(status)}
     </span>
   );
 };
 
 export const DoctorEmergencyPage: React.FC = () => {
+  const { t, tn } = useLanguage();
   const [patientId, setPatientId]   = useState('');
   const [reason, setReason]         = useState('');
   const [snapshot, setSnapshot]     = useState<any>(null);
@@ -60,7 +63,7 @@ export const DoctorEmergencyPage: React.FC = () => {
       );
       setSnapshot(res.data);
     } catch (err: any) {
-      setError(err.message || 'Patient not found. Please verify the Patient ID.');
+      setError(err.message || t('Patient not found. Please verify the Patient ID.'));
     } finally {
       setIsLoading(false);
     }
@@ -84,15 +87,14 @@ export const DoctorEmergencyPage: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              Emergency Patient HUD
+              {t('Emergency Patient HUD')}
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200 uppercase tracking-wide">
-                Audit Logged
+                
+                {t('Audit Logged')}
               </span>
             </h1>
             <p className="text-xs text-slate-500 mt-1 max-w-lg">
-              Instantly view a patient's critical medical data — allergies, conditions, medications and
-              active treatment plans — using their Patient ID. <strong className="text-rose-700">Every lookup
-              is permanently logged in the patient's audit feed.</strong> No patient approval required.
+              {tn("Instantly view a patient's critical medical data — allergies, conditions, medications and active treatment plans — using their Patient ID. {audit} No patient approval required.", { audit: <strong className="text-rose-700">{t("Every lookup is permanently logged in the patient's audit feed.")}</strong> })}
             </p>
           </div>
         </div>
@@ -103,7 +105,8 @@ export const DoctorEmergencyPage: React.FC = () => {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Patient ID *
+              
+              {t('Patient ID *')}
             </label>
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -111,7 +114,7 @@ export const DoctorEmergencyPage: React.FC = () => {
                 id="emergency-hud-patient-id"
                 type="text"
                 required
-                placeholder="PAT-XXXXXX"
+                placeholder={t('PAT-XXXXXX')}
                 value={patientId}
                 onChange={(e) => setPatientId(e.target.value.toUpperCase())}
                 className="glass-input w-full pl-9 font-mono text-sm text-rose-800 font-bold uppercase"
@@ -120,11 +123,12 @@ export const DoctorEmergencyPage: React.FC = () => {
           </div>
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Clinical Reason (optional)
+              
+              {t('Clinical Reason (optional)')}
             </label>
             <input
               type="text"
-              placeholder="e.g. Pre-op review, cardiac arrest response..."
+              placeholder={t('e.g. Pre-op review, cardiac arrest response...')}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="glass-input w-full text-sm"
@@ -145,9 +149,9 @@ export const DoctorEmergencyPage: React.FC = () => {
           className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm"
         >
           {isLoading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Loading Emergency Snapshot...</>
+            <><Loader2 className="w-4 h-4 animate-spin" />  {t('Loading Emergency Snapshot...')}</>
           ) : (
-            <><Zap className="w-4 h-4" /> Access Emergency Snapshot</>
+            <><Zap className="w-4 h-4" />  {t('Access Emergency Snapshot')}</>
           )}
         </button>
       </form>
@@ -174,15 +178,17 @@ export const DoctorEmergencyPage: React.FC = () => {
                   </div>
                   <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                     <span>
-                      Blood Group:{' '}
+                      
+                      {t('Blood Group:')}{' '}
                       <strong className="text-rose-600 font-mono text-base font-extrabold">
                         {p?.bloodGroup || '—'}
                       </strong>
                     </span>
-                    <span>Gender: <strong>{p?.gender || 'Unspecified'}</strong></span>
+                    <span>{t('Gender:')} <strong>{p?.gender ? enumLabel(p?.gender) : t('Unspecified')}</strong></span>
                     {p?.dateOfBirth && (
                       <span>
-                        DOB: <strong>{new Date(p.dateOfBirth).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
+                        
+                        {t('DOB:')} <strong>{new Date(p.dateOfBirth).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}</strong>
                       </span>
                     )}
                   </div>
@@ -194,7 +200,7 @@ export const DoctorEmergencyPage: React.FC = () => {
                 <div className="flex items-start gap-3 p-4 rounded-xl bg-rose-50 border border-rose-200">
                   <Phone className="w-4 h-4 text-rose-600 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-[10px] font-bold text-rose-600 uppercase tracking-wide mb-0.5">Emergency Contact</div>
+                    <div className="text-[10px] font-bold text-rose-600 uppercase tracking-wide mb-0.5">{t('Emergency Contact')}</div>
                     <div className="text-sm font-bold text-slate-900">{emergency.name}</div>
                     <div className="text-xs text-slate-600">{emergency.relationship}</div>
                     <a href={`tel:${emergency.phone}`} className="text-sm font-bold text-rose-700 hover:underline">{emergency.phone}</a>
@@ -211,7 +217,8 @@ export const DoctorEmergencyPage: React.FC = () => {
             <div className="glass-card p-5 border-rose-200 bg-white shadow-sm">
               <div className="flex items-center gap-2 text-rose-700 font-bold text-xs mb-4 pb-2 border-b border-rose-100">
                 <AlertTriangle className="w-4 h-4 text-rose-600" />
-                Allergies ({allergies.length})
+                
+                {t('Allergies (')}{allergies.length})
               </div>
               {allergies.length > 0 ? (
                 <div className="space-y-2">
@@ -226,7 +233,7 @@ export const DoctorEmergencyPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No known allergies on record</p>
+                <p className="text-xs text-slate-400">{t('No known allergies on record')}</p>
               )}
             </div>
 
@@ -234,7 +241,8 @@ export const DoctorEmergencyPage: React.FC = () => {
             <div className="glass-card p-5 border-purple-200 bg-white shadow-sm">
               <div className="flex items-center gap-2 text-purple-700 font-bold text-xs mb-4 pb-2 border-b border-purple-100">
                 <Activity className="w-4 h-4 text-purple-600" />
-                Chronic Conditions ({conditions.length})
+                
+                {t('Chronic Conditions (')}{conditions.length})
               </div>
               {conditions.length > 0 ? (
                 <div className="space-y-2">
@@ -249,7 +257,7 @@ export const DoctorEmergencyPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No chronic conditions on record</p>
+                <p className="text-xs text-slate-400">{t('No chronic conditions on record')}</p>
               )}
             </div>
 
@@ -257,7 +265,8 @@ export const DoctorEmergencyPage: React.FC = () => {
             <div className="glass-card p-5 border-teal-200 bg-white shadow-sm">
               <div className="flex items-center gap-2 text-teal-700 font-bold text-xs mb-4 pb-2 border-b border-teal-100">
                 <Pill className="w-4 h-4 text-teal-600" />
-                Active Medications ({medications.length})
+                
+                {t('Active Medications (')}{medications.length})
               </div>
               {medications.length > 0 ? (
                 <div className="space-y-2">
@@ -270,7 +279,7 @@ export const DoctorEmergencyPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No active medications</p>
+                <p className="text-xs text-slate-400">{t('No active medications')}</p>
               )}
             </div>
           </div>
@@ -280,7 +289,8 @@ export const DoctorEmergencyPage: React.FC = () => {
             <div className="glass-card p-6 border-emerald-200 bg-white shadow-sm">
               <div className="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-4 pb-2 border-b border-emerald-100">
                 <HeartPulse className="w-4 h-4 text-emerald-600" />
-                Ongoing Treatments / Active Health Paths ({activePaths.length})
+                
+                {t('Ongoing Treatments / Active Health Paths (')}{activePaths.length})
               </div>
               <div className="space-y-4">
                 {activePaths.map((hp: any, i: number) => (
@@ -288,12 +298,14 @@ export const DoctorEmergencyPage: React.FC = () => {
                     <div className="flex items-start justify-between gap-2 flex-wrap mb-2">
                       <h3 className="text-sm font-bold text-slate-900">{hp.treatment}</h3>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        ACTIVE
+                        
+                        {t('ACTIVE')}
                       </span>
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      Supervising physician: <strong className="text-slate-700">{hp.supervisingDoctor}</strong>
-                      {hp.startDate && ` · Started ${new Date(hp.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                      
+                      {t('Supervising physician:')} <strong className="text-slate-700">{hp.supervisingDoctor}</strong>
+                      {hp.startDate && t(' · Started {value}', { value: new Date(hp.startDate).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short', year: 'numeric' }) })}
                     </div>
                   </div>
                 ))}
@@ -305,8 +317,7 @@ export const DoctorEmergencyPage: React.FC = () => {
           <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800">
             <ClipboardList className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
             <span>
-              This emergency lookup has been <strong>permanently recorded</strong> in{' '}
-              <strong>{p?.name}</strong>'s audit feed with your Doctor ID, name, timestamp, and stated reason.
+              {tn("This emergency lookup has been {recorded} in {name}'s audit feed with your Doctor ID, name, timestamp, and stated reason.", { recorded: <strong>{t('permanently recorded')}</strong>, name: <strong>{p?.name}</strong> })}
             </span>
           </div>
 

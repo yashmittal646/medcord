@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { api } from '../../services/api.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface AllergyModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
   onSuccess,
   existingAllergy,
 }) => {
+  const { t } = useLanguage();
   const [substance, setSubstance] = useState('');
   const [severity, setSeverity] = useState('MODERATE');
   const [notes, setNotes] = useState('');
@@ -52,7 +54,7 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to save allergy');
+      setError(err.message || t('Failed to save allergy'));
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +66,7 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-            {isEditing ? 'Edit Allergy Record' : 'Record Allergy / Adverse Reaction'}
+            {isEditing ? t('Edit Allergy Record') : t('Record Allergy / Adverse Reaction')}
           </h3>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
             <X className="w-5 h-5" />
@@ -80,11 +82,11 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Substance / Medication *</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">{t('Substance / Medication *')}</label>
             <input
               type="text"
               required
-              placeholder="e.g. Penicillin, Peanuts, Latex, Aspirin"
+              placeholder={t('e.g. Penicillin, Peanuts, Latex, Aspirin')}
               value={substance}
               onChange={(e) => setSubstance(e.target.value)}
               className="w-full glass-input text-xs bg-white"
@@ -92,24 +94,24 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Severity Level *</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">{t('Severity Level *')}</label>
             <select
               value={severity}
               onChange={(e) => setSeverity(e.target.value)}
               className="w-full glass-input text-xs bg-white"
             >
-              <option value="MILD">Mild (Rash, itching)</option>
-              <option value="MODERATE">Moderate (Hives, localized swelling)</option>
-              <option value="SEVERE">Severe (Facial swelling, respiratory difficulty)</option>
-              <option value="LIFE_THREATENING">Life-Threatening (Anaphylaxis shock risk)</option>
+              <option value="MILD">{t('Mild (Rash, itching)')}</option>
+              <option value="MODERATE">{t('Moderate (Hives, localized swelling)')}</option>
+              <option value="SEVERE">{t('Severe (Facial swelling, respiratory difficulty)')}</option>
+              <option value="LIFE_THREATENING">{t('Life-Threatening (Anaphylaxis shock risk)')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Reaction Details / Notes</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">{t('Reaction Details / Notes')}</label>
             <textarea
               rows={3}
-              placeholder="Describe symptoms or previous adverse reactions..."
+              placeholder={t('Describe symptoms or previous adverse reactions...')}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full glass-input text-xs resize-none bg-white"
@@ -122,14 +124,15 @@ export const AllergyModal: React.FC<AllergyModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
             >
-              Cancel
+              
+              {t('Cancel')}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
             >
-              {isSubmitting ? 'Saving...' : isEditing ? 'Update Allergy' : 'Save Allergy'}
+              {isSubmitting ? t('Saving...') : isEditing ? t('Update Allergy') : t('Save Allergy')}
             </button>
           </div>
         </form>

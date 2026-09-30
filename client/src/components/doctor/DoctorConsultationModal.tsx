@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, AlertCircle, UploadCloud, Stethoscope } from 'lucide-react';
 import { api } from '../../services/api.js';
+import { useLanguage } from '../../context/LanguageContext.js';
+import { tx } from '../../i18n/index.js';
 
 interface DoctorConsultationModalProps {
   isOpen: boolean;
@@ -10,11 +12,11 @@ interface DoctorConsultationModalProps {
 }
 
 const RECORD_TYPES = [
-  { value: 'CONSULTATION', label: 'Consultation Notes' },
-  { value: 'PRESCRIPTION', label: 'Prescription' },
-  { value: 'LAB_REPORT', label: 'Lab / Investigation Report' },
-  { value: 'CHECKUP', label: 'Routine Checkup' },
-  { value: 'OTHER', label: 'Other Document' },
+  { value: 'CONSULTATION', label: tx('Consultation Notes') },
+  { value: 'PRESCRIPTION', label: tx('Prescription') },
+  { value: 'LAB_REPORT', label: tx('Lab / Investigation Report') },
+  { value: 'CHECKUP', label: tx('Routine Checkup') },
+  { value: 'OTHER', label: tx('Other Document') },
 ];
 
 export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = ({
@@ -23,6 +25,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
   onSuccess,
   patientId,
 }) => {
+  const { t } = useLanguage();
   const [title, setTitle] = useState('');
   const [recordType, setRecordType] = useState('CONSULTATION');
   const [recordDate, setRecordDate] = useState(new Date().toISOString().split('T')[0]);
@@ -59,7 +62,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
       setDescription('');
       setFile(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to create consultation record');
+      setError(err.message || t('Failed to create consultation record'));
     } finally {
       setIsSubmitting(false);
     }
@@ -71,7 +74,8 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <Stethoscope className="w-5 h-5 text-emerald-600" />
-            Add Clinical Consultation / Upload Record
+            
+            {t('Add Clinical Consultation / Upload Record')}
           </h3>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
             <X className="w-5 h-5" />
@@ -88,12 +92,13 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Record Title *
+              
+              {t('Record Title *')}
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Annual Checkup, Follow-up Consultation"
+              placeholder={t('e.g. Annual Checkup, Follow-up Consultation')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="glass-input w-full text-sm bg-white"
@@ -103,21 +108,23 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Record Type *
+                
+                {t('Record Type *')}
               </label>
               <select
                 value={recordType}
                 onChange={(e) => setRecordType(e.target.value)}
                 className="glass-input w-full text-sm bg-white"
               >
-                {RECORD_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                {RECORD_TYPES.map((rt) => (
+                  <option key={rt.value} value={rt.value}>{t(rt.label)}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Date *
+                
+                {t('Date *')}
               </label>
               <input
                 type="date"
@@ -131,11 +138,12 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Diagnosis / Clinical Assessment
+              
+              {t('Diagnosis / Clinical Assessment')}
             </label>
             <input
               type="text"
-              placeholder="e.g. Controlled Type 2 Diabetes, Mild hypertension"
+              placeholder={t('e.g. Controlled Type 2 Diabetes, Mild hypertension')}
               value={diagnosis}
               onChange={(e) => setDiagnosis(e.target.value)}
               className="glass-input w-full text-sm bg-white"
@@ -144,11 +152,12 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Clinical Notes & Orders
+              
+              {t('Clinical Notes & Orders')}
             </label>
             <textarea
               rows={3}
-              placeholder="Observations, treatment notes, instructions for the patient..."
+              placeholder={t('Observations, treatment notes, instructions for the patient...')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="glass-input w-full text-sm resize-none bg-white"
@@ -158,12 +167,13 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
           {/* File Upload */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Attach Clinical Document / Report (Optional)
+              
+              {t('Attach Clinical Document / Report (Optional)')}
             </label>
             <label className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-slate-300 hover:border-emerald-500 cursor-pointer transition-colors bg-slate-50">
               <UploadCloud className="w-6 h-6 text-slate-400" />
               <span className="text-xs text-slate-600 font-medium">
-                {file ? file.name : 'Click to attach PDF, Image, Scan, etc.'}
+                {file ? file.name : t('Click to attach PDF, Image, Scan, etc.')}
               </span>
               <input
                 type="file"
@@ -178,7 +188,8 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
                 onClick={() => setFile(null)}
                 className="text-xs text-rose-600 hover:text-rose-700 mt-1 font-medium"
               >
-                Remove attached file
+                
+                {t('Remove attached file')}
               </button>
             )}
           </div>
@@ -189,7 +200,8 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
             >
-              Cancel
+              
+              {t('Cancel')}
             </button>
             <button
               type="submit"
@@ -197,7 +209,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
               className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl hover:opacity-95 shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
             >
               <Stethoscope className="w-3.5 h-3.5" />
-              {isSubmitting ? 'Saving...' : 'Save Consultation Record'}
+              {isSubmitting ? t('Saving...') : t('Save Consultation Record')}
             </button>
           </div>
         </form>

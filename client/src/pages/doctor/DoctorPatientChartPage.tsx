@@ -21,6 +21,8 @@ import {
   FileText,
   Filter,
 } from 'lucide-react';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 const getBadgeColor = (type: string) => {
   const map: Record<string, string> = {
@@ -33,6 +35,7 @@ const getBadgeColor = (type: string) => {
 };
 
 export const DoctorPatientChartPage: React.FC = () => {
+  const { t } = useLanguage();
   const openFile = useOpenRecordFile();
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
@@ -77,7 +80,7 @@ export const DoctorPatientChartPage: React.FC = () => {
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-2 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin" />
-          <p className="text-xs text-slate-500 font-medium">Loading patient chart...</p>
+          <p className="text-xs text-slate-500 font-medium">{t('Loading patient chart...')}</p>
         </div>
       </div>
     );
@@ -89,16 +92,18 @@ export const DoctorPatientChartPage: React.FC = () => {
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 inline-block">
           <AlertTriangle className="w-10 h-10 text-amber-600 mx-auto" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Patient Consent Required</h2>
+        <h2 className="text-xl font-bold text-slate-900">{t('Patient Consent Required')}</h2>
         <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-          You do not currently have active approved access to view this patient's medical records. Please submit an access request through the Patient Lookup portal and await patient approval.
+          
+          {t('You do not currently have active approved access to view this patient\'s medical records. Please submit an access request through the Patient Lookup portal and await patient approval.')}
         </p>
         <div className="pt-2 flex justify-center gap-3">
           <button
             onClick={() => navigate(`/doctor/lookup?id=${patientId}`)}
             className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
           >
-            Request Access in Lookup Portal
+            
+            {t('Request Access in Lookup Portal')}
           </button>
         </div>
       </div>
@@ -110,10 +115,10 @@ export const DoctorPatientChartPage: React.FC = () => {
   const critical = summary.criticalInformation;
 
   const TABS = [
-    { id: 'overview', label: 'Overview', Icon: User },
-    { id: 'records',  label: `Records (${records.length})`, Icon: FileText },
-    { id: 'timeline', label: `Timeline (${timeline.length})`, Icon: Clock },
-    { id: 'paths',   label: `Health Paths (${healthPaths.length})`, Icon: HeartPulse },
+    { id: 'overview', label: t('Overview'), Icon: User },
+    { id: 'records',  label: t('Records ({count})', { count: records.length }), Icon: FileText },
+    { id: 'timeline', label: t('Timeline ({count})', { count: timeline.length }), Icon: Clock },
+    { id: 'paths',   label: t('Health Paths ({count})', { count: healthPaths.length }), Icon: HeartPulse },
   ] as const;
 
   const RECORD_TYPES = ['ALL', 'PRESCRIPTION', 'LAB_REPORT', 'CONSULTATION', 'CHECKUP', 'OTHER'];
@@ -129,7 +134,7 @@ export const DoctorPatientChartPage: React.FC = () => {
           onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Lookup
+          <ArrowLeft className="w-4 h-4" />  {t('Back to Lookup')}
         </button>
         <div className="flex gap-2.5 flex-wrap">
           <button
@@ -138,7 +143,8 @@ export const DoctorPatientChartPage: React.FC = () => {
             className="px-4 py-2 bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
           >
             <Stethoscope className="w-3.5 h-3.5 text-emerald-600" />
-            Add Consultation
+            
+            {t('Add Consultation')}
           </button>
           <button
             onClick={() => setIsHealthPathOpen(true)}
@@ -146,7 +152,8 @@ export const DoctorPatientChartPage: React.FC = () => {
             className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
-            Create Health Path
+            
+            {t('Create Health Path')}
           </button>
         </div>
       </div>
@@ -167,14 +174,14 @@ export const DoctorPatientChartPage: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                 <span>
-                  Blood Group:{' '}
+                  
+                  {t('Blood Group:')}{' '}
                   <strong className="text-rose-600 font-mono font-bold">{patient?.bloodGroup || '—'}</strong>
                 </span>
-                <span>Gender: <strong className="text-slate-800 font-semibold">{patient?.gender || 'Unspecified'}</strong></span>
+                <span>{t('Gender:')} <strong className="text-slate-800 font-semibold">{patient?.gender ? enumLabel(patient?.gender) : t('Unspecified')}</strong></span>
                 {patient?.emergencyContact?.name && (
                   <span className="text-rose-700 font-medium">
-                    Emergency: {patient.emergencyContact.name} ({patient.emergencyContact.phone})
-                  </span>
+                    {t('Emergency: {name} ({phone})', { name: patient.emergencyContact.name, phone: patient.emergencyContact.phone })}</span>
                 )}
               </div>
             </div>
@@ -183,9 +190,9 @@ export const DoctorPatientChartPage: React.FC = () => {
           {/* Stats */}
           <div className="flex gap-4 text-center">
             {[
-              { label: 'Records', value: records.length },
-              { label: 'Health Paths', value: healthPaths.length },
-              { label: 'Timeline Events', value: timeline.length },
+              { label: t('Records'), value: records.length },
+              { label: t('Health Paths'), value: healthPaths.length },
+              { label: t('Timeline Events'), value: timeline.length },
             ].map((s) => (
               <div key={s.label} className="px-3 border-l border-slate-100 first:border-0">
                 <div className="text-xl font-extrabold text-slate-900">{s.value ?? 0}</div>
@@ -224,7 +231,8 @@ export const DoctorPatientChartPage: React.FC = () => {
           <div className="glass-card p-6 border-rose-200 bg-white shadow-sm">
             <div className="flex items-center gap-2 text-rose-700 font-bold text-xs mb-4 pb-2 border-b border-rose-100">
               <AlertTriangle className="w-4 h-4 text-rose-600" />
-              Allergies ({critical?.allergies?.length || 0})
+              
+              {t('Allergies (')}{critical?.allergies?.length || 0})
             </div>
             {critical?.allergies?.length > 0 ? (
               <div className="space-y-2">
@@ -235,18 +243,19 @@ export const DoctorPatientChartPage: React.FC = () => {
                       a.severity === 'LIFE_THREATENING'
                         ? 'bg-rose-600 text-white animate-pulse'
                         : 'bg-rose-100 text-rose-800'
-                    }`}>{a.severity}</span>
+                    }`}>{enumLabel(a.severity)}</span>
                   </div>
                 ))}
               </div>
-            ) : <p className="text-xs text-slate-400">No known allergies</p>}
+            ) : <p className="text-xs text-slate-400">{t('No known allergies')}</p>}
           </div>
 
           {/* Medications */}
           <div className="glass-card p-6 border-teal-200 bg-white shadow-sm">
             <div className="flex items-center gap-2 text-teal-700 font-bold text-xs mb-4 pb-2 border-b border-teal-100">
               <Pill className="w-4 h-4 text-teal-600" />
-              Active Medications ({critical?.currentMedications?.length || 0})
+              
+              {t('Active Medications (')}{critical?.currentMedications?.length || 0})
             </div>
             {critical?.currentMedications?.length > 0 ? (
               <div className="space-y-2">
@@ -257,25 +266,26 @@ export const DoctorPatientChartPage: React.FC = () => {
                   </div>
                 ))}
               </div>
-            ) : <p className="text-xs text-slate-400">No active medications</p>}
+            ) : <p className="text-xs text-slate-400">{t('No active medications')}</p>}
           </div>
 
           {/* Conditions */}
           <div className="glass-card p-6 border-purple-200 bg-white shadow-sm">
             <div className="flex items-center gap-2 text-purple-700 font-bold text-xs mb-4 pb-2 border-b border-purple-100">
               <Activity className="w-4 h-4 text-purple-600" />
-              Chronic Conditions ({critical?.chronicConditions?.length || 0})
+              
+              {t('Chronic Conditions (')}{critical?.chronicConditions?.length || 0})
             </div>
             {critical?.chronicConditions?.length > 0 ? (
               <div className="space-y-2">
                 {critical.chronicConditions.map((c: any, i: number) => (
                   <div key={i} className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-purple-50/60 border border-purple-200">
                     <span className="text-xs text-slate-900 font-bold">{c.condition}</span>
-                    <span className="text-[10px] font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">{c.status}</span>
+                    <span className="text-[10px] font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">{enumLabel(c.status)}</span>
                   </div>
                 ))}
               </div>
-            ) : <p className="text-xs text-slate-400">No chronic conditions</p>}
+            ) : <p className="text-xs text-slate-400">{t('No chronic conditions')}</p>}
           </div>
         </div>
       )}
@@ -286,17 +296,17 @@ export const DoctorPatientChartPage: React.FC = () => {
           {/* Type filter chips */}
           <div className="flex items-center gap-2 flex-wrap">
             <Filter className="w-3.5 h-3.5 text-slate-400" />
-            {RECORD_TYPES.map((t) => (
+            {RECORD_TYPES.map((rt) => (
               <button
-                key={t}
-                onClick={() => setRecordTypeFilter(t)}
+                key={rt}
+                onClick={() => setRecordTypeFilter(rt)}
                 className={`text-[11px] font-bold px-3 py-1.5 rounded-full border transition-all ${
-                  recordTypeFilter === t
+                  recordTypeFilter === rt
                     ? 'bg-emerald-600 text-white border-emerald-600'
                     : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
                 }`}
               >
-                {t === 'ALL' ? 'All Types' : t.replace('_', ' ')}
+                {rt === 'ALL' ? t('All Types') : t(rt.replace('_', ' ').toLowerCase())}
               </button>
             ))}
           </div>
@@ -309,19 +319,19 @@ export const DoctorPatientChartPage: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-2">
                         <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getBadgeColor(rec.recordType)}`}>
-                          {rec.recordType?.replace('_', ' ')}
+                          {enumLabel(rec.recordType)}
                         </span>
                         <span className="text-xs text-slate-500 font-mono font-semibold">
-                          {new Date(rec.recordDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          {new Date(rec.recordDate).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short', year: 'numeric' })}
                         </span>
                         {rec.uploaderRole === 'DOCTOR' && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">By Doctor</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">{t('By Doctor')}</span>
                         )}
                       </div>
                       <h3 className="text-sm font-bold text-slate-900 mb-1">{rec.title}</h3>
                       {rec.diagnosis && (
                         <div className="p-2 mb-2 bg-emerald-50 border border-emerald-100 rounded-lg text-xs text-emerald-900">
-                          <strong>Diagnosis:</strong> {rec.diagnosis}
+                          <strong>{t('Diagnosis:')}</strong> {rec.diagnosis}
                         </div>
                       )}
                       {rec.description && (
@@ -335,11 +345,11 @@ export const DoctorPatientChartPage: React.FC = () => {
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => setSelectedRecord(rec)}
-                        title="View & Download Prescription / Document"
+                        title={t('View & Download Prescription / Document')}
                         className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 font-bold transition-colors"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>Download / View</span>
+                        <span>{t('Download / View')}</span>
                       </button>
 
                       {rec.file && (
@@ -349,7 +359,7 @@ export const DoctorPatientChartPage: React.FC = () => {
                           className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
-                          <span>File</span>
+                          <span>{t('File')}</span>
                         </button>
                       )}
                     </div>
@@ -360,8 +370,8 @@ export const DoctorPatientChartPage: React.FC = () => {
           ) : (
             <div className="glass-card p-12 text-center border-slate-200 bg-white">
               <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-800">No records found</p>
-              <p className="text-xs text-slate-500 mt-1">No {recordTypeFilter !== 'ALL' ? recordTypeFilter.replace('_',' ').toLowerCase() : ''} records for this patient yet.</p>
+              <p className="text-sm font-bold text-slate-800">{t('No records found')}</p>
+              <p className="text-xs text-slate-500 mt-1">{recordTypeFilter !== 'ALL' ? t('No {type} records for this patient yet.', { type: t(recordTypeFilter.replace('_', ' ').toLowerCase()) }) : t('No records for this patient yet.')}</p>
             </div>
           )}
         </div>
@@ -378,10 +388,10 @@ export const DoctorPatientChartPage: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getBadgeColor(event.recordType)}`}>
-                          {event.recordType}
+                          {enumLabel(event.recordType)}
                         </span>
                         <span className="text-xs text-slate-500 font-mono font-semibold">
-                          {new Date(event.recordDate).toLocaleDateString()}
+                          {new Date(event.recordDate).toLocaleDateString(getLocale())}
                         </span>
                       </div>
                       {event.hasAttachment && (
@@ -391,21 +401,21 @@ export const DoctorPatientChartPage: React.FC = () => {
                           className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 font-bold transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
-                          {event.fileDetails?.originalName || 'Download File'}
+                          {event.fileDetails?.originalName || t('Download File')}
                         </button>
                       )}
                     </div>
                     <h3 className="text-sm font-bold text-slate-900">{event.title}</h3>
                     {event.diagnosis && (
                       <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium">
-                        <strong className="font-bold">Diagnosis:</strong> {event.diagnosis}
+                        <strong className="font-bold">{t('Diagnosis:')}</strong> {event.diagnosis}
                       </div>
                     )}
                     {event.description && <p className="text-xs text-slate-600 leading-relaxed">{event.description}</p>}
                     <div className="flex flex-wrap gap-3 text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
-                      {event.doctorName && <span className="font-medium text-slate-600">Dr. {event.doctorName}</span>}
+                      {event.doctorName && <span className="font-medium text-slate-600">{t('Dr. {doctorName}', { doctorName: event.doctorName })}</span>}
                       {event.facilityName && <><span>•</span><span>{event.facilityName}</span></>}
-                      <span>• Recorded by: {event.uploadedBy?.name} ({event.uploadedBy?.role})</span>
+                      <span>{t('• Recorded by: {name} ({role})', { name: event.uploadedBy?.name, role: event.uploadedBy?.role })}</span>
                     </div>
                   </div>
                 </div>
@@ -414,8 +424,8 @@ export const DoctorPatientChartPage: React.FC = () => {
           ) : (
             <div className="glass-card p-12 text-center border-slate-200 bg-white">
               <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-800">No timeline events yet</p>
-              <p className="text-xs text-slate-500 mt-1">Add a consultation to start building this patient's history.</p>
+              <p className="text-sm font-bold text-slate-800">{t('No timeline events yet')}</p>
+              <p className="text-xs text-slate-500 mt-1">{t('Add a consultation to start building this patient\'s history.')}</p>
             </div>
           )}
         </div>
@@ -431,12 +441,12 @@ export const DoctorPatientChartPage: React.FC = () => {
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <h3 className="text-sm font-bold text-slate-900">{hp.condition}</h3>
                       <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-teal-100 text-teal-800 border border-teal-300">
-                        {hp.status}
+                        {enumLabel(hp.status)}
                       </span>
                     </div>
                     {hp.description && <p className="text-xs text-slate-600 mt-0.5">{hp.description}</p>}
                     <p className="text-xs text-slate-500 mt-1 font-medium">
-                      Started: {new Date(hp.startDate).toLocaleDateString()}
+                      {t('Started: {value}', { value: new Date(hp.startDate).toLocaleDateString(getLocale()) })}
                     </p>
                   </div>
                 </div>
@@ -456,12 +466,12 @@ export const DoctorPatientChartPage: React.FC = () => {
           ) : (
             <div className="glass-card p-12 text-center border-slate-200 bg-white">
               <HeartPulse className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-800">No health paths created</p>
+              <p className="text-sm font-bold text-slate-800">{t('No health paths created')}</p>
               <button
                 onClick={() => setIsHealthPathOpen(true)}
                 className="mt-4 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-all inline-flex items-center gap-1.5 shadow-sm"
               >
-                <Plus className="w-3.5 h-3.5" /> Create First Health Path
+                <Plus className="w-3.5 h-3.5" />  {t('Create First Health Path')}
               </button>
             </div>
           )}

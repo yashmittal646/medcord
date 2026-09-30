@@ -11,6 +11,8 @@ import {
   HeartPulse,
 } from 'lucide-react';
 import { useOpenRecordFile } from '../../hooks/useOpenRecordFile.js';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 interface MedicalDocumentModalProps {
   record: any | null;
@@ -25,6 +27,7 @@ export const MedicalDocumentModal: React.FC<MedicalDocumentModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useLanguage();
   const openFile = useOpenRecordFile();
   if (!isOpen || !record) return null;
 
@@ -33,39 +36,42 @@ export const MedicalDocumentModal: React.FC<MedicalDocumentModalProps> = ({
   };
 
   const handleDownloadText = () => {
+    const rule = '='.repeat(80);
+    const thin = '-'.repeat(80);
+    const label = (text: string) => text.padEnd(16);
     const content = `
-================================================================================
+${rule}
                     FOLLOWUP HEALTHCARE PLATFORM
-                   OFFICIAL CLINICAL RECORD & RX
-================================================================================
+                   ${t('OFFICIAL CLINICAL RECORD & RX')}
+${rule}
 
-RECORD TITLE    : ${record.title || 'Medical Record'}
-RECORD TYPE     : ${record.recordType || 'PRESCRIPTION'}
-RECORD DATE     : ${new Date(record.recordDate || Date.now()).toLocaleDateString()}
-FACILITY        : ${record.facilityName || 'Authorized Medical Center'}
-PHYSICIAN       : Dr. ${record.doctorName || 'Authorized Clinician'}
+${label(t('RECORD TITLE'))}: ${record.title || t('Medical Record')}
+${label(t('RECORD TYPE'))}: ${enumLabel(record.recordType || 'PRESCRIPTION')}
+${label(t('RECORD DATE'))}: ${new Date(record.recordDate || Date.now()).toLocaleDateString(getLocale())}
+${label(t('FACILITY'))}: ${record.facilityName || t('Authorized Medical Center')}
+${label(t('PHYSICIAN'))}: ${t('Dr. {name}', { name: record.doctorName || t('Authorized Clinician') })}
 
---------------------------------------------------------------------------------
-PATIENT INFORMATION
---------------------------------------------------------------------------------
-PATIENT ID      : ${record.patientId || patient?.patientId || 'PAT-RECORD'}
-PATIENT NAME    : ${patient?.name || 'Verified Patient'}
+${thin}
+${t('PATIENT INFORMATION')}
+${thin}
+${label(t('PATIENT ID'))}: ${record.patientId || patient?.patientId || 'PAT-RECORD'}
+${label(t('PATIENT NAME'))}: ${patient?.name || t('Verified Patient')}
 
---------------------------------------------------------------------------------
-CLINICAL NOTES / RX PRESCRIPTION ORDERS
---------------------------------------------------------------------------------
-${record.description || 'No detailed prescription notes recorded.'}
+${thin}
+${t('CLINICAL NOTES / RX PRESCRIPTION ORDERS')}
+${thin}
+${record.description || t('No detailed prescription notes recorded.')}
 
-${record.diagnosis ? `DIAGNOSIS:\n${record.diagnosis}\n` : ''}
-${record.tags && record.tags.length > 0 ? `TAGS / CLINICAL CATEGORIES:\n${record.tags.join(', ')}\n` : ''}
+${record.diagnosis ? `${t('DIAGNOSIS:')}\n${record.diagnosis}\n` : ''}
+${record.tags && record.tags.length > 0 ? `${t('TAGS / CLINICAL CATEGORIES:')}\n${record.tags.join(', ')}\n` : ''}
 
---------------------------------------------------------------------------------
-SECURITY & AUDIT CERTIFICATION
---------------------------------------------------------------------------------
-Status          : Verified in FollowUp Sovereign Vault
-Audit ID        : REC-${record._id || 'DIGITAL-STAMP'}
-Timestamp       : ${new Date().toISOString()}
-================================================================================
+${thin}
+${t('SECURITY & AUDIT CERTIFICATION')}
+${thin}
+${label(t('Status'))}: ${t('Verified in FollowUp Sovereign Vault')}
+${label(t('Audit ID'))}: REC-${record._id || 'DIGITAL-STAMP'}
+${label(t('Timestamp'))}: ${new Date().toISOString()}
+${rule}
     `;
 
     const blob = new Blob([content.trim()], { type: 'text/plain;charset=utf-8' });
@@ -103,8 +109,8 @@ Timestamp       : ${new Date().toISOString()}
               <FileText className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Clinical Document Viewer</h2>
-              <p className="text-[11px] text-slate-400">Official Medical Record & Prescription</p>
+              <h2 className="text-sm font-bold text-white">{t('Clinical Document Viewer')}</h2>
+              <p className="text-[11px] text-slate-400">{t('Official Medical Record & Prescription')}</p>
             </div>
           </div>
 
@@ -116,7 +122,7 @@ Timestamp       : ${new Date().toISOString()}
                 className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Original Attachment</span>
+                <span>{t('Original Attachment')}</span>
               </button>
             )}
 
@@ -125,7 +131,7 @@ Timestamp       : ${new Date().toISOString()}
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Text</span>
+              <span>{t('Download Text')}</span>
             </button>
 
             <button
@@ -133,7 +139,7 @@ Timestamp       : ${new Date().toISOString()}
               className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Print / Save as PDF</span>
+              <span>{t('Print / Save as PDF')}</span>
             </button>
 
             <button
@@ -156,7 +162,8 @@ Timestamp       : ${new Date().toISOString()}
                   Follow<span className="text-blue-600">Up</span>
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                  Certified Health Vault
+                  
+                  {t('Certified Health Vault')}
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium">
@@ -164,7 +171,7 @@ Timestamp       : ${new Date().toISOString()}
               </p>
               {record.doctorName && (
                 <p className="text-xs font-bold text-slate-800">
-                  Attending: Dr. {record.doctorName}
+                  {t('Attending: Dr. {doctorName}', { doctorName: record.doctorName })}
                 </p>
               )}
             </div>
@@ -172,13 +179,13 @@ Timestamp       : ${new Date().toISOString()}
             <div className="text-right space-y-1 sm:self-auto self-end">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800">
                 {getBadgeIcon(record.recordType)}
-                <span>{record.recordType || 'MEDICAL RECORD'}</span>
+                <span>{record.recordType ? enumLabel(record.recordType) : t('MEDICAL RECORD')}</span>
               </div>
               <p className="text-xs text-slate-500 font-mono">
-                Date: {new Date(record.recordDate || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                {t('Date: {value}', { value: new Date(record.recordDate || Date.now()).toLocaleDateString(getLocale(), { year: 'numeric', month: 'long', day: 'numeric' }) })}
               </p>
               <p className="text-[11px] text-slate-400 font-mono">
-                Doc ID: REC-{record._id?.slice(-8).toUpperCase() || 'E92F01'}
+                {t('Doc ID: REC-{id}', { id: record._id?.slice(-8).toUpperCase() || 'E92F01' })}
               </p>
             </div>
           </div>
@@ -186,20 +193,20 @@ Timestamp       : ${new Date().toISOString()}
           {/* Patient Meta Strip */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Patient Name</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{t('Patient Name')}</span>
               <span className="font-bold text-slate-900">{patient?.name || 'Arjun Mehta'}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Patient ID</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{t('Patient ID')}</span>
               <span className="font-mono font-bold text-blue-700">{record.patientId || 'PAT-DEMO01'}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Facility / Clinic</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{t('Facility / Clinic')}</span>
               <span className="font-medium text-slate-800">{record.facilityName || 'Apollo Clinic'}</span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Prescribing Doctor</span>
-              <span className="font-medium text-slate-800">Dr. {record.doctorName || 'Priya Sharma'}</span>
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">{t('Prescribing Doctor')}</span>
+              <span className="font-medium text-slate-800">{t('Dr.')} {record.doctorName || 'Priya Sharma'}</span>
             </div>
           </div>
 
@@ -209,7 +216,7 @@ Timestamp       : ${new Date().toISOString()}
               <h3 className="text-base font-black text-slate-900 mb-1">{record.title}</h3>
               {record.diagnosis && (
                 <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-xs mt-3">
-                  <span className="font-bold block mb-0.5 uppercase tracking-wider text-[10px]">Clinical Diagnosis / Assessment:</span>
+                  <span className="font-bold block mb-0.5 uppercase tracking-wider text-[10px]">{t('Clinical Diagnosis / Assessment:')}</span>
                   <p className="leading-relaxed">{record.diagnosis}</p>
                 </div>
               )}
@@ -220,18 +227,19 @@ Timestamp       : ${new Date().toISOString()}
               <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
                 <span className="text-lg font-serif font-bold text-slate-900">℞</span>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                  Prescription Orders & Clinical Instructions
+                  
+                  {t('Prescription Orders & Clinical Instructions')}
                 </span>
               </div>
               <div className="p-5 rounded-xl bg-slate-50/80 border border-slate-200/80 text-xs text-slate-800 font-sans leading-relaxed whitespace-pre-wrap">
-                {record.description || 'No detailed instructions recorded.'}
+                {record.description || t('No detailed instructions recorded.')}
               </div>
             </div>
 
             {/* Tags */}
             {record.tags && record.tags.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap pt-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Tags:</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">{t('Tags:')}</span>
                 {record.tags.map((t: string) => (
                   <span key={t} className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
                     #{t}
@@ -249,17 +257,19 @@ Timestamp       : ${new Date().toISOString()}
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                  Digitally Verified Medical Document
+                  
+                  {t('Digitally Verified Medical Document')}
                 </p>
                 <p className="text-[10px] text-slate-500">
-                  FollowUp Sovereign Health Vault • Tamper-Evident SHA-256
+                  
+                  {t('FollowUp Sovereign Health Vault • Tamper-Evident SHA-256')}
                 </p>
               </div>
             </div>
 
             <div className="text-right sm:self-auto self-end border-t border-slate-300 pt-2 min-w-[180px]">
-              <p className="text-xs font-serif italic text-slate-700">Dr. {record.doctorName || 'Priya Sharma'}</p>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Authorized Clinician Signature</p>
+              <p className="text-xs font-serif italic text-slate-700">{t('Dr.')} {record.doctorName || 'Priya Sharma'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t('Authorized Clinician Signature')}</p>
             </div>
           </div>
 

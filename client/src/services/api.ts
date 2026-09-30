@@ -1,4 +1,12 @@
+import { tr } from '../context/LanguageContext.js';
+import { translateServerMessage } from '../utils/serverMessage.js';
 const API_BASE = '/api';
+
+/** Validation errors arrive as { field: message }; translate each message */
+function translateFieldErrors(errors: unknown) {
+  if (!errors || typeof errors !== 'object') return errors;
+  return Object.fromEntries(Object.entries(errors as Record<string, unknown>).map(([k, v]) => [k, typeof v === 'string' ? translateServerMessage(v) : v]));
+}
 
 export class ApiError extends Error {
   public statusCode: number;
@@ -43,7 +51,7 @@ async function request<T>(
       localStorage.removeItem('async_health_token');
       localStorage.removeItem('async_health_user');
     }
-    throw new ApiError(data.message || 'Request failed', response.status, data.errors);
+    throw new ApiError(translateServerMessage(data.message) || tr('Request failed'), response.status, translateFieldErrors(data.errors));
   }
 
   return data;
@@ -176,7 +184,7 @@ export async function openRecordFile(recordId: string): Promise<void> {
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      throw new ApiError(data.message || 'Could not open this file', res.status);
+      throw new ApiError(translateServerMessage(data.message) || tr('Could not open this file'), res.status);
     }
     const url = URL.createObjectURL(await res.blob());
     if (popup) popup.location.href = url;

@@ -137,7 +137,7 @@ export class AccessRequestService {
       type: 'ACCESS_REQUEST_RECEIVED',
       title: 'New access request',
       body: `${doctorUser.name} (${ownSpec ?? profile.specialization}) is asking to view some of your records.`,
-      data: { requestId: request._id.toString() },
+      data: { requestId: request._id.toString(), doctorName: doctorUser.name, specialization: String(ownSpec ?? profile.specialization) },
     });
 
     return request;
@@ -198,7 +198,7 @@ export class AccessRequestService {
         type: 'ACCESS_REQUEST_REJECTED',
         title: 'Access request declined',
         body: `${name} declined your request for additional records.`,
-        data: { requestId },
+        data: { requestId, patientName: name },
       });
       return { request, grant: null };
     }
@@ -235,7 +235,7 @@ export class AccessRequestService {
       type: 'ACCESS_REQUEST_APPROVED',
       title: 'Access request approved',
       body: `${name} approved your request. Access lasts until ${expiresAt.toUTCString()}.`,
-      data: { requestId, grantId: grant._id.toString() },
+      data: { requestId, grantId: grant._id.toString(), patientName: name, expiresAt: expiresAt.toISOString() },
     });
 
     return { request, grant };

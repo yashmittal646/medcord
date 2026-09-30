@@ -260,6 +260,9 @@ async function run() {
       ok(badges.has(a), `patient feed includes ${a}`);
     }
     ok(activity.data.every((a: any) => !String(a.message).includes('{')), 'feed messages are human-readable');
+    ok(activity.data.every((a: any) => typeof a.messageKey === 'string' && a.params), 'feed items carry a translatable messageKey and params');
+    const doctorFeed = await json(await call('GET', '/audit/doctor-activity?limit=50', cardio.token));
+    ok(doctorFeed.data.length > 0 && doctorFeed.data.every((a: any) => a.messageKey && a.createdAt && a._id), 'doctor feed items are shaped for the client');
     const denied = await AuditLog.findOne({ action: 'RECORD_ACCESS_DENIED' }).lean();
     ok(denied?.details && JSON.parse(denied.details).reason, 'denials record a machine-readable reason');
     const patientNotes = await json(await call('GET', '/notifications', patient.token));

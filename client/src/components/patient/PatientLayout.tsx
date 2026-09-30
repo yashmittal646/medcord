@@ -40,7 +40,7 @@ const PatientLayoutInner: React.FC = () => {
     { to: '/patient/timeline', label: t('nav.timeline'), Icon: Clock },
     { to: '/patient/health-paths', label: t('nav.healthPaths'), Icon: HeartPulse },
     { to: '/patient/ask-advice', label: t('nav.askAdvice'), Icon: MessageSquareHeart },
-    { to: '/patient/privacy', label: 'Privacy & Access', Icon: ShieldCheck },
+    { to: '/patient/privacy', label: t('Privacy & Access'), Icon: ShieldCheck },
     { to: '/patient/activity', label: t('nav.privacyFeed'), Icon: Shield },
   ];
 

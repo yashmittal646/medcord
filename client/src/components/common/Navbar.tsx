@@ -12,8 +12,10 @@ import {
   ChevronDown,
   UserRound,
 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 export const Navbar: React.FC = () => {
+  const { t } = useLanguage();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,7 +50,7 @@ export const Navbar: React.FC = () => {
             <div className="w-9 h-9 rounded-xl overflow-hidden bg-black flex items-center justify-center">
               <img
                 src="/logo.png"
-                alt="FollowUp"
+                alt={t('FollowUp')}
                 className="w-full h-full"
                 style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
               />
@@ -58,7 +60,8 @@ export const Navbar: React.FC = () => {
                 Follow<span className="text-blue-600">Up</span>
               </span>
               <span className="hidden sm:block text-[10px] uppercase tracking-widest text-slate-400 font-semibold">
-                Medical Records Platform
+                
+                {t('Medical Records Platform')}
               </span>
             </div>
           </Link>
@@ -76,7 +79,8 @@ export const Navbar: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    Dashboard
+                    
+                    {t('Dashboard')}
                   </Link>
                   <Link
                     to="/patient/timeline"
@@ -86,7 +90,7 @@ export const Navbar: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Clock className="w-3.5 h-3.5" /> Timeline
+                    <Clock className="w-3.5 h-3.5" />  {t('Timeline')}
                   </Link>
                   <Link
                     to="/patient/records"
@@ -96,7 +100,7 @@ export const Navbar: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <FileText className="w-3.5 h-3.5" /> Records
+                    <FileText className="w-3.5 h-3.5" />  {t('Records')}
                   </Link>
                   <Link
                     to="/patient/activity"
@@ -106,7 +110,7 @@ export const Navbar: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Activity className="w-3.5 h-3.5" /> Privacy Feed
+                    <Activity className="w-3.5 h-3.5" />  {t('Privacy Feed')}
                   </Link>
                 </>
               ) : (
@@ -119,7 +123,7 @@ export const Navbar: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <Stethoscope className="w-3.5 h-3.5" /> Doctor Portal
+                    <Stethoscope className="w-3.5 h-3.5" />  {t('Doctor Portal')}
                   </Link>
                 </>
               )}
@@ -138,7 +142,7 @@ export const Navbar: React.FC = () => {
                 </div>
                 <button
                   onClick={handleLogout}
-                  title="Logout"
+                  title={t('Logout')}
                   className="p-1.5 text-[#aaa] hover:text-[#be3b2f] hover:bg-[#fdecea] rounded-xl transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
@@ -153,7 +157,8 @@ export const Navbar: React.FC = () => {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#161616] hover:bg-[#2a2a2a] text-white text-xs font-bold transition-all"
                 >
                   <UserRound className="w-3.5 h-3.5" />
-                  Sign In
+                  
+                  {t('Sign In')}
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -162,7 +167,7 @@ export const Navbar: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden z-50 animate-[fadeSlideDown_0.15s_ease-out]">
                     {/* Patient */}
                     <div className="p-2">
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold px-3 pt-1 pb-2">Patient</p>
+                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold px-3 pt-1 pb-2">{t('Patient')}</p>
                       <Link
                         to="/patient/login"
                         onClick={() => setDropdownOpen(false)}
@@ -172,8 +177,8 @@ export const Navbar: React.FC = () => {
                           <HeartPulse className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Sign In</div>
-                          <div className="text-[10px] text-slate-500">Access your records</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Sign In')}</div>
+                          <div className="text-[10px] text-slate-500">{t('Access your records')}</div>
                         </div>
                       </Link>
                       <Link
@@ -185,14 +190,14 @@ export const Navbar: React.FC = () => {
                           <UserRound className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Create Account</div>
-                          <div className="text-[10px] text-slate-500">Get your Patient ID</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Create Account')}</div>
+                          <div className="text-[10px] text-slate-500">{t('Get your Patient ID')}</div>
                         </div>
                       </Link>
                     </div>
 
                     <div className="border-t border-slate-100 p-2">
-                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold px-3 pt-1 pb-2">Doctor</p>
+                      <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold px-3 pt-1 pb-2">{t('Doctor')}</p>
                       <Link
                         to="/doctor/login"
                         onClick={() => setDropdownOpen(false)}
@@ -202,8 +207,8 @@ export const Navbar: React.FC = () => {
                           <Stethoscope className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Doctor Sign In</div>
-                          <div className="text-[10px] text-slate-500">Access clinical portal</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Doctor Sign In')}</div>
+                          <div className="text-[10px] text-slate-500">{t('Access clinical portal')}</div>
                         </div>
                       </Link>
                       <Link
@@ -215,8 +220,8 @@ export const Navbar: React.FC = () => {
                           <UserRound className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="text-xs font-bold text-slate-900">Register</div>
-                          <div className="text-[10px] text-slate-500">Get your Doctor ID</div>
+                          <div className="text-xs font-bold text-slate-900">{t('Register')}</div>
+                          <div className="text-[10px] text-slate-500">{t('Get your Doctor ID')}</div>
                         </div>
                       </Link>
                     </div>

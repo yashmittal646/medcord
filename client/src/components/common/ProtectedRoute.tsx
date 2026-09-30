@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { UserRole } from '../../types/index.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowedRoles,
 }) => {
+  const { t } = useLanguage();
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
@@ -20,7 +22,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
-          <p className="text-xs text-slate-400 font-mono">Authenticating session...</p>
+          <p className="text-xs text-slate-400 font-mono">{t('Authenticating session...')}</p>
         </div>
       </div>
     );

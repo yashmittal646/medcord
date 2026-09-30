@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
-import { useLanguage } from '../../context/LanguageContext.js';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
 import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import { Clock, Filter, Download } from 'lucide-react';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 export const PatientTimelinePage: React.FC = () => {
   const { t } = useLanguage();
@@ -67,11 +68,11 @@ export const PatientTimelinePage: React.FC = () => {
             className="glass-input text-xs bg-white py-1.5"
           >
             <option value="">{t('records.allTypes')}</option>
-            <option value="PRESCRIPTION">Prescriptions</option>
-            <option value="LAB_REPORT">Lab Reports</option>
-            <option value="CONSULTATION">Consultations</option>
-            <option value="CHECKUP">Checkups</option>
-            <option value="OTHER">Other Documents</option>
+            <option value="PRESCRIPTION">{t('Prescriptions')}</option>
+            <option value="LAB_REPORT">{t('Lab Reports')}</option>
+            <option value="CONSULTATION">{t('Consultations')}</option>
+            <option value="CHECKUP">{t('Checkups')}</option>
+            <option value="OTHER">{t('Other Documents')}</option>
           </select>
         </div>
       </div>
@@ -94,10 +95,10 @@ export const PatientTimelinePage: React.FC = () => {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getBadgeColor(event.recordType)}`}>
-                      {event.recordType}
+                      {enumLabel(event.recordType)}
                     </span>
                     <span className="text-xs text-slate-500 font-mono">
-                      {new Date(event.recordDate).toLocaleDateString()}
+                      {new Date(event.recordDate).toLocaleDateString(getLocale())}
                     </span>
                   </div>
 
@@ -107,7 +108,7 @@ export const PatientTimelinePage: React.FC = () => {
                       className="text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2 py-1 rounded-md flex items-center gap-1 transition-colors"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      <span>Download / View</span>
+                      <span>{t('Download / View')}</span>
                     </button>
                   </div>
                 </div>
@@ -119,10 +120,10 @@ export const PatientTimelinePage: React.FC = () => {
 
                 <div className="flex items-center gap-4 text-xs text-slate-500 pt-2 border-t border-slate-100 flex-wrap">
                   {event.doctorName && (
-                    <span>Doctor: <strong className="text-slate-800 font-medium">Dr. {event.doctorName}</strong></span>
+                    <span>{t('Doctor:')} <strong className="text-slate-800 font-medium">{t('Dr. {doctorName}', { doctorName: event.doctorName })}</strong></span>
                   )}
                   {event.facilityName && (
-                    <span>Facility: <strong className="text-slate-800 font-medium">{event.facilityName}</strong></span>
+                    <span>{t('Facility:')} <strong className="text-slate-800 font-medium">{event.facilityName}</strong></span>
                   )}
                 </div>
               </div>

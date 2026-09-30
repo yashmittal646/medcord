@@ -36,7 +36,7 @@ export const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
                 onClose();
               }}
               className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-              aria-label="Close modal"
+              aria-label={t('Close modal')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -47,10 +47,10 @@ export const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
           </div>
 
           <h2 className="text-xl font-bold tracking-tight">
-            {t('lang.title') || 'Choose Your Language'}
+            {t('lang.title') || t('Choose Your Language')}
           </h2>
           <p className="text-xs text-blue-100 mt-1 max-w-xs mx-auto">
-            {t('lang.subtitle') || 'Select your preferred language for the FollowUp portal'}
+            {t('lang.subtitle') || t('Select your preferred language for the FollowUp portal')}
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
               className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all active:scale-[0.99]"
             >
               <Sparkles className="w-4 h-4" />
-              <span>{t('lang.continue') || 'Continue'}</span>
+              <span>{t('lang.continue') || t('Continue')}</span>
             </button>
           </div>
         </div>

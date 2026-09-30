@@ -197,6 +197,24 @@ Pre-seeded ready-to-test accounts for judging and live demonstrations:
 
 ---
 
+## 🌐 Languages (English, हिन्दी, ಕನ್ನಡ, தமிழ், తెలుగు)
+
+Every screen, dialog and error message is available in all five languages; the picker is in the sidebar and on first visit.
+
+**How it works.** UI text is written in plain English where it is used, `t('Save changes')`, with placeholders for values, `t('Dr. {name}', { name })`, and `tn()` when a placeholder holds JSX. English needs no entry. The other four languages are rows in `client/src/i18n/translations/*.ts`, each `[English, हिन्दी, ಕನ್ನಡ, தமிழ், తెలుగు]`, and untranslated text falls back to English. Enum values from the API (`LIFE_THREATENING`, `CARDIOLOGY`) go through `enumLabel()`, and server errors are translated on the client by exact text or pattern (`i18n/serverMessages.ts`). Dates follow the selected language's locale. Older screens still use semantic keys (`t('nav.dashboard')`) from `context/LanguageContext.tsx`.
+
+**Adding or changing text** (from `client/`):
+```bash
+npm run i18n:check   # every t()/tn()/tr()/tx() string, server message and label has all four translations, and {placeholders} match
+npm run i18n:test    # renders pages and dialogs in each language and checks script, placeholders and leftover English
+npm run i18n:scan    # lists user-facing English literals that are not wrapped in t() yet
+```
+Server-side text that users see (audit-feed sentences in `src/utils/auditMessages.ts`, error messages) is sent as a template plus parameters and translated by the client; `i18n:check` compares these with the server source, so a new server message without a translation fails the check.
+
+**A note on quality.** The four translations were written to match the tone and terminology of the existing dictionary (for example "Health Paths" are "care plans"). Medical and legal text (privacy policy, HIPAA statement, terms) should be reviewed by a native speaker, and by counsel for the legal pages, before being relied on.
+
+---
+
 ## 🔐 Granular Access Control
 
 Doctors do not get blanket access to a patient's chart. Every read, list, timeline, summary and download of a record goes through one policy (`src/services/accessPolicy.service.ts`), which evaluates in this order:

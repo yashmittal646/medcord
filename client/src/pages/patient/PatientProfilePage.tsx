@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
-import { useLanguage } from '../../context/LanguageContext.js';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
 import { AllergyModal } from '../../components/patient/AllergyModal.js';
 import { ConditionModal } from '../../components/patient/ConditionModal.js';
 import { MedicationModal } from '../../components/patient/MedicationModal.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 import {
   AlertTriangle,
   Pill,
@@ -76,7 +77,7 @@ export const PatientProfilePage: React.FC = () => {
           relation: editData.emergencyContactRelation,
         },
       });
-      setSaveMsg('Profile updated successfully!');
+      setSaveMsg(t('Profile updated successfully!'));
       await fetchProfile();
       setTimeout(() => setSaveMsg(''), 3000);
     } catch (err) {
@@ -87,19 +88,19 @@ export const PatientProfilePage: React.FC = () => {
   };
 
   const handleDeleteAllergy = async (id: string) => {
-    if (!confirm('Delete this allergy record?')) return;
+    if (!confirm(t('Delete this allergy record?'))) return;
     await api.deleteAllergy(id);
     await fetchProfile();
   };
 
   const handleDeleteCondition = async (id: string) => {
-    if (!confirm('Delete this condition record?')) return;
+    if (!confirm(t('Delete this condition record?'))) return;
     await api.deleteCondition(id);
     await fetchProfile();
   };
 
   const handleDeleteMedication = async (id: string) => {
-    if (!confirm('Delete this medication record?')) return;
+    if (!confirm(t('Delete this medication record?'))) return;
     await api.deleteMedication(id);
     await fetchProfile();
   };
@@ -142,7 +143,7 @@ export const PatientProfilePage: React.FC = () => {
               onChange={(e) => setEditData({ ...editData, bloodGroup: e.target.value })}
               className="glass-input w-full text-sm bg-white"
             >
-              <option value="">Unknown</option>
+              <option value="">{t('Unknown')}</option>
               {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
                 <option key={bg} value={bg}>{bg}</option>
               ))}
@@ -158,7 +159,7 @@ export const PatientProfilePage: React.FC = () => {
               onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
               className="glass-input w-full text-sm bg-white"
             >
-              <option value="">Prefer not to say</option>
+              <option value="">{t('Prefer not to say')}</option>
               <option value="MALE">{t('profile.male')}</option>
               <option value="FEMALE">{t('profile.female')}</option>
               <option value="OTHER">{t('profile.other')}</option>
@@ -176,7 +177,7 @@ export const PatientProfilePage: React.FC = () => {
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.name')}</label>
               <input
                 type="text"
-                placeholder="Full name"
+                placeholder={t('Full name')}
                 value={editData.emergencyContactName}
                 onChange={(e) => setEditData({ ...editData, emergencyContactName: e.target.value })}
                 className="glass-input w-full text-sm bg-white"
@@ -186,7 +187,7 @@ export const PatientProfilePage: React.FC = () => {
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.phone')}</label>
               <input
                 type="tel"
-                placeholder="+91 XXXXXXXXXX"
+                placeholder={t('+91 XXXXXXXXXX')}
                 value={editData.emergencyContactPhone}
                 onChange={(e) => setEditData({ ...editData, emergencyContactPhone: e.target.value })}
                 className="glass-input w-full text-sm bg-white"
@@ -196,7 +197,7 @@ export const PatientProfilePage: React.FC = () => {
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">{t('profile.relation')}</label>
               <input
                 type="text"
-                placeholder="e.g. Spouse, Parent"
+                placeholder={t('e.g. Spouse, Parent')}
                 value={editData.emergencyContactRelation}
                 onChange={(e) => setEditData({ ...editData, emergencyContactRelation: e.target.value })}
                 className="glass-input w-full text-sm bg-white"
@@ -212,7 +213,7 @@ export const PatientProfilePage: React.FC = () => {
             className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 hover:opacity-95 transition-all flex items-center gap-2 disabled:opacity-60"
           >
             <Save className="w-3.5 h-3.5" />
-            {isSaving ? 'Saving...' : t('profile.save')}
+            {isSaving ? t('Saving...') : t('profile.save')}
           </button>
           {saveMsg && <span className="text-xs text-emerald-600 font-semibold">{saveMsg}</span>}
         </div>
@@ -246,7 +247,7 @@ export const PatientProfilePage: React.FC = () => {
                         : a.severity === 'SEVERE'
                         ? 'bg-rose-100 text-rose-800 border border-rose-300'
                         : 'bg-amber-100 text-amber-800 border border-amber-300'
-                    }`}>{a.severity}</span>
+                    }`}>{enumLabel(a.severity)}</span>
                   </div>
                   {a.notes && <p className="text-xs text-slate-600 mt-1">{a.notes}</p>}
                 </div>
@@ -288,9 +289,9 @@ export const PatientProfilePage: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-bold text-slate-900">{c.condition}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200">{c.status}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 border border-sky-200">{enumLabel(c.status)}</span>
                   </div>
-                  {c.diagnosedDate && <p className="text-xs text-slate-500 mt-0.5">Diagnosed: {new Date(c.diagnosedDate).toLocaleDateString()}</p>}
+                  {c.diagnosedDate && <p className="text-xs text-slate-500 mt-0.5">{t('Diagnosed: {date}', { date: new Date(c.diagnosedDate).toLocaleDateString(getLocale()) })}</p>}
                   {c.notes && <p className="text-xs text-slate-600 mt-0.5">{c.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2">
@@ -337,8 +338,9 @@ export const PatientProfilePage: React.FC = () => {
                   </div>
                   {m.startDate && (
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Started: {new Date(m.startDate).toLocaleDateString()}
-                      {m.endDate ? ` · Until: ${new Date(m.endDate).toLocaleDateString()}` : ' · Ongoing'}
+                      
+                      {t('Started:')} {new Date(m.startDate).toLocaleDateString(getLocale())}
+                      {m.endDate ? t(' · Until: {date}', { date: new Date(m.endDate).toLocaleDateString(getLocale()) }) : t(' · Ongoing')}
                     </p>
                   )}
                 </div>

@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { AuditLog } from '../models/AuditLog.js';
 import { AuditService } from '../services/audit.service.js';
 import { AuthenticatedRequest } from '../types/index.js';
+import { describeForDoctor, describeForPatient } from '../utils/auditMessages.js';
 
 /** Structured audit details are JSON for machines; show patients only the human reason, if any */
 function publicDetails(details?: string): string | undefined {
@@ -29,94 +30,14 @@ export class AuditController {
 
       // Format logs into patient-friendly activity items
       const activities = rawLogs.map((log) => {
-        let message = '';
-        let badge = 'INFO';
-
-        switch (log.action) {
-          case 'DOCTOR_LOOKUP':
-            message = `Doctor ${log.actor.name} (${log.actor.publicId}) viewed your medical chart`;
-            badge = 'DOCTOR_VIEW';
-            break;
-          case 'EMERGENCY_ACCESS':
-            message = `EMERGENCY ACCESS: Doctor ${log.actor.name} (${log.actor.publicId}) accessed your critical emergency dataset`;
-            badge = 'EMERGENCY';
-            break;
-          case 'HEALTH_PATH_CREATED':
-            message = `Doctor ${log.actor.name} initiated a new active Health Path treatment`;
-            badge = 'HEALTH_PATH';
-            break;
-          case 'HEALTH_PATH_COMPLETED':
-            message = `Health Path treatment was marked completed`;
-            badge = 'HEALTH_PATH';
-            break;
-          case 'HEALTH_PATH_ARCHIVED':
-            message = `Health Path was archived`;
-            badge = 'HEALTH_PATH';
-            break;
-          case 'RECORD_UPLOAD':
-            message = `New medical record uploaded`;
-            badge = 'RECORD';
-            break;
-          case 'RECORD_VIEW':
-            message = `Doctor ${log.actor.name} (${log.actor.publicId}) opened one of your records`;
-            badge = 'DOCTOR_VIEW';
-            break;
-          case 'RECORD_DOWNLOAD':
-            message = `Doctor ${log.actor.name} (${log.actor.publicId}) downloaded a document from your records`;
-            badge = 'DOCTOR_VIEW';
-            break;
-          case 'RECORD_ACCESS_DENIED':
-            message = `${log.actor.name} (${log.actor.publicId}) tried to open a record they are not permitted to see. Access was blocked.`;
-            badge = 'BLOCKED';
-            break;
-          case 'RECORD_DELETE':
-            message = `${log.actor.role === 'PATIENT' ? 'You' : log.actor.name} deleted a medical record`;
-            badge = 'RECORD';
-            break;
-          case 'CONNECTION_REQUESTED':
-            message = `Doctor ${log.actor.name} (${log.actor.publicId}) asked to connect to your chart`;
-            badge = 'ACCESS_REQUEST';
-            break;
-          case 'CONNECTION_APPROVED':
-          case 'CONNECTION_REJECTED':
-          case 'CONNECTION_REVOKED':
-            message = `You ${log.action.replace('CONNECTION_', '').toLowerCase()} a doctor's connection to your chart`;
-            badge = 'CONSENT';
-            break;
-          case 'ACCESS_REQUEST_CREATED':
-            message = `Doctor ${log.actor.name} (${log.actor.publicId}) requested access to additional records`;
-            badge = 'ACCESS_REQUEST';
-            break;
-          case 'ACCESS_REQUEST_CANCELLED':
-            message = `Doctor ${log.actor.name} withdrew an access request`;
-            badge = 'ACCESS_REQUEST';
-            break;
-          case 'ACCESS_REQUEST_REJECTED':
-            message = 'You declined an access request';
-            badge = 'CONSENT';
-            break;
-          case 'CONSENT_GRANTED':
-            message = 'You approved access to additional records';
-            badge = 'CONSENT';
-            break;
-          case 'CONSENT_REVOKED':
-            message = "You revoked a doctor's access to additional records";
-            badge = 'CONSENT';
-            break;
-          case 'CONSENT_EXPIRED':
-            message = 'A time-limited access grant expired';
-            badge = 'CONSENT';
-            break;
-          default:
-            message = log.details && !log.details.startsWith('{') ? log.details : `${log.action} performed by ${log.actor.name}`;
-            badge = 'GENERAL';
-        }
-
+        const { key, params, message, badge } = describeForPatient(log);
         return {
           id: log._id,
           action: log.action,
           badge,
           message,
+          messageKey: key,
+          params,
           details: publicDetails(log.details),
           actor: {
             name: log.actor.name,
@@ -147,7 +68,21 @@ export class AuditController {
         .limit(limit)
         .lean();
 
-      res.status(200).json({ success: true, data: logs });
+      const data = logs.map((log) => {
+        const { key, params, message, badge } = describeForDoctor(log);
+        return {
+          _id: log._id,
+          action: log.action,
+          badge,
+          createdAt: log.createdAt,
+          description: message,
+          messageKey: key,
+          params,
+          reason: publicDetails(log.details),
+          targetPatient: log.targetPatientId ? { publicId: log.targetPatientId } : undefined,
+        };
+      });
+      res.status(200).json({ success: true, data });
     } catch (error) {
       next(error);
     }

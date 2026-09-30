@@ -14,6 +14,8 @@ import {
   Building,
   FileText,
 } from 'lucide-react';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 interface Props {
   isOpen: boolean;
@@ -26,6 +28,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
   onClose,
   onRequestHandled,
 }) => {
+  const { t } = useLanguage();
   const { showToast } = useToast();
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +41,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
       setData(res.data);
     } catch (err: any) {
       console.error('Failed to load access grants:', err);
-      showToast(err.message || 'Failed to load access requests', 'error');
+      showToast(err.message || t('Failed to load access requests'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -56,16 +59,16 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
       await api.respondToAccessGrant(grantId, decision);
       showToast(
         decision === 'APPROVE'
-          ? 'Doctor access granted successfully!'
+          ? t('Doctor access granted successfully!')
           : decision === 'REJECT'
-          ? 'Access request declined.'
-          : 'Doctor access revoked.',
+          ? t('Access request declined.')
+          : t('Doctor access revoked.'),
         decision === 'APPROVE' ? 'success' : 'info'
       );
       await fetchGrants();
       if (onRequestHandled) onRequestHandled();
     } catch (err: any) {
-      showToast(err.message || 'Failed to update access request', 'error');
+      showToast(err.message || t('Failed to update access request'), 'error');
     } finally {
       setProcessingId(null);
     }
@@ -87,9 +90,10 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Doctor Access & Consent Control</h2>
+              <h2 className="text-lg font-bold text-slate-900">{t('Doctor Access & Consent Control')}</h2>
               <p className="text-xs text-slate-500">
-                You have 100% control over who can view your medical records and care timeline.
+                
+                {t('You have 100% control over who can view your medical records and care timeline.')}
               </p>
             </div>
           </div>
@@ -104,7 +108,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
         {isLoading ? (
           <div className="py-12 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-2 border-teal-500/20 border-t-teal-600 rounded-full animate-spin" />
-            <p className="text-xs text-slate-400">Fetching permissions...</p>
+            <p className="text-xs text-slate-400">{t('Fetching permissions...')}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -112,19 +116,19 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" /> Pending Requests ({pending.length})
+                  <Clock className="w-4 h-4" />  {t('Pending Requests (')}{pending.length})
                 </h3>
                 <button
                   onClick={fetchGrants}
                   className="text-[11px] text-teal-600 hover:text-teal-700 flex items-center gap-1 font-semibold transition-colors"
                 >
-                  <RefreshCw className="w-3 h-3" /> Refresh
+                  <RefreshCw className="w-3 h-3" />  {t('Refresh')}
                 </button>
               </div>
 
               {pending.length === 0 ? (
                 <div className="p-5 text-center bg-slate-50 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-500 font-medium">No pending access requests from doctors.</p>
+                  <p className="text-xs text-slate-500 font-medium">{t('No pending access requests from doctors.')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -144,17 +148,17 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                           <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
                             <span className="flex items-center gap-1">
                               <Building className="w-3.5 h-3.5 text-slate-400" />
-                              {grant.doctorHospital || 'Clinic'} ({prettify(grant.doctorSpecialization || 'Specialist')})
+                              {grant.doctorHospital || t('Clinic')} ({prettify(grant.doctorSpecialization || t('Specialist'))})
                             </span>
                             <span>•</span>
-                            <span>Requested on {new Date(grant.requestedAt).toLocaleDateString()}</span>
+                            <span>{t('Requested on {date}', { date: new Date(grant.requestedAt).toLocaleDateString(getLocale()) })}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="p-3 rounded-xl bg-white border border-amber-200/80">
                         <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <FileText className="w-3.5 h-3.5 text-teal-600" /> Stated Clinical Reason:
+                          <FileText className="w-3.5 h-3.5 text-teal-600" />  {t('Stated Clinical Reason:')}
                         </div>
                         <p className="text-xs text-slate-800 font-medium">"{grant.reason}"</p>
                       </div>
@@ -166,14 +170,14 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                           onClick={() => handleRespond(grant._id, 'REJECT')}
                           className="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-bold flex items-center gap-1.5 transition-all disabled:opacity-50"
                         >
-                          <XCircle className="w-3.5 h-3.5" /> Decline
+                          <XCircle className="w-3.5 h-3.5" />  {t('Decline')}
                         </button>
                         <button
                           disabled={processingId === grant._id}
                           onClick={() => handleRespond(grant._id, 'APPROVE')}
                           className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm hover:shadow disabled:opacity-50"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Approve Full Access
+                          <CheckCircle2 className="w-3.5 h-3.5" />  {t('Approve Full Access')}
                         </button>
                       </div>
                     </div>
@@ -185,12 +189,12 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
             {/* Approved / Active Permissions */}
             <div>
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 mb-3">
-                <UserCheck className="w-4 h-4 text-emerald-600" /> Authorized Doctors ({approved.length})
+                <UserCheck className="w-4 h-4 text-emerald-600" />  {t('Authorized Doctors (')}{approved.length})
               </h3>
 
               {approved.length === 0 ? (
                 <div className="p-5 text-center bg-slate-50 rounded-2xl border border-slate-200">
-                  <p className="text-xs text-slate-500 font-medium">No doctors currently have approved access.</p>
+                  <p className="text-xs text-slate-500 font-medium">{t('No doctors currently have approved access.')}</p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
@@ -207,7 +211,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          {grant.doctorHospital} • Approved on {new Date(grant.respondedAt || grant.updatedAt).toLocaleDateString()}
+                          {t('{doctorHospital} • Approved on {date}', { doctorHospital: grant.doctorHospital, date: new Date(grant.respondedAt || grant.updatedAt).toLocaleDateString(getLocale()) })}
                         </p>
                       </div>
 
@@ -216,7 +220,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                         onClick={() => handleRespond(grant._id, 'REVOKE')}
                         className="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold flex items-center gap-1 transition-all disabled:opacity-50"
                       >
-                        <UserX className="w-3.5 h-3.5" /> Revoke Access
+                        <UserX className="w-3.5 h-3.5" />  {t('Revoke Access')}
                       </button>
                     </div>
                   ))}
@@ -228,8 +232,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
             {history.length > 0 && (
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 mb-2">
-                  Past History ({history.length})
-                </h3>
+                  {t('Past History ({count})', { count: history.length })}</h3>
                 <div className="space-y-2">
                   {history.slice(0, 3).map((grant: any) => (
                     <div
@@ -241,7 +244,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                         <span className="text-[10px] text-slate-400 font-mono">({grant.doctorId})</span>
                       </div>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">
-                        {grant.status}
+                        {enumLabel(grant.status)}
                       </span>
                     </div>
                   ))}

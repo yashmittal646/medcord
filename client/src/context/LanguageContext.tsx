@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { extraTranslations } from '../i18n/index.js';
 
 /* ─── Supported languages ────────────────────────────────────── */
 export type LangCode = 'en' | 'hi' | 'kn' | 'ta' | 'te';
@@ -33,6 +34,11 @@ const LOCALE_MAP: Record<LangCode, string> = {
   ta: 'ta-IN',
   te: 'te-IN',
 };
+
+/** BCP-47 locale of the language currently selected, for dates and numbers outside React hooks */
+let currentLocale = 'en-US';
+let currentLang: LangCode = 'en';
+export const getLocale = () => currentLocale;
 
 /* ─── Comprehensive Translation Dictionary ────────────────────── */
 const translations: Record<LangCode, Record<string, string>> = {
@@ -868,10 +874,22 @@ const translations: Record<LangCode, Record<string, string>> = {
 };
 
 /* ─── Context ────────────────────────────────────────────────── */
+export type TParams = Record<string, string | number | null | undefined>;
+
+const fill = (template: string, params?: TParams) =>
+  params ? template.replace(/\{(\w+)\}/g, (m, k) => (k in params ? String(params[k] ?? '') : m)) : template;
+
+/** Translate outside React components/hooks (helpers, formatters). Reads the language selected at the last render. */
+export const tr = (key: string, params?: TParams): string =>
+  fill(extraTranslations[currentLang]?.[key] || translations[currentLang]?.[key] || translations.en?.[key] || key, params);
+
 interface LanguageContextType {
   lang: LangCode;
   setLang: (lang: LangCode) => void;
-  t: (key: string, fallback?: string) => string;
+  /** t('Hello {name}', { name }) or t(key, 'fallback'). Untranslated keys fall back to the key itself (English). */
+  t: (key: string, fallbackOrParams?: string | TParams, params?: TParams) => string;
+  /** Like t() but placeholders may be JSX, e.g. tn('Sign in to {brand}', { brand: <b>FollowUp</b> }) */
+  tn: (key: string, values: Record<string, ReactNode>) => ReactNode;
   formatDate: (date: Date | string | number, options?: Intl.DateTimeFormatOptions) => string;
   showPicker: boolean;
   setShowPicker: (show: boolean) => void;
@@ -892,6 +910,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return !localStorage.getItem(PICKER_SHOWN_KEY);
   });
 
+  currentLocale = LOCALE_MAP[lang] || 'en-US';
+  currentLang = lang;
+
   const setLang = useCallback((code: LangCode) => {
     setLangState(code);
     localStorage.setItem(STORAGE_KEY, code);
@@ -904,11 +925,34 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, []);
 
-  const t = useCallback(
-    (key: string, fallback?: string): string => {
-      return translations[lang]?.[key] || translations.en?.[key] || fallback || key;
-    },
+  const lookup = useCallback(
+    (key: string, fallback?: string): string =>
+      extraTranslations[lang]?.[key] || translations[lang]?.[key] || translations.en?.[key] || fallback || key,
     [lang]
+  );
+
+  const t = useCallback(
+    (key: string, fallbackOrParams?: string | TParams, params?: TParams): string => {
+      const fallback = typeof fallbackOrParams === 'string' ? fallbackOrParams : undefined;
+      const values = typeof fallbackOrParams === 'object' ? fallbackOrParams : params;
+      return fill(lookup(key, fallback), values);
+    },
+    [lookup]
+  );
+
+  const tn = useCallback(
+    (key: string, values: Record<string, ReactNode>): ReactNode => {
+      const parts = lookup(key).split(/(\{\w+\})/g);
+      return React.createElement(
+        React.Fragment,
+        null,
+        ...parts.map((part, i) => {
+          const m = part.match(/^\{(\w+)\}$/);
+          return m && m[1] in values ? React.createElement(React.Fragment, { key: i }, values[m[1]]) : part;
+        })
+      );
+    },
+    [lookup]
   );
 
   const formatDate = useCallback(
@@ -928,7 +972,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, formatDate, showPicker, setShowPicker: setShowPickerWrapped }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, tn, formatDate, showPicker, setShowPicker: setShowPickerWrapped }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -78,7 +78,7 @@ export class ConsentService {
       type: 'CONSENT_REVOKED',
       title: 'Access revoked',
       body: `${name} revoked the additional record access you had been granted.`,
-      data: { grantId },
+      data: { grantId, patientName: name },
     });
     return grant;
   }

@@ -13,8 +13,11 @@ import {
   Info,
   UserCheck,
 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 export const DoctorPatientLookupPage: React.FC = () => {
+  const { t, tn } = useLanguage();
   const { user, logout } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -36,7 +39,7 @@ export const DoctorPatientLookupPage: React.FC = () => {
     e.preventDefault();
     if (!patientId.trim()) return;
     if (!reason.trim()) {
-      setError('Please provide a reason for accessing this patient\'s records.');
+      setError(t('Please provide a reason for accessing this patient\'s records.'));
       return;
     }
     setError('');
@@ -46,7 +49,7 @@ export const DoctorPatientLookupPage: React.FC = () => {
       const res = await api.doctorLookupPatient(patientId.trim(), reason.trim());
       setResult(res.data);
     } catch (err: any) {
-      setError(err.message || 'Patient not found or access denied.');
+      setError(err.message || t('Patient not found or access denied.'));
     } finally {
       setIsLoading(false);
     }
@@ -68,10 +71,12 @@ export const DoctorPatientLookupPage: React.FC = () => {
       <div className="glass-card p-6 border-slate-200 bg-white shadow-sm">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <Search className="w-5 h-5 text-emerald-600" />
-          Patient Lookup & Controlled Access Portal
+          
+          {t('Patient Lookup & Controlled Access Portal')}
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Access a patient's medical chart using their unique Patient ID (`PAT-XXXXXX`). Patient consent is required before accessing records.
+          
+          {t('Access a patient\'s medical chart using their unique Patient ID (`PAT-XXXXXX`). Patient consent is required before accessing records.')}
         </p>
       </div>
 
@@ -79,13 +84,14 @@ export const DoctorPatientLookupPage: React.FC = () => {
       <form onSubmit={handleLookup} className="glass-card p-6 border-slate-200 bg-white space-y-4 shadow-sm">
         <div>
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Patient ID *
+            
+            {t('Patient ID *')}
           </label>
           <input
             id="patient-id-input"
             type="text"
             required
-            placeholder="e.g. PAT-A1B2C3"
+            placeholder={t('e.g. PAT-A1B2C3')}
             value={patientId}
             onChange={(e) => setPatientId(e.target.value.toUpperCase())}
             className="glass-input w-full font-mono text-sm text-emerald-800 placeholder-slate-400 font-bold uppercase"
@@ -94,19 +100,21 @@ export const DoctorPatientLookupPage: React.FC = () => {
 
         <div>
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-            Clinical Reason for Access *
+            
+            {t('Clinical Reason for Access *')}
           </label>
           <textarea
             required
             rows={2}
-            placeholder="e.g. Cardiology consultation, Pre-op assessment, Routine follow-up..."
+            placeholder={t('e.g. Cardiology consultation, Pre-op assessment, Routine follow-up...')}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             className="glass-input w-full text-sm resize-none"
           />
           <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1 font-medium">
             <Info className="w-3.5 h-3.5 text-teal-600" />
-            This reason is submitted to the patient for consent and permanently logged in their audit feed.
+            
+            {t('This reason is submitted to the patient for consent and permanently logged in their audit feed.')}
           </p>
         </div>
 
@@ -114,12 +122,12 @@ export const DoctorPatientLookupPage: React.FC = () => {
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-700 text-xs space-y-2">
             <div className="flex items-center gap-2 font-bold text-rose-800">
               <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
-              <span>{error.includes('Role \'PATIENT\'') ? 'Authorization Role Mismatch' : error}</span>
+              <span>{error.includes('Role \'PATIENT\'') ? t('Authorization Role Mismatch') : error}</span>
             </div>
             {error.includes('Role \'PATIENT\'') ? (
               <div className="space-y-2">
                 <p className="text-rose-700 text-[11px] leading-relaxed">
-                  Your active session is currently signed in as a <strong>Patient</strong> ({user?.name || 'Arjun Mehta'}). Patient lookup requires a verified <strong>Doctor credential</strong> (such as Dr. Priya Sharma).
+                  {tn('Your active session is currently signed in as a {role} ({name}). Patient lookup requires a verified {credential} (such as Dr. Priya Sharma).', { role: <strong>{t('Patient')}</strong>, name: user?.name || 'Arjun Mehta', credential: <strong>{t('Doctor credential')}</strong> })}
                 </p>
                 <button
                   type="button"
@@ -130,7 +138,7 @@ export const DoctorPatientLookupPage: React.FC = () => {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
                 >
                   <UserCheck className="w-3.5 h-3.5" />
-                  <span>Switch to Doctor Account (Dr. Priya Sharma)</span>
+                  <span>{t('Switch to Doctor Account (Dr. Priya Sharma)')}</span>
                 </button>
               </div>
             ) : null}
@@ -144,9 +152,9 @@ export const DoctorPatientLookupPage: React.FC = () => {
           className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm"
         >
           {isLoading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Checking Permissions & Access...</>
+            <><Loader2 className="w-4 h-4 animate-spin" />  {t('Checking Permissions & Access...')}</>
           ) : (
-            <><Search className="w-4 h-4" /> Request / Access Patient Chart</>
+            <><Search className="w-4 h-4" />  {t('Request / Access Patient Chart')}</>
           )}
         </button>
       </form>
@@ -161,22 +169,22 @@ export const DoctorPatientLookupPage: React.FC = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="text-base font-bold text-slate-900">
-                  Patient Consent Required
+                  
+                  {t('Patient Consent Required')}
                 </h3>
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 font-bold border border-amber-300 uppercase">
-                  Status: {result.status || 'PENDING'}
+                  
+                  {t('Status:')} {enumLabel(result.status || 'PENDING')}
                 </span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                An access authorization request has been sent to{' '}
-                <strong className="text-slate-900 font-bold">{result.patientName || result.patientId}</strong>.
-                The patient must grant permission from their Patient Dashboard before you can view their medical history, records, and timeline.
+                {tn('An access authorization request has been sent to {name}. The patient must grant permission from their Patient Dashboard before you can view their medical history, records, and timeline.', { name: <strong className="text-slate-900 font-bold">{result.patientName || result.patientId}</strong> })}
               </p>
             </div>
           </div>
 
           <div className="p-3.5 rounded-xl bg-white border border-amber-200 text-xs space-y-1">
-            <div className="text-slate-600 font-bold">Your Access Request Justification:</div>
+            <div className="text-slate-600 font-bold">{t('Your Access Request Justification:')}</div>
             <div className="text-slate-800 italic font-mono text-[11px]">"{reason}"</div>
           </div>
 
@@ -186,7 +194,8 @@ export const DoctorPatientLookupPage: React.FC = () => {
               className="px-4 py-2 bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold rounded-xl transition-all flex items-center gap-2 shadow-xs"
             >
               <Loader2 className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-              Check Approval Status
+              
+              {t('Check Approval Status')}
             </button>
           </div>
         </div>
@@ -207,24 +216,26 @@ export const DoctorPatientLookupPage: React.FC = () => {
                   showLabel={false}
                 />
                 <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                  Access Approved
+                  
+                  {t('Access Approved')}
                 </span>
               </div>
               <div className="flex flex-wrap gap-4 text-xs text-slate-600">
                 <span>
-                  Blood Group:{' '}
+                  
+                  {t('Blood Group:')}{' '}
                   <strong className="text-rose-600 font-mono font-bold text-sm">
                     {summary.patient?.bloodGroup || '—'}
                   </strong>
                 </span>
                 <span>
-                  Gender:{' '}
-                  <strong className="text-slate-800 font-semibold">{summary.patient?.gender || 'Unspecified'}</strong>
+                  
+                  {t('Gender:')}{' '}
+                  <strong className="text-slate-800 font-semibold">{summary.patient?.gender ? enumLabel(summary.patient?.gender) : t('Unspecified')}</strong>
                 </span>
                 {summary.patient?.emergencyContact?.name && (
                   <span className="text-rose-700 font-medium">
-                    Emergency: {summary.patient.emergencyContact.name} ({summary.patient.emergencyContact.phone})
-                  </span>
+                    {t('Emergency: {name} ({phone})', { name: summary.patient.emergencyContact.name, phone: summary.patient.emergencyContact.phone })}</span>
                 )}
               </div>
             </div>
@@ -232,7 +243,8 @@ export const DoctorPatientLookupPage: React.FC = () => {
               onClick={goToChart}
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 shrink-0 shadow-sm"
             >
-              Open Full Chart <ArrowRight className="w-4 h-4" />
+              
+              {t('Open Full Chart')} <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -242,7 +254,8 @@ export const DoctorPatientLookupPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
               <div className="flex items-center gap-2 text-rose-700 font-bold text-xs mb-3">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
-                Allergies ({summary.criticalInformation?.allergies?.length || 0})
+                
+                {t('Allergies (')}{summary.criticalInformation?.allergies?.length || 0})
               </div>
               {summary.criticalInformation?.allergies?.length > 0 ? (
                 <div className="space-y-1.5">
@@ -256,13 +269,13 @@ export const DoctorPatientLookupPage: React.FC = () => {
                             : 'bg-rose-100 text-rose-800'
                         }`}
                       >
-                        {a.severity}
+                        {enumLabel(a.severity)}
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No known allergies</p>
+                <p className="text-xs text-slate-400">{t('No known allergies')}</p>
               )}
             </div>
 
@@ -270,7 +283,8 @@ export const DoctorPatientLookupPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-teal-50/60 border border-teal-200">
               <div className="flex items-center gap-2 text-teal-700 font-bold text-xs mb-3">
                 <Pill className="w-3.5 h-3.5 text-teal-600" />
-                Active Medications ({summary.criticalInformation?.currentMedications?.length || 0})
+                
+                {t('Active Medications (')}{summary.criticalInformation?.currentMedications?.length || 0})
               </div>
               {summary.criticalInformation?.currentMedications?.length > 0 ? (
                 <div className="space-y-1.5">
@@ -282,7 +296,7 @@ export const DoctorPatientLookupPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No active medications</p>
+                <p className="text-xs text-slate-400">{t('No active medications')}</p>
               )}
             </div>
 
@@ -290,19 +304,20 @@ export const DoctorPatientLookupPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-200">
               <div className="flex items-center gap-2 text-purple-700 font-bold text-xs mb-3">
                 <Activity className="w-3.5 h-3.5 text-purple-600" />
-                Conditions ({summary.criticalInformation?.chronicConditions?.length || 0})
+                
+                {t('Conditions (')}{summary.criticalInformation?.chronicConditions?.length || 0})
               </div>
               {summary.criticalInformation?.chronicConditions?.length > 0 ? (
                 <div className="space-y-1.5">
                   {summary.criticalInformation.chronicConditions.map((c: any, i: number) => (
                     <div key={i} className="flex items-center justify-between gap-2">
                       <span className="text-xs text-slate-900 font-bold">{c.condition}</span>
-                      <span className="text-[10px] text-purple-800 font-semibold">{c.status}</span>
+                      <span className="text-[10px] text-purple-800 font-semibold">{enumLabel(c.status)}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400">No chronic conditions</p>
+                <p className="text-xs text-slate-400">{t('No chronic conditions')}</p>
               )}
             </div>
           </div>
@@ -311,17 +326,20 @@ export const DoctorPatientLookupPage: React.FC = () => {
           {summary.statistics && (
             <div className="flex flex-wrap gap-4 text-xs text-slate-500 pt-3 border-t border-slate-100">
               <span>
-                Total Records:{' '}
+                
+                {t('Total Records:')}{' '}
                 <strong className="text-slate-800">{summary.statistics.totalRecords}</strong>
               </span>
               <span>•</span>
               <span>
-                Prescriptions:{' '}
+                
+                {t('Prescriptions:')}{' '}
                 <strong className="text-slate-800">{summary.statistics.countsByType?.PRESCRIPTION || 0}</strong>
               </span>
               <span>•</span>
               <span>
-                Lab Reports:{' '}
+                
+                {t('Lab Reports:')}{' '}
                 <strong className="text-slate-800">{summary.statistics.countsByType?.LAB_REPORT || 0}</strong>
               </span>
             </div>

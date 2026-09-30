@@ -103,8 +103,7 @@ export const PatientDashboard: React.FC = () => {
                 </span>
               </h3>
               <p className="text-xs text-[#777] mt-0.5">
-                {grantsData.pending[0].doctorName} ({grantsData.pending[0].doctorId}) has requested permission to view your medical chart.
-              </p>
+                {t('{doctorName} ({doctorId}) has requested permission to view your medical chart.', { doctorName: grantsData.pending[0].doctorName, doctorId: grantsData.pending[0].doctorId })}</p>
             </div>
           </div>
           <button
@@ -132,7 +131,7 @@ export const PatientDashboard: React.FC = () => {
             <div className="flex flex-wrap items-center gap-4 text-sm">
               <div className="flex items-center gap-1.5 text-[#aaa]">
                 <Droplets className="w-4 h-4 text-[#f87171]" />
-                <span className="text-white font-bold">{patient?.bloodGroup || 'Unknown'}</span>
+                <span className="text-white font-bold">{patient?.bloodGroup || t('Unknown')}</span>
                 <span className="text-[#777]">{t('dash.bloodGroup')}</span>
               </div>
               <div className="flex items-center gap-1.5 text-[#aaa]">
@@ -199,7 +198,7 @@ export const PatientDashboard: React.FC = () => {
             <button
               onClick={() => setIsAllergyOpen(true)}
               className="w-7 h-7 rounded-xl bg-[#fdecea] flex items-center justify-center hover:bg-[#fbd5d1] transition-colors"
-              title="Add Allergy"
+              title={t('Add Allergy')}
             >
               <Plus className="w-3.5 h-3.5 text-[#be3b2f]" />
             </button>
@@ -250,7 +249,7 @@ export const PatientDashboard: React.FC = () => {
             <button
               onClick={() => setIsMedicationOpen(true)}
               className="w-7 h-7 rounded-xl bg-[#e3f4f0] flex items-center justify-center hover:bg-[#c5ebe3] transition-colors"
-              title="Add Medication"
+              title={t('Add Medication')}
             >
               <Plus className="w-3.5 h-3.5 text-[#0c8b77]" />
             </button>
@@ -290,7 +289,7 @@ export const PatientDashboard: React.FC = () => {
             <button
               onClick={() => setIsConditionOpen(true)}
               className="w-7 h-7 rounded-xl bg-[#f1eafb] flex items-center justify-center hover:bg-[#e0d0f8] transition-colors shrink-0"
-              title="Add Condition"
+              title={t('Add Condition')}
             >
               <Plus className="w-3.5 h-3.5 text-[#6d3ec8]" />
             </button>
@@ -339,14 +338,14 @@ export const PatientDashboard: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-sm font-bold text-[#111]">{t('cond.' + hp.condition, hp.condition)}</h3>
-                    <p className="text-xs text-[#777] mt-0.5">{hp.description || 'Treatment course'}</p>
+                    <p className="text-xs text-[#777] mt-0.5">{hp.description || t('Treatment course')}</p>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#0c8b77] text-white">
                     {t('status.' + (hp.status || 'ACTIVE'), 'ACTIVE')}
                   </span>
                 </div>
                 <div className="text-xs text-[#777] flex items-center gap-3 flex-wrap">
-                  <span>{t('common.byLabel')} <strong className="text-[#111]">Dr. {hp.doctorName}</strong></span>
+                  <span>{t('common.byLabel')} <strong className="text-[#111]">{t('Dr. {doctorName}', { doctorName: hp.doctorName })}</strong></span>
                   <span>·</span>
                   <span>{t('common.startedLabel')} {formatDate(hp.startDate, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                 </div>
@@ -419,7 +418,7 @@ export const PatientDashboard: React.FC = () => {
                       {rec.doctorName && (
                         <>
                           <span>·</span>
-                          <span className="text-[#555] font-medium">Dr. {rec.doctorName}</span>
+                          <span className="text-[#555] font-medium">{t('Dr. {doctorName}', { doctorName: rec.doctorName })}</span>
                         </>
                       )}
                     </div>

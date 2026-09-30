@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "i18n:check": "node scripts/i18n-check.cjs",
+    "i18n:scan": "node scripts/i18n-scan.cjs",
+    "i18n:test": "node scripts/i18n-smoke.mjs"
   },
   "dependencies": {
     "@types/react": "^18.3.18",

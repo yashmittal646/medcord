@@ -12,26 +12,20 @@ import {
 import { api } from '../../services/api.js';
 import { useToast } from '../../context/ToastContext.js';
 import { NEW_NOTIFICATION_EVENT } from '../../context/NotificationContext.js';
+import { timeLeftText } from '../../utils/timeText.js';
 import { prettify, useTaxonomy } from '../../components/common/TagPicker.js';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { tx } from '../../i18n/index.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 type Duration = '24H' | '7D' | '30D';
 const DURATIONS: { value: Duration; label: string; ms: number }[] = [
-  { value: '24H', label: '24 hours', ms: 24 * 3600_000 },
-  { value: '7D', label: '7 days', ms: 7 * 24 * 3600_000 },
-  { value: '30D', label: '30 days', ms: 30 * 24 * 3600_000 },
+  { value: '24H', label: tx('24 hours'), ms: 24 * 3600_000 },
+  { value: '7D', label: tx('7 days'), ms: 7 * 24 * 3600_000 },
+  { value: '30D', label: tx('30 days'), ms: 30 * 24 * 3600_000 },
 ];
 
-const timeLeft = (iso: string) => {
-  const ms = new Date(iso).getTime() - Date.now();
-  if (ms <= 0) return 'expired';
-  const mins = Math.floor(ms / 60_000);
-  if (mins < 60) return `${mins}m left`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 48) return `${hours}h ${mins % 60}m left`;
-  return `${Math.floor(hours / 24)}d ${hours % 24}h left`;
-};
-
-const fmt = (iso?: string) => (iso ? new Date(iso).toLocaleString() : '—');
+const fmt = (iso?: string) => (iso ? new Date(iso).toLocaleString(getLocale()) : '—');
 
 interface ScopeChip {
   key: string;
@@ -41,6 +35,7 @@ interface ScopeChip {
 }
 
 export const PatientPrivacyPage: React.FC = () => {
+  const { t } = useLanguage();
   const { showToast } = useToast();
   const taxonomy = useTaxonomy();
   const [requests, setRequests] = useState<any[]>([]);
@@ -65,7 +60,7 @@ export const PatientPrivacyPage: React.FC = () => {
       setConnections(grantRes.data.pending ?? []);
       setRecordTitles(Object.fromEntries((recRes.data ?? []).map((r: any) => [r._id, r.title])));
     } catch (err: any) {
-      showToast(err.message || 'Could not load your privacy settings', 'error');
+      showToast(err.message || t('Could not load your privacy settings'), 'error');
     } finally {
       setLoading(false);
     }
@@ -84,22 +79,22 @@ export const PatientPrivacyPage: React.FC = () => {
   }, [load]);
 
   const conditionLabel = useMemo(
-    () => Object.fromEntries((taxonomy?.conditions ?? []).map((c) => [c.key, c.label])),
-    [taxonomy]
+    () => Object.fromEntries((taxonomy?.conditions ?? []).map((c) => [c.key, t(c.label)])),
+    [taxonomy, t]
   );
 
   const chipsFor = (scope: any): ScopeChip[] => [
     ...(scope.recordIds ?? []).map((id: string) => ({
-      key: `r-${id}`, group: 'recordIds' as const, value: id, label: recordTitles[id] ?? 'A record',
+      key: `r-${id}`, group: 'recordIds' as const, value: id, label: recordTitles[id] ?? t('A record'),
     })),
     ...(scope.categories ?? []).map((c: string) => ({
-      key: `c-${c}`, group: 'categories' as const, value: c, label: `All ${prettify(c)} records`,
+      key: `c-${c}`, group: 'categories' as const, value: c, label: t('All {value} records', { value: prettify(c) }),
     })),
     ...(scope.conditions ?? []).map((c: string) => ({
       key: `d-${c}`, group: 'conditions' as const, value: c, label: conditionLabel[c] ?? prettify(c),
     })),
     ...(scope.specializations ?? []).map((s: string) => ({
-      key: `s-${s}`, group: 'specializations' as const, value: s, label: `${prettify(s)} records`,
+      key: `s-${s}`, group: 'specializations' as const, value: s, label: t('{value} records', { value: prettify(s) }),
     })),
   ];
 
@@ -119,7 +114,7 @@ export const PatientPrivacyPage: React.FC = () => {
   const decline = async (id: string) => {
     try {
       await api.respondToAccessRequest(id, { decision: 'REJECT' });
-      showToast('Request declined.', 'success');
+      showToast(t('Request declined.'), 'success');
       load();
     } catch (err: any) {
       showToast(err.message, 'error');
@@ -129,7 +124,7 @@ export const PatientPrivacyPage: React.FC = () => {
   const revoke = async (grantId: string) => {
     try {
       await api.revokeConsent(grantId);
-      showToast('Access revoked. The doctor can no longer open these records.', 'success');
+      showToast(t('Access revoked. The doctor can no longer open these records.'), 'success');
       setRevoking(null);
       load();
     } catch (err: any) {
@@ -140,7 +135,7 @@ export const PatientPrivacyPage: React.FC = () => {
   const respondConnection = async (id: string, decision: 'APPROVE' | 'REJECT') => {
     try {
       await api.respondToAccessGrant(id, decision);
-      showToast(decision === 'APPROVE' ? 'Doctor connected.' : 'Connection declined.', 'success');
+      showToast(decision === 'APPROVE' ? t('Doctor connected.') : t('Connection declined.'), 'success');
       load();
     } catch (err: any) {
       showToast(err.message, 'error');
@@ -160,11 +155,12 @@ export const PatientPrivacyPage: React.FC = () => {
       <div className="glass-card p-6 border-slate-200/90">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-teal-600" />
-          Privacy &amp; Access
+          
+          {t('Privacy & Access')}
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Doctors you connect with see records that match their specialty. Anything beyond that needs your approval,
-          for a time you choose, and you can take it back at any moment.
+          
+          {t('Doctors you connect with see records that match their specialty. Anything beyond that needs your approval, for a time you choose, and you can take it back at any moment.')}
         </p>
       </div>
 
@@ -172,7 +168,7 @@ export const PatientPrivacyPage: React.FC = () => {
       {connections.length > 0 && (
         <section className="glass-card p-5 border-amber-200 bg-amber-50/40 space-y-3">
           <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-amber-600" /> Doctors asking to connect ({connections.length})
+            <UserCheck className="w-4 h-4 text-amber-600" />  {t('Doctors asking to connect (')}{connections.length})
           </h2>
           {connections.map((c) => (
             <div key={c._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-xl border border-slate-200 p-3">
@@ -183,10 +179,12 @@ export const PatientPrivacyPage: React.FC = () => {
               </div>
               <div className="flex gap-2 shrink-0">
                 <button onClick={() => respondConnection(c._id, 'REJECT')} className="px-3 py-1.5 text-xs font-semibold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50">
-                  Decline
+                  
+                  {t('Decline')}
                 </button>
                 <button onClick={() => respondConnection(c._id, 'APPROVE')} className="px-3 py-1.5 text-xs font-semibold text-white bg-teal-600 rounded-lg hover:bg-teal-700">
-                  Connect
+                  
+                  {t('Connect')}
                 </button>
               </div>
             </div>
@@ -197,9 +195,9 @@ export const PatientPrivacyPage: React.FC = () => {
       {/* Pending record requests */}
       <section className="glass-card p-5 border-slate-200/90 space-y-3">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-teal-600" /> Waiting for your decision ({pending.length})
+          <AlertCircle className="w-4 h-4 text-teal-600" />  {t('Waiting for your decision (')}{pending.length})
         </h2>
-        {pending.length === 0 && <p className="text-xs text-slate-400">No requests right now.</p>}
+        {pending.length === 0 && <p className="text-xs text-slate-400">{t('No requests right now.')}</p>}
         {pending.map((r) => (
           <div key={r._id} className="rounded-xl border border-slate-200 p-4 space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
@@ -207,26 +205,28 @@ export const PatientPrivacyPage: React.FC = () => {
                 <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                   <Stethoscope className="w-4 h-4 text-indigo-600" /> {r.doctorName}
                 </p>
-                <p className="text-xs text-slate-500">{prettify(r.doctorSpecialization)} · asked {fmt(r.createdAt)}</p>
+                <p className="text-xs text-slate-500">{t('{specialty} · asked {date}', { specialty: prettify(r.doctorSpecialization), date: fmt(r.createdAt) })}</p>
               </div>
               <span className="text-[11px] font-semibold px-2 py-1 rounded-full bg-slate-100 text-slate-600">
-                Wants {DURATIONS.find((d) => d.value === r.requestedDuration)?.label}
+                {t('Wants {label}', { label: t(DURATIONS.find((d) => d.value === r.requestedDuration)?.label ?? '') })}
               </span>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Reason</p>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">{t('Reason')}</p>
               <p className="text-xs text-slate-700">{r.reason}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Wants to see</p>
+              <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">{t('Wants to see')}</p>
               <ScopeChips scope={r.scope} />
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <button onClick={() => decline(r._id)} className="px-3 py-2 text-xs font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50">
-                Decline
+                
+                {t('Decline')}
               </button>
               <button onClick={() => setReviewing(r)} className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-md shadow-teal-500/20">
-                Review &amp; approve
+                
+                {t('Review & approve')}
               </button>
             </div>
           </div>
@@ -236,35 +236,36 @@ export const PatientPrivacyPage: React.FC = () => {
       {/* Active consents */}
       <section className="glass-card p-5 border-slate-200/90 space-y-3">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <Eye className="w-4 h-4 text-teal-600" /> Active access ({consents.active.length})
+          <Eye className="w-4 h-4 text-teal-600" />  {t('Active access (')}{consents.active.length})
         </h2>
-        {consents.active.length === 0 && <p className="text-xs text-slate-400">No doctor currently has extra access.</p>}
+        {consents.active.length === 0 && <p className="text-xs text-slate-400">{t('No doctor currently has extra access.')}</p>}
         {consents.active.map((g) => (
           <div key={g._id} className="rounded-xl border border-slate-200 p-4 space-y-2">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-sm font-bold text-slate-900">{g.doctorName}</p>
                 <p className="text-xs text-slate-500 flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {timeLeft(g.expiresAt)} · until {fmt(g.expiresAt)}
+                  <Clock className="w-3 h-3" /> {timeLeftText(g.expiresAt)} · {t('until {date}', { date: fmt(g.expiresAt) })}
                 </p>
               </div>
               {revoking === g._id ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-600">End access now?</span>
-                  <button onClick={() => setRevoking(null)} className="px-2.5 py-1.5 text-xs text-slate-500 hover:text-slate-800">Keep</button>
+                  <span className="text-xs text-slate-600">{t('End access now?')}</span>
+                  <button onClick={() => setRevoking(null)} className="px-2.5 py-1.5 text-xs text-slate-500 hover:text-slate-800">{t('Keep')}</button>
                   <button onClick={() => revoke(g._id)} className="px-3 py-1.5 text-xs font-bold text-white bg-rose-600 rounded-lg hover:bg-rose-700">
-                    Yes, revoke
+                    
+                    {t('Yes, revoke')}
                   </button>
                 </div>
               ) : (
                 <button onClick={() => setRevoking(g._id)} className="px-3 py-1.5 text-xs font-bold text-rose-700 border border-rose-200 bg-rose-50 rounded-lg hover:bg-rose-100 flex items-center gap-1.5">
-                  <XCircle className="w-3.5 h-3.5" /> Revoke now
+                  <XCircle className="w-3.5 h-3.5" />  {t('Revoke now')}
                 </button>
               )}
             </div>
             <ScopeChips scope={g.scope} />
             <p className="text-[11px] text-slate-400">
-              {g.accessCount > 0 ? `Opened ${g.accessCount} time${g.accessCount === 1 ? '' : 's'}, last ${fmt(g.lastAccessedAt)}` : 'Not opened yet'}
+              {g.accessCount > 0 ? g.accessCount === 1 ? t('Opened 1 time, last {date}', { date: fmt(g.lastAccessedAt) }) : t('Opened {count} times, last {date}', { count: g.accessCount, date: fmt(g.lastAccessedAt) }) : t('Not opened yet')}
             </p>
           </div>
         ))}
@@ -273,22 +274,22 @@ export const PatientPrivacyPage: React.FC = () => {
       {/* History */}
       <section className="glass-card p-5 border-slate-200/90 space-y-3">
         <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <History className="w-4 h-4 text-slate-500" /> History
+          <History className="w-4 h-4 text-slate-500" />  {t('History')}
         </h2>
-        {consents.history.length + pastRequests.length === 0 && <p className="text-xs text-slate-400">Nothing yet.</p>}
+        {consents.history.length + pastRequests.length === 0 && <p className="text-xs text-slate-400">{t('Nothing yet.')}</p>}
         <div className="divide-y divide-slate-100">
           {consents.history.map((g) => (
             <div key={g._id} className="py-2.5 text-xs flex flex-wrap justify-between gap-2">
               <span className="text-slate-800 font-semibold">{g.doctorName}</span>
               <span className="text-slate-500">
-                {g.status === 'REVOKED' ? `Revoked ${fmt(g.revokedAt)}` : `Expired ${fmt(g.expiresAt)}`}
+                {g.status === 'REVOKED' ? t('Revoked {date}', { date: fmt(g.revokedAt) }) : t('Expired {date}', { date: fmt(g.expiresAt) })}
               </span>
             </div>
           ))}
           {pastRequests.map((r) => (
             <div key={r._id} className="py-2.5 text-xs flex flex-wrap justify-between gap-2">
               <span className="text-slate-800 font-semibold">{r.doctorName}</span>
-              <span className="text-slate-500">Request {r.status.toLowerCase()} · {fmt(r.respondedAt ?? r.createdAt)}</span>
+              <span className="text-slate-500">{t('Request {status} · {date}', { status: enumLabel(r.status), date: fmt(r.respondedAt ?? r.createdAt) })}</span>
             </div>
           ))}
         </div>
@@ -316,6 +317,7 @@ const ApproveDialog: React.FC<{
   onClose: () => void;
   onDone: () => void;
 }> = ({ request, chips, onClose, onDone }) => {
+  const { t, tn } = useLanguage();
   const { showToast } = useToast();
   const [duration, setDuration] = useState<Duration | null>(null);
   const [included, setIncluded] = useState<Set<string>>(new Set(chips.map((c) => c.key)));
@@ -330,7 +332,7 @@ const ApproveDialog: React.FC<{
     });
 
   const chosen = DURATIONS.find((d) => d.value === duration);
-  const untilText = chosen ? new Date(Date.now() + chosen.ms).toLocaleString() : null;
+  const untilText = chosen ? new Date(Date.now() + chosen.ms).toLocaleString(getLocale()) : null;
 
   const approve = async () => {
     if (!duration || included.size === 0) return;
@@ -343,10 +345,10 @@ const ApproveDialog: React.FC<{
         duration,
         ...(included.size < chips.length ? { narrowedScope: narrowed } : {}),
       });
-      showToast(`Access approved for ${chosen?.label}.`, 'success');
+      showToast(t('Access approved for {label}.', { label: t(chosen?.label ?? '') }), 'success');
       onDone();
     } catch (err: any) {
-      showToast(err.message || 'Could not approve', 'error');
+      showToast(err.message || t('Could not approve'), 'error');
     } finally {
       setSaving(false);
     }
@@ -356,12 +358,12 @@ const ApproveDialog: React.FC<{
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
       <div className="glass-card max-w-md w-full p-6 border-slate-200/90 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
         <div>
-          <h3 className="text-lg font-bold text-slate-900">Approve access for {request.doctorName}</h3>
+          <h3 className="text-lg font-bold text-slate-900">{t('Approve access for {doctorName}', { doctorName: request.doctorName })}</h3>
           <p className="text-xs text-slate-500 mt-0.5">“{request.reason}”</p>
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-slate-700 mb-2">What they can see (untick to leave something out)</p>
+          <p className="text-xs font-semibold text-slate-700 mb-2">{t('What they can see (untick to leave something out)')}</p>
           <div className="space-y-1.5">
             {chips.map((c) => (
               <label key={c.key} className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
@@ -373,7 +375,7 @@ const ApproveDialog: React.FC<{
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-slate-700 mb-2">How long? (required)</p>
+          <p className="text-xs font-semibold text-slate-700 mb-2">{t('How long? (required)')}</p>
           <div className="grid grid-cols-3 gap-2">
             {DURATIONS.map((d) => (
               <button
@@ -386,7 +388,7 @@ const ApproveDialog: React.FC<{
                     : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
                 }`}
               >
-                {d.label}
+                {t(d.label)}
               </button>
             ))}
           </div>
@@ -394,21 +396,22 @@ const ApproveDialog: React.FC<{
 
         {untilText && included.size > 0 && (
           <p className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3">
-            {request.doctorName} will be able to view {included.size} {included.size === 1 ? 'item' : 'items'} until{' '}
-            <span className="font-semibold">{untilText}</span>. You can revoke at any time.
+            {tn('{doctor} will be able to view {items} until {date}. You can revoke at any time.', { doctor: request.doctorName, items: included.size === 1 ? t('1 item') : t('{count} items', { count: included.size }), date: <span className="font-semibold">{untilText}</span> })}
           </p>
         )}
 
         <div className="flex justify-end gap-2 pt-1">
           <button onClick={onClose} className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800">
-            Cancel
+            
+            {t('Cancel')}
           </button>
           <button
             onClick={approve}
             disabled={!duration || included.size === 0 || saving}
             className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 disabled:opacity-40"
           >
-            Approve access
+            
+            {t('Approve access')}
           </button>
         </div>
       </div>

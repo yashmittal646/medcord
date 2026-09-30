@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
 import { Shield, Eye, Search, Stethoscope, HeartPulse, Lock } from 'lucide-react';
+import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 
 const activityIcons: Record<string, any> = {
   DOCTOR_PATIENT_VIEW: { Icon: Eye, color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
@@ -15,14 +17,10 @@ const getEventStyle = (action: string) => {
   return activityIcons[action] || { Icon: Lock, color: 'text-slate-700 bg-slate-100 border-slate-200' };
 };
 
-const formatAction = (action: string) => {
-  return action
-    .split('_')
-    .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
-    .join(' ');
-};
+const formatAction = (action: string) => enumLabel(action);
 
 export const DoctorActivityPage: React.FC = () => {
+  const { t, tn } = useLanguage();
   const [activities, setActivities] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,7 +46,7 @@ export const DoctorActivityPage: React.FC = () => {
     const q = searchQuery.toLowerCase();
     return (
       a.action?.toLowerCase().includes(q) ||
-      a.description?.toLowerCase().includes(q) ||
+      (a.messageKey ? t(a.messageKey, a.params) : a.description ?? '').toLowerCase().includes(q) ||
       a.targetPatient?.name?.toLowerCase().includes(q) ||
       a.targetPatient?.publicId?.toLowerCase().includes(q)
     );
@@ -56,7 +54,7 @@ export const DoctorActivityPage: React.FC = () => {
 
   // Group by date
   const grouped = filteredActivities.reduce((acc: Record<string, any[]>, item: any) => {
-    const date = new Date(item.createdAt).toLocaleDateString('en-US', {
+    const date = new Date(item.createdAt).toLocaleDateString(getLocale(), {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -73,10 +71,12 @@ export const DoctorActivityPage: React.FC = () => {
       <div className="glass-card p-6 border-slate-200/90">
         <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <Shield className="w-5 h-5 text-emerald-600" />
-          Clinical Audit & Compliance Activity Trail
+          
+          {t('Clinical Audit & Compliance Activity Trail')}
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
-          Immutable log of all patient chart accesses, consultation notes, and health path actions initiated under your clinical credentials.
+          
+          {t('Immutable log of all patient chart accesses, consultation notes, and health path actions initiated under your clinical credentials.')}
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export const DoctorActivityPage: React.FC = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
-          placeholder="Search activity by action, patient name, or reason..."
+          placeholder={t('Search activity by action, patient name, or reason...')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="glass-input w-full pl-9 text-sm bg-white"
@@ -97,19 +97,19 @@ export const DoctorActivityPage: React.FC = () => {
         <div className="grid grid-cols-3 gap-4">
           {[
             {
-              label: 'Total Clinical Events',
+              label: t('Total Clinical Events'),
               value: activities.length,
               color: 'text-slate-800',
               bg: 'border-slate-200 bg-white shadow-sm',
             },
             {
-              label: 'Patient Chart Lookups',
+              label: t('Patient Chart Lookups'),
               value: activities.filter((a) => a.action?.includes('VIEW') || a.action?.includes('LOOKUP')).length,
               color: 'text-emerald-700',
               bg: 'border-emerald-200 bg-emerald-50/50 shadow-sm',
             },
             {
-              label: 'Care Plans / Consultations',
+              label: t('Care Plans / Consultations'),
               value: activities.filter((a) => a.action?.includes('PATH') || a.action?.includes('CONSULTATION')).length,
               color: 'text-teal-700',
               bg: 'border-teal-200 bg-teal-50/50 shadow-sm',
@@ -134,7 +134,7 @@ export const DoctorActivityPage: React.FC = () => {
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{date}</span>
                 <div className="flex-1 h-px bg-slate-200" />
-                <span className="text-[10px] text-slate-400">{events.length} event{events.length !== 1 ? 's' : ''}</span>
+                <span className="text-[10px] text-slate-400">{events.length === 1 ? t('1 event') : t('{count} events', { count: events.length })}</span>
               </div>
 
               <div className="space-y-2.5">
@@ -155,25 +155,24 @@ export const DoctorActivityPage: React.FC = () => {
                             <span className="text-xs font-bold text-slate-900">{formatAction(activity.action)}</span>
                             {activity.targetPatient && (
                               <span className="text-xs text-slate-500 ml-2">
-                                for patient{' '}
-                                <span className="text-teal-700 font-semibold font-mono">
-                                  {activity.targetPatient.name || activity.targetPatient.publicId}
-                                </span>
+                                {tn('for patient {name}', { name: <span className="text-teal-700 font-semibold font-mono">{activity.targetPatient.name || activity.targetPatient.publicId}</span> })}
                               </span>
                             )}
                           </div>
                           <span className="text-[11px] text-slate-400 font-mono shrink-0">
-                            {new Date(activity.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(activity.createdAt).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
 
-                        {activity.description && (
-                          <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{activity.description}</p>
+                        {(activity.messageKey || activity.description) && (
+                          <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                            {activity.messageKey ? t(activity.messageKey, activity.params) : activity.description}
+                          </p>
                         )}
 
                         {activity.reason && (
                           <div className="mt-2 text-xs bg-slate-50 border border-slate-200 p-2.5 rounded-lg text-slate-700">
-                            <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Clinical Justification / Reason:</span>
+                            <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">{t('Clinical Justification / Reason:')}</span>
                             {activity.reason}
                           </div>
                         )}
@@ -198,9 +197,9 @@ export const DoctorActivityPage: React.FC = () => {
       ) : (
         <div className="glass-card p-12 text-center">
           <Shield className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-semibold text-slate-800">No clinical activity recorded yet</h3>
+          <h3 className="text-sm font-semibold text-slate-800">{t('No clinical activity recorded yet')}</h3>
           <p className="text-xs text-slate-500 mt-1">
-            {searchQuery ? 'No results match your search query.' : 'Your patient lookups, chart views, and consultation notes will be automatically audited here.'}
+            {searchQuery ? t('No results match your search query.') : t('Your patient lookups, chart views, and consultation notes will be automatically audited here.')}
           </p>
         </div>
       )}

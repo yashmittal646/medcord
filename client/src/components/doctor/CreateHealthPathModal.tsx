@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, AlertCircle, Plus, Trash2, HeartPulse } from 'lucide-react';
 import { api } from '../../services/api.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface CreateHealthPathModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
   onSuccess,
   patientId,
 }) => {
+  const { t } = useLanguage();
   const [condition, setCondition] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -52,7 +54,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
 
     const validMeds = medications.filter((m) => m.medicine && m.dosage && m.frequency);
     if (validMeds.length === 0) {
-      setError('Add at least one complete medication entry.');
+      setError(t('Add at least one complete medication entry.'));
       return;
     }
 
@@ -80,7 +82,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
       setEndDate('');
       setMedications([{ medicine: '', dosage: '', frequency: '' }]);
     } catch (err: any) {
-      setError(err.message || 'Failed to create health path');
+      setError(err.message || t('Failed to create health path'));
     } finally {
       setIsSubmitting(false);
     }
@@ -92,7 +94,8 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <HeartPulse className="w-5 h-5 text-teal-600" />
-            Create Health Path / Treatment Protocol
+            
+            {t('Create Health Path / Treatment Protocol')}
           </h3>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
             <X className="w-5 h-5" />
@@ -110,12 +113,13 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
           {/* Condition & Description */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Primary Condition / Care Episode *
+              
+              {t('Primary Condition / Care Episode *')}
             </label>
             <input
               type="text"
               required
-              placeholder="e.g. Type 2 Diabetes Management, Hypertension Protocol"
+              placeholder={t('e.g. Type 2 Diabetes Management, Hypertension Protocol')}
               value={condition}
               onChange={(e) => setCondition(e.target.value)}
               className="glass-input w-full text-sm bg-white"
@@ -124,11 +128,12 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-              Treatment Protocol Overview & Clinical Instructions
+              
+              {t('Treatment Protocol Overview & Clinical Instructions')}
             </label>
             <textarea
               rows={2}
-              placeholder="Describe the treatment plan, goals, diet guidelines, and checkup intervals..."
+              placeholder={t('Describe the treatment plan, goals, diet guidelines, and checkup intervals...')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="glass-input w-full text-sm resize-none bg-white"
@@ -139,7 +144,8 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Start Date *
+                
+                {t('Start Date *')}
               </label>
               <input
                 type="date"
@@ -151,7 +157,8 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Expected Completion Date (Optional)
+                
+                {t('Expected Completion Date (Optional)')}
               </label>
               <input
                 type="date"
@@ -166,14 +173,15 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                Prescribed Regimen / Medications *
+                
+                {t('Prescribed Regimen / Medications *')}
               </label>
               <button
                 type="button"
                 onClick={addMedication}
                 className="text-xs text-teal-700 hover:text-teal-800 flex items-center gap-1 font-bold"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Medicine
+                <Plus className="w-3.5 h-3.5" />  {t('Add Medicine')}
               </button>
             </div>
 
@@ -182,7 +190,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
                 <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[11px] text-slate-500 font-semibold">
-                      Medication #{idx + 1}
+                      {t('Medication #{number}', { number: idx + 1 })}
                     </span>
                     {medications.length > 1 && (
                       <button
@@ -197,21 +205,21 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
                   <div className="grid sm:grid-cols-3 gap-2">
                     <input
                       type="text"
-                      placeholder="Medicine name"
+                      placeholder={t('Medicine name')}
                       value={med.medicine}
                       onChange={(e) => updateMedication(idx, 'medicine', e.target.value)}
                       className="glass-input text-xs bg-white"
                     />
                     <input
                       type="text"
-                      placeholder="Dosage (e.g. 500mg)"
+                      placeholder={t('Dosage (e.g. 500mg)')}
                       value={med.dosage}
                       onChange={(e) => updateMedication(idx, 'dosage', e.target.value)}
                       className="glass-input text-xs bg-white"
                     />
                     <input
                       type="text"
-                      placeholder="Frequency (e.g. Twice daily)"
+                      placeholder={t('Frequency (e.g. Twice daily)')}
                       value={med.frequency}
                       onChange={(e) => updateMedication(idx, 'frequency', e.target.value)}
                       className="glass-input text-xs bg-white"
@@ -219,7 +227,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
                   </div>
                   <input
                     type="number"
-                    placeholder="Duration in days (optional)"
+                    placeholder={t('Duration in days (optional)')}
                     value={med.durationDays || ''}
                     onChange={(e) => updateMedication(idx, 'durationDays', e.target.value)}
                     className="glass-input text-xs w-full sm:w-48 bg-white"
@@ -236,7 +244,8 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
             >
-              Cancel
+              
+              {t('Cancel')}
             </button>
             <button
               type="submit"
@@ -244,7 +253,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
               className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl hover:opacity-95 shadow-md shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
             >
               <HeartPulse className="w-3.5 h-3.5" />
-              {isSubmitting ? 'Creating...' : 'Create Treatment Plan'}
+              {isSubmitting ? t('Creating...') : t('Create Treatment Plan')}
             </button>
           </div>
         </form>

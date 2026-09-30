@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   Trash2,
 } from 'lucide-react';
+import { tr } from '../../context/LanguageContext.js';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 interface ChatMessage {
@@ -54,7 +55,7 @@ async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
     throw new Error(
-      errData?.message || `Server error ${res.status}. Please try again.`
+      errData?.message || tr('Server error {status}. Please try again.', { status: res.status })
     );
   }
 
@@ -191,7 +192,7 @@ export const PatientAskAdvicePage: React.FC = () => {
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      setError('Speech recognition is not supported in your browser.');
+      setError(t('Speech recognition is not supported in your browser.'));
       return;
     }
 
@@ -210,7 +211,7 @@ export const PatientAskAdvicePage: React.FC = () => {
     recognition.onend = () => setIsListening(false);
     recognition.onerror = () => {
       setIsListening(false);
-      setError('Speech recognition failed. Please try again.');
+      setError(t('Speech recognition failed. Please try again.'));
     };
 
     recognitionRef.current = recognition;
@@ -246,7 +247,7 @@ export const PatientAskAdvicePage: React.FC = () => {
       };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
-      setError(err.message || 'Failed to get a response. Please try again.');
+      setError(err.message || t('Failed to get a response. Please try again.'));
     } finally {
       setIsLoading(false);
     }

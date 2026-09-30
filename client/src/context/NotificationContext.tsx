@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { api, subscribeToNotifications } from '../services/api.js';
 import { useToast } from './ToastContext.js';
+import { notificationText } from '../utils/notificationText.js';
 
 export interface AppNotification {
   id?: string;
@@ -54,7 +55,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       seen.current.add(id);
       setItems((prev) => [n, ...prev].slice(0, 50));
       setUnread((u) => u + 1);
-      showToast(`${n.title}: ${n.body}`, 'info');
+      const text = notificationText(n);
+      showToast(`${text.title}: ${text.body}`, 'info');
       window.dispatchEvent(new CustomEvent(NEW_NOTIFICATION_EVENT, { detail: n }));
     });
     const poll = setInterval(refresh, POLL_MS);

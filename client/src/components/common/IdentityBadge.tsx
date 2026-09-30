@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, Check, Shield } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface IdentityBadgeProps {
   id: string;
@@ -14,6 +15,7 @@ export const IdentityBadge: React.FC<IdentityBadgeProps> = ({
   size = 'md',
   showLabel = true,
 }) => {
+  const { t } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -34,13 +36,13 @@ export const IdentityBadge: React.FC<IdentityBadgeProps> = ({
     <div className="inline-flex items-center gap-2">
       {showLabel && (
         <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">
-          {isPatient ? 'Patient ID' : 'Doctor ID'}
+          {isPatient ? t('Patient ID') : t('Doctor ID')}
         </span>
       )}
       <button
         onClick={handleCopy}
         type="button"
-        title="Click to copy unique ID"
+        title={t('Click to copy unique ID')}
         className={`inline-flex items-center gap-2 font-mono font-bold rounded-xl transition-all border shadow-sm ${
           isPatient
             ? 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100/80 hover:border-blue-300'
@@ -55,7 +57,7 @@ export const IdentityBadge: React.FC<IdentityBadgeProps> = ({
           <Copy className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
         )}
       </button>
-      {copied && <span className="text-xs text-blue-600 font-bold">Copied!</span>}
+      {copied && <span className="text-xs text-blue-600 font-bold">{t('Copied!')}</span>}
     </div>
   );
 };

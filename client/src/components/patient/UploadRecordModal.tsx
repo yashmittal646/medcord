@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { X, UploadCloud, FileText, AlertCircle, Check } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { TagPicker } from '../common/TagPicker.js';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 interface UploadRecordModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
   const [recordType, setRecordType] = useState('PRESCRIPTION');
   const [title, setTitle] = useState('');
@@ -33,7 +35,7 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
     if (e.target.files && e.target.files[0]) {
       const selected = e.target.files[0];
       if (selected.size > 10 * 1024 * 1024) {
-        setError('File size exceeds 10MB limit.');
+        setError(t('File size exceeds 10MB limit.'));
         return;
       }
       setFile(selected);
@@ -47,7 +49,7 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      setError('Please provide a record title.');
+      setError(t('Please provide a record title.'));
       return;
     }
 
@@ -74,7 +76,7 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to upload medical record.');
+      setError(err.message || t('Failed to upload medical record.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +88,8 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <UploadCloud className="w-5 h-5 text-teal-600" />
-            Upload Medical Record
+            
+            {t('Upload Medical Record')}
           </h3>
           <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
             <X className="w-5 h-5" />
@@ -125,10 +128,9 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
                 <div className="text-left">
                   <p className="text-xs font-semibold text-slate-900 truncate max-w-xs">{file.name}</p>
                   <p className="text-[11px] text-slate-500 font-mono">
-                    {(file.size / (1024 * 1024)).toFixed(2)} MB • Ready to upload
-                  </p>
+                    {t('{size} MB • Ready to upload', { size: (file.size / (1024 * 1024)).toFixed(2) })}</p>
                 </div>
-                <span className="text-xs text-teal-700 font-semibold ml-2">Change</span>
+                <span className="text-xs text-teal-700 font-semibold ml-2">{t('Change')}</span>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
@@ -137,10 +139,12 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-slate-800">
-                    Click to select or drag & drop document
+                    
+                    {t('Click to select or drag & drop document')}
                   </p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Supports PDF, PNG, JPG, WebP (Max 10MB)
+                    
+                    {t('Supports PDF, PNG, JPG, WebP (Max 10MB)')}
                   </p>
                 </div>
               </div>
@@ -149,21 +153,21 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Record Type *</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">{t('Record Type *')}</label>
               <select
                 value={recordType}
                 onChange={(e) => setRecordType(e.target.value)}
                 className="w-full glass-input text-xs bg-white"
               >
-                <option value="PRESCRIPTION">Prescription (Rx)</option>
-                <option value="LAB_REPORT">Lab / Diagnostic Report</option>
-                <option value="CONSULTATION">Doctor Consultation Note</option>
-                <option value="CHECKUP">Routine Health Checkup</option>
-                <option value="OTHER">Other Medical Document</option>
+                <option value="PRESCRIPTION">{t('Prescription (Rx)')}</option>
+                <option value="LAB_REPORT">{t('Lab / Diagnostic Report')}</option>
+                <option value="CONSULTATION">{t('Doctor Consultation Note')}</option>
+                <option value="CHECKUP">{t('Routine Health Checkup')}</option>
+                <option value="OTHER">{t('Other Medical Document')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Record Date *</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">{t('Record Date *')}</label>
               <input
                 type="date"
                 required
@@ -175,11 +179,11 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Record Title *</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">{t('Record Title *')}</label>
             <input
               type="text"
               required
-              placeholder="e.g. Chest X-Ray Scan, Amoxicillin Prescription"
+              placeholder={t('e.g. Chest X-Ray Scan, Amoxicillin Prescription')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full glass-input text-xs bg-white"
@@ -188,20 +192,20 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Doctor Name</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">{t('Doctor Name')}</label>
               <input
                 type="text"
-                placeholder="e.g. Dr. Robert Chen"
+                placeholder={t('e.g. Dr. Robert Chen')}
                 value={doctorName}
                 onChange={(e) => setDoctorName(e.target.value)}
                 className="w-full glass-input text-xs bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Clinic / Hospital</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">{t('Clinic / Hospital')}</label>
               <input
                 type="text"
-                placeholder="e.g. City General Hospital"
+                placeholder={t('e.g. City General Hospital')}
                 value={facilityName}
                 onChange={(e) => setFacilityName(e.target.value)}
                 className="w-full glass-input text-xs bg-white"
@@ -210,10 +214,10 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Description / Notes</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">{t('Description / Notes')}</label>
             <textarea
               rows={2}
-              placeholder="Any diagnostic notes, dosage instructions, or observations..."
+              placeholder={t('Any diagnostic notes, dosage instructions, or observations...')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full glass-input text-xs resize-none bg-white"
@@ -230,9 +234,10 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
                 className="mt-0.5"
               />
               <span>
-                <span className="font-semibold">Choose who can see this now</span>
+                <span className="font-semibold">{t('Choose who can see this now')}</span>
                 <span className="block text-[11px] text-slate-500">
-                  Skip this and we will suggest tags. Until they are set, only you can open the record.
+                  
+                  {t('Skip this and we will suggest tags. Until they are set, only you can open the record.')}
                 </span>
               </span>
             </label>
@@ -245,7 +250,8 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-xs font-medium text-slate-500 hover:text-slate-800"
             >
-              Cancel
+              
+              {t('Cancel')}
             </button>
             <button
               type="submit"
@@ -257,7 +263,7 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>Upload to Medical Vault</span>
+                  <span>{t('Upload to Medical Vault')}</span>
                 </>
               )}
             </button>

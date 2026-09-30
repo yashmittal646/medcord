@@ -1,26 +1,28 @@
 import React from 'react';
 import { Users, Github, Mail, Phone, Sparkles, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext.js';
 
 export const TeamPage: React.FC = () => {
+  const { t, tn } = useLanguage();
   const teamMembers = [
     {
       name: 'Yash Mittal',
-      role: 'Project Founder & Lead Full-Stack Architect',
-      tag: 'Core Creator',
-      bio: 'Architected the core FollowUp engine: patient-controlled consent protocol, collision-resistant identifier namespace (PAT-/DOC-), longitudinal timeline indexing, and real-time clinical audit ledgers.',
-      skills: ['TypeScript', 'Node.js / Express', 'React & Tailwind', 'Distributed State', 'Health Tech Security'],
+      role: t('Project Founder & Lead Full-Stack Architect'),
+      tag: t('Core Creator'),
+      bio: t('Architected the core FollowUp engine: patient-controlled consent protocol, collision-resistant identifier namespace (PAT-/DOC-), longitudinal timeline indexing, and real-time clinical audit ledgers.'),
+      skills: ['TypeScript', 'Node.js / Express', 'React & Tailwind', 'Distributed State', t('Health Tech Security')],
       email: 'yashmittal1973@gmail.com',
       phone: '+91 93581 11009',
       github: 'https://github.com/yashmittal646/FollowUp',
       avatarBg: 'bg-blue-600',
     },
     {
-      name: 'Clinical & Security Research Team',
-      role: 'Healthcare Standards & Emergency Protocol',
-      tag: 'Clinical Advisory',
-      bio: 'Collaborated on emergency HUD triage workflows, medical terminology tagging (SNOMED/ICD-10 standards), doctor credential verification, and HIPAA technical compliance specifications.',
-      skills: ['HIPAA Safeguards', 'Clinical Workflow', 'Emergency Triage HUD', 'Medical Data Privacy'],
+      name: t('Clinical & Security Research Team'),
+      role: t('Healthcare Standards & Emergency Protocol'),
+      tag: t('Clinical Advisory'),
+      bio: t('Collaborated on emergency HUD triage workflows, medical terminology tagging (SNOMED/ICD-10 standards), doctor credential verification, and HIPAA technical compliance specifications.'),
+      skills: [t('HIPAA Safeguards'), t('Clinical Workflow'), t('Emergency Triage HUD'), t('Medical Data Privacy')],
       email: 'yashmittal1973@gmail.com',
       phone: '+91 93581 11009',
       github: 'https://github.com/yashmittal646/FollowUp',
@@ -36,13 +38,15 @@ export const TeamPage: React.FC = () => {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200 mb-4">
             <Users className="w-3.5 h-3.5 text-blue-600" />
-            The Minds Behind FollowUp
+            
+            {t('The Minds Behind FollowUp')}
           </div>
           <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight mb-4">
-            Meet the <span className="text-blue-600">Team</span>
+            {tn('Meet the {highlight}', { highlight: <span className="text-blue-600">{t('Team')}</span> })}
           </h1>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            Engineers, researchers, and innovators building a patient-first future where health records are universal, secure, and always under patient control.
+            
+            {t('Engineers, researchers, and innovators building a patient-first future where health records are universal, secure, and always under patient control.')}
           </p>
         </div>
 
@@ -109,13 +113,15 @@ export const TeamPage: React.FC = () => {
         <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-blue-600/30 text-blue-400 border border-blue-500/30 mb-4">
-              <Sparkles className="w-3.5 h-3.5" /> Hackathon 2026 Initiative
+              <Sparkles className="w-3.5 h-3.5" />  {t('Hackathon 2026 Initiative')}
             </div>
             <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-              Built with purpose for next-gen healthcare
+              
+              {t('Built with purpose for next-gen healthcare')}
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              FollowUp was developed to solve real-world healthcare fragmentation. Our open-source platform replaces siloed hospital databases with patient-sovereign cryptographic records.
+              
+              {t('FollowUp was developed to solve real-world healthcare fragmentation. Our open-source platform replaces siloed hospital databases with patient-sovereign cryptographic records.')}
             </p>
           </div>
 
@@ -126,13 +132,13 @@ export const TeamPage: React.FC = () => {
               rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs bg-white text-slate-900 hover:bg-slate-100 transition-all shadow-sm"
             >
-              <Github className="w-4 h-4" /> GitHub Repository <ExternalLink className="w-3 h-3 text-slate-400" />
+              <Github className="w-4 h-4" />  {t('GitHub Repository')} <ExternalLink className="w-3 h-3 text-slate-400" />
             </a>
             <Link
               to="/contact"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-sm"
             >
-              <Mail className="w-4 h-4" /> Contact Team
+              <Mail className="w-4 h-4" />  {t('Contact Team')}
             </Link>
           </div>
         </div>

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 export const DoctorLogin: React.FC = () => {
+  const { t, tn } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +23,12 @@ export const DoctorLogin: React.FC = () => {
       const data = await login({ email, password });
       if (data.user.role !== 'DOCTOR') {
         logout();
-        setError('This account is registered as a Patient. Please use the Patient Login portal, or sign in with verified Doctor credentials (e.g. demo.doctor@asynchealth.dev).');
+        setError(t('This account is registered as a Patient. Please use the Patient Login portal, or sign in with verified Doctor credentials (e.g. demo.doctor@asynchealth.dev).'));
         return;
       }
       navigate('/doctor/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || t('Login failed. Please check your credentials.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -39,14 +41,14 @@ export const DoctorLogin: React.FC = () => {
           <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img
               src="/logo.png"
-              alt="FollowUp Logo"
+              alt={t('FollowUp Logo')}
               className="w-full h-full"
               style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
             />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Physician Portal Sign In</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t('Physician Portal Sign In')}</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Access authorized patient charts on <span className="font-semibold text-slate-700">FollowUp</span>
+            {tn('Access authorized patient charts on {brand}', { brand: <span className="font-semibold text-slate-700">FollowUp</span> })}
           </p>
         </div>
 
@@ -59,13 +61,13 @@ export const DoctorLogin: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Hospital / Work Email</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">{t('Hospital / Work Email')}</label>
             <div className="relative flex items-center">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="email"
                 required
-                placeholder="dr.name@hospital.org"
+                placeholder={t('dr.name@hospital.org')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: '44px' }}
@@ -75,7 +77,7 @@ export const DoctorLogin: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">{t('Password')}</label>
             <div className="relative flex items-center">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -99,7 +101,7 @@ export const DoctorLogin: React.FC = () => {
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>Access Clinical Dashboard</span>
+                <span>{t('Access Clinical Dashboard')}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -107,9 +109,11 @@ export const DoctorLogin: React.FC = () => {
         </form>
 
         <div className="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
-          New physician without a Doctor ID?{' '}
+          
+          {t('New physician without a Doctor ID?')}{' '}
           <Link to="/doctor/register" className="text-indigo-600 font-bold hover:underline">
-            Register Credentials
+            
+            {t('Register Credentials')}
           </Link>
         </div>
       </div>

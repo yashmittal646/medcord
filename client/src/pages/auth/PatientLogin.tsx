@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext.js';
 
 export const PatientLogin: React.FC = () => {
+  const { t, tn } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -24,12 +26,12 @@ export const PatientLogin: React.FC = () => {
       const data = await login({ email, password });
       if (data.user.role !== 'PATIENT') {
         logout();
-        setError('This account is registered as a Doctor. Please use the Physician Portal to sign in.');
+        setError(t('This account is registered as a Doctor. Please use the Physician Portal to sign in.'));
         return;
       }
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(err.message || t('Login failed. Please check your credentials.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -42,14 +44,14 @@ export const PatientLogin: React.FC = () => {
           <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img
               src="/logo.png"
-              alt="FollowUp Logo"
+              alt={t('FollowUp Logo')}
               className="w-full h-full"
               style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.4)' }}
             />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900">Patient Sign In</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t('Patient Sign In')}</h2>
           <p className="text-xs text-slate-500 mt-1">
-            Access your longitudinal medical records on <span className="font-semibold text-slate-700">FollowUp</span>
+            {tn('Access your longitudinal medical records on {brand}', { brand: <span className="font-semibold text-slate-700">FollowUp</span> })}
           </p>
         </div>
 
@@ -62,13 +64,13 @@ export const PatientLogin: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">{t('Email Address')}</label>
             <div className="relative flex items-center">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="email"
                 required
-                placeholder="name@example.com"
+                placeholder={t('name@example.com')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 style={{ paddingLeft: '44px' }}
@@ -78,7 +80,7 @@ export const PatientLogin: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">{t('Password')}</label>
             <div className="relative flex items-center">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -102,7 +104,7 @@ export const PatientLogin: React.FC = () => {
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>Access Medical Portal</span>
+                <span>{t('Access Medical Portal')}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -110,9 +112,11 @@ export const PatientLogin: React.FC = () => {
         </form>
 
         <div className="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
-          Don't have a Patient ID yet?{' '}
+          
+          {t('Don\'t have a Patient ID yet?')}{' '}
           <Link to="/patient/register" className="text-blue-600 font-bold hover:underline">
-            Register Here
+            
+            {t('Register Here')}
           </Link>
         </div>
       </div>
