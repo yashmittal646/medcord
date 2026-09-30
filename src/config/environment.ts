@@ -15,5 +15,8 @@ export const ENV = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
   UPLOAD_DIR: path.resolve(process.cwd(), process.env.UPLOAD_DIR || './uploads'),
   MAX_FILE_SIZE_MB: parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10),
+  // Doctors start PENDING unless auto-verify is on (default: on outside production, since there is no admin review flow yet)
+  AUTO_VERIFY_DOCTORS:
+    (process.env.AUTO_VERIFY_DOCTORS ?? (process.env.NODE_ENV === 'production' ? 'false' : 'true')) === 'true',
   CORS_ORIGIN: (process.env.CORS_ORIGIN || '*').split(',').map((origin) => origin.trim()),
 };

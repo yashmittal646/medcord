@@ -45,7 +45,7 @@ export class DoctorService {
     if (!hasAccess) {
       // If reason provided and not already pending, automatically create a request
       let currentGrant: any = accessStatus.grant;
-      if (options.reason && (!currentGrant || currentGrant.status === 'REJECTED' || currentGrant.status === 'REVOKED')) {
+      if (options.reason && (!currentGrant || ['REJECTED', 'REVOKED'].includes(currentGrant.status) || accessStatus.status === 'EXPIRED')) {
         currentGrant = await AccessGrantService.requestAccess(doctor, cleanPatientId, options.reason);
       }
 

@@ -25,6 +25,7 @@ import { PatientTimelinePage } from './pages/patient/PatientTimelinePage.js';
 import { PatientHealthPathsPage } from './pages/patient/PatientHealthPathsPage.js';
 import { PatientActivityPage } from './pages/patient/PatientActivityPage.js';
 import { PatientAskAdvicePage } from './pages/patient/PatientAskAdvicePage.js';
+import { PatientPrivacyPage } from './pages/patient/PatientPrivacyPage.js';
 
 // Doctor Portal
 import { DoctorLayout }              from './components/doctor/DoctorLayout.js';
@@ -81,6 +82,7 @@ export const App: React.FC = () => {
                   <Route path="timeline" element={<PatientTimelinePage />} />
                   <Route path="health-paths" element={<PatientHealthPathsPage />} />
                   <Route path="ask-advice" element={<PatientAskAdvicePage />} />
+                  <Route path="privacy" element={<PatientPrivacyPage />} />
                   <Route path="activity" element={<PatientActivityPage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>

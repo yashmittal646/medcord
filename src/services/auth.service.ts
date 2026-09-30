@@ -113,7 +113,7 @@ export class AuthService {
       specialization: data.specialization,
       licenseNumber: data.licenseNumber,
       hospitalAffiliation: data.hospitalAffiliation,
-      verificationStatus: 'VERIFIED',
+      verificationStatus: ENV.AUTO_VERIFY_DOCTORS ? 'VERIFIED' : 'PENDING',
     });
 
     const token = this.generateToken({

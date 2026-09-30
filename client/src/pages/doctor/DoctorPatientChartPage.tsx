@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api, getRecordFileUrl } from '../../services/api.js';
+import { api } from '../../services/api.js';
+import { useOpenRecordFile } from '../../hooks/useOpenRecordFile.js';
+import { DoctorAccessPanel } from '../../components/doctor/DoctorAccessPanel.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { CreateHealthPathModal } from '../../components/doctor/CreateHealthPathModal.js';
 import { DoctorConsultationModal } from '../../components/doctor/DoctorConsultationModal.js';
@@ -31,6 +33,7 @@ const getBadgeColor = (type: string) => {
 };
 
 export const DoctorPatientChartPage: React.FC = () => {
+  const openFile = useOpenRecordFile();
   const { patientId } = useParams<{ patientId: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
@@ -193,6 +196,9 @@ export const DoctorPatientChartPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Access beyond this doctor's specialty */}
+      <DoctorAccessPanel patientId={patient?.patientId ?? patientId ?? ''} />
+
       {/* Tabs */}
       <div className="flex gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 w-fit">
         {TABS.map(({ id, label, Icon }) => (
@@ -336,16 +342,15 @@ export const DoctorPatientChartPage: React.FC = () => {
                         <span>Download / View</span>
                       </button>
 
-                      {rec.file?.url && (
-                        <a
-                          href={rec.file.url}
-                          target="_blank"
-                          rel="noreferrer"
+                      {rec.file && (
+                        <button
+                          type="button"
+                          onClick={() => openFile(rec._id)}
                           className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 font-bold transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           <span>File</span>
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -380,15 +385,14 @@ export const DoctorPatientChartPage: React.FC = () => {
                         </span>
                       </div>
                       {event.hasAttachment && (
-                        <a
-                          href={getRecordFileUrl(event.id)}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button
+                          type="button"
+                          onClick={() => openFile(event.id)}
                           className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 font-bold transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           {event.fileDetails?.originalName || 'Download File'}
-                        </a>
+                        </button>
                       )}
                     </div>
                     <h3 className="text-sm font-bold text-slate-900">{event.title}</h3>

@@ -15,6 +15,6 @@ router.get('/my-activity', authorizeRoles('PATIENT'), AuditController.getMyActiv
 router.get('/doctor-activity', authorizeRoles('DOCTOR'), AuditController.getDoctorActivity);
 
 // General query logs
-router.get('/logs', AuditController.queryLogs);
+router.get('/logs', authorizeRoles('SYSTEM'), AuditController.queryLogs);
 
 export default router;

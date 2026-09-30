@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeSpecialization, Specialization } from '../config/taxonomy.js';
 
 export const registerPatientSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -22,7 +23,11 @@ export const registerDoctorSchema = z.object({
   email: z.string().email('Please provide a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phone: z.string().optional(),
-  specialization: z.string().min(2, 'Specialization is required'),
+  specialization: z
+    .string()
+    .min(2, 'Specialization is required')
+    .refine((v) => Boolean(normalizeSpecialization(v)), 'Unsupported specialization')
+    .transform((v) => normalizeSpecialization(v) as Specialization),
   licenseNumber: z.string().min(2, 'Medical license number is required'),
   hospitalAffiliation: z.string().optional(),
 });

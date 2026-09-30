@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { HealthPathController } from '../controllers/healthPath.controller.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { authorizeRoles } from '../middleware/authorize.js';
+import { authorizeRoles, requireVerifiedDoctor } from '../middleware/authorize.js';
 import { validateRequest } from '../middleware/validate.js';
 import {
   createHealthPathSchema,
@@ -18,6 +18,7 @@ router.use(authenticateToken);
 router.post(
   '/',
   authorizeRoles('DOCTOR'),
+  requireVerifiedDoctor,
   validateRequest(createHealthPathSchema),
   HealthPathController.createHealthPath
 );

@@ -1,6 +1,11 @@
+import { Readable } from 'stream';
+import { AppError } from '../utils/appError.js';
 import { Response, NextFunction } from 'express';
 import { RecordService } from '../services/record.service.js';
+import { ClassificationService } from '../services/classification.service.js';
 import { AuthenticatedRequest } from '../types/index.js';
+
+const auditCtx = (req: AuthenticatedRequest) => ({ ipAddress: req.ip, userAgent: req.headers['user-agent'] });
 
 export class RecordController {
   static async uploadRecord(
@@ -55,7 +60,7 @@ export class RecordController {
   ): Promise<void> {
     try {
       const recordId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const record = await RecordService.getRecordById(req.user!, recordId);
+      const record = await RecordService.getRecordById(req.user!, recordId, auditCtx(req));
       res.status(200).json({
         success: true,
         data: record,
@@ -72,20 +77,52 @@ export class RecordController {
   ): Promise<void> {
     try {
       const recordId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const fileResult = await RecordService.getDownloadableFile(req.user!, recordId);
+      const file = await RecordService.getDownloadableFile(req.user!, recordId, auditCtx(req));
+      const headers = {
+        'Content-Type': file.mimeType || 'application/octet-stream',
+        'Content-Disposition': `inline; filename*=UTF-8''${encodeURIComponent(file.filename || 'medical-document')}`,
+        'Cache-Control': 'no-store',
+      };
 
-      if (fileResult.type === 'url' && fileResult.url) {
-        return res.redirect(fileResult.url);
+      if (file.type === 'stream') {
+        return res.sendFile(file.filePath, { headers, cacheControl: false });
       }
 
-      if (fileResult.type === 'stream' && fileResult.filePath) {
-        res.setHeader('Content-Type', fileResult.mimeType || 'application/octet-stream');
-        res.setHeader(
-          'Content-Disposition',
-          `inline; filename="${encodeURIComponent(fileResult.filename || 'medical-document')}"`
-        );
-        return res.sendFile(fileResult.filePath);
+      // Remote storage: the server fetches the bytes so the storage URL never reaches the client
+      const upstream = await fetch(file.url);
+      if (!upstream.ok || !upstream.body) {
+        throw new AppError('Could not retrieve the stored document', 502);
       }
+      res.set(headers);
+      Readable.fromWeb(upstream.body as any).pipe(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updateClassification(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const recordId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const data = await ClassificationService.updateClassification(req.user!, recordId, req.body);
+      res.status(200).json({ success: true, message: 'Record tags updated', data });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async confirmClassification(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const recordId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const data = await ClassificationService.confirmClassification(req.user!, recordId);
+      res.status(200).json({ success: true, message: 'Record tags confirmed', data });
     } catch (error) {
       next(error);
     }
@@ -98,7 +135,7 @@ export class RecordController {
   ): Promise<void> {
     try {
       const recordId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const result = await RecordService.deleteRecord(req.user!, recordId);
+      const result = await RecordService.deleteRecord(req.user!, recordId, auditCtx(req));
       res.status(200).json({
         success: true,
         message: result.message,

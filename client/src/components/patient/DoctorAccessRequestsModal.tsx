@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../context/ToastContext.js';
+import { prettify } from '../common/TagPicker.js';
 import {
   Shield,
   CheckCircle2,
@@ -143,7 +144,7 @@ export const DoctorAccessRequestsModal: React.FC<Props> = ({
                           <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
                             <span className="flex items-center gap-1">
                               <Building className="w-3.5 h-3.5 text-slate-400" />
-                              {grant.doctorHospital || 'Clinic'} ({grant.doctorSpecialization || 'Specialist'})
+                              {grant.doctorHospital || 'Clinic'} ({prettify(grant.doctorSpecialization || 'Specialist')})
                             </span>
                             <span>•</span>
                             <span>Requested on {new Date(grant.requestedAt).toLocaleDateString()}</span>

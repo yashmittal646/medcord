@@ -30,6 +30,8 @@ export class StorageService {
           {
             folder: 'async_health_records',
             resource_type: resourceType,
+            // 'authenticated' assets have no public URL; they are fetched server-side with a signed URL
+            type: 'authenticated',
             public_id: `${Date.now()}-${crypto.randomBytes(4).toString('hex')}`,
           },
           (error, result) => {
@@ -44,6 +46,7 @@ export class StorageService {
               url: result.secure_url,
               publicCloudId: result.public_id,
               storageType: 'cloudinary',
+              deliveryType: 'authenticated',
             });
           }
         );
@@ -70,6 +73,40 @@ export class StorageService {
       sizeBytes: file.size,
       storageType: 'local',
     };
+  }
+
+  /**
+   * URL the SERVER uses to fetch a Cloudinary asset. Authenticated assets get a signed URL;
+   * legacy public assets keep their stored URL. Never send this to a client.
+   */
+  static getCloudinaryDeliveryUrl(file: IFileAttachment): string {
+    if (file.deliveryType === 'authenticated' && file.publicCloudId) {
+      return cloudinary.url(file.publicCloudId, {
+        resource_type: file.mimeType === 'application/pdf' ? 'raw' : 'image',
+        type: 'authenticated',
+        sign_url: true,
+        secure: true,
+      });
+    }
+    if (!file.url) throw new Error('Stored file has no delivery URL');
+    return file.url;
+  }
+
+  static async deleteFile(file: IFileAttachment): Promise<void> {
+    try {
+      if (file.storageType === 'local') {
+        const filePath = this.getLocalFilePath(file.filename);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } else if (file.publicCloudId) {
+        await cloudinary.uploader.destroy(file.publicCloudId, {
+          resource_type: file.mimeType === 'application/pdf' ? 'raw' : 'image',
+          type: file.deliveryType === 'authenticated' ? 'authenticated' : 'upload',
+          invalidate: true,
+        });
+      }
+    } catch (e) {
+      console.error('Failed to remove stored file:', e);
+    }
   }
 
   static getLocalFilePath(filename: string): string {

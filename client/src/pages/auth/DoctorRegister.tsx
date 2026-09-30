@@ -10,7 +10,7 @@ export const DoctorRegister: React.FC = () => {
     email: '',
     password: '',
     phone: '',
-    specialization: 'General Medicine',
+    specialization: 'GENERAL_PRACTICE',
     licenseNumber: '',
     hospitalAffiliation: '',
   });
@@ -176,14 +176,24 @@ export const DoctorRegister: React.FC = () => {
                 onChange={handleChange}
                 className="w-full glass-input text-xs bg-white text-slate-800"
               >
-                <option value="General Medicine">General Medicine</option>
-                <option value="Cardiology">Cardiology</option>
-                <option value="Emergency Medicine">Emergency Medicine</option>
-                <option value="Pediatrics">Pediatrics</option>
-                <option value="Orthopedics">Orthopedics</option>
-                <option value="Neurology">Neurology</option>
-                <option value="Oncology">Oncology</option>
-                <option value="Dermatology">Dermatology</option>
+                <option value="GENERAL_PRACTICE">General Practice</option>
+                <option value="CARDIOLOGY">Cardiology</option>
+                <option value="ENDOCRINOLOGY">Endocrinology</option>
+                <option value="NEPHROLOGY">Nephrology</option>
+                <option value="NEUROLOGY">Neurology</option>
+                <option value="DERMATOLOGY">Dermatology</option>
+                <option value="ONCOLOGY">Oncology</option>
+                <option value="ORTHOPEDICS">Orthopedics</option>
+                <option value="PSYCHIATRY">Psychiatry</option>
+                <option value="GASTROENTEROLOGY">Gastroenterology</option>
+                <option value="PULMONOLOGY">Pulmonology</option>
+                <option value="RADIOLOGY">Radiology</option>
+                <option value="OBGYN">Obstetrics & Gynecology</option>
+                <option value="ENT">ENT</option>
+                <option value="OPHTHALMOLOGY">Ophthalmology</option>
+                <option value="UROLOGY">Urology</option>
+                <option value="PEDIATRICS">Pediatrics</option>
+                <option value="EMERGENCY_MEDICINE">Emergency Medicine</option>
               </select>
             </div>
           </div>

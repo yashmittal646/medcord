@@ -22,6 +22,7 @@ dotenv.config();
 
 import { User }           from './src/models/User.js';
 import { PatientProfile } from './src/models/PatientProfile.js';
+import { DoctorProfile }  from './src/models/DoctorProfile.js';
 import { MedicalRecord }  from './src/models/MedicalRecord.js';
 import { HealthPath }     from './src/models/HealthPath.js';
 import { AccessGrant }    from './src/models/AccessGrant.js';
@@ -71,6 +72,15 @@ async function seed() {
     role:         'DOCTOR',
     publicId:     'DOC-DEMO01',
     status:       'ACTIVE',
+  });
+  await DoctorProfile.deleteMany({ doctorId: doctor.publicId });
+  await DoctorProfile.create({
+    user:               doctor._id,
+    doctorId:           doctor.publicId,
+    specialization:     'General Medicine',
+    licenseNumber:      'DEMO-LIC-0001',
+    hospitalAffiliation:'Demo General Hospital',
+    verificationStatus: 'VERIFIED',
   });
   console.log(`   DOC publicId : ${doctor.publicId}`);
 

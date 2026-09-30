@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { DoctorController } from '../controllers/doctor.controller.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { authorizeRoles } from '../middleware/authorize.js';
+import { authorizeRoles, requireVerifiedDoctor } from '../middleware/authorize.js';
 import { upload } from '../utils/fileUpload.js';
 
 const router = Router();
@@ -9,6 +9,7 @@ const router = Router();
 // Protect all doctor routes to authenticated DOCTOR role
 router.use(authenticateToken);
 router.use(authorizeRoles('DOCTOR'));
+router.use(requireVerifiedDoctor);
 
 // Search & Lookup Patient by PAT-XXXXXXXX
 router.get('/patient/:patientId', DoctorController.lookupPatient);

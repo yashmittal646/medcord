@@ -18,6 +18,9 @@ import emergencyRouter from './routes/emergency.routes.js';
 import auditRouter from './routes/audit.routes.js';
 import { accessGrantRoutes } from './routes/accessGrant.routes.js';
 import aiAdviceRouter from './routes/aiAdvice.routes.js';
+import metaRouter from './routes/meta.routes.js';
+import notificationRouter from './routes/notification.routes.js';
+import { accessRequestRoutes, consentRoutes } from './routes/consent.routes.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -67,6 +70,10 @@ export const createApp = (): Application => {
   app.use('/api/audit', auditRouter);
   app.use('/api/access-grants', accessGrantRoutes);
   app.use('/api/ai', aiAdviceRouter);
+  app.use('/api/meta', metaRouter);
+  app.use('/api/access-requests', accessRequestRoutes);
+  app.use('/api/consent', consentRoutes);
+  app.use('/api/notifications', notificationRouter);
 
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');

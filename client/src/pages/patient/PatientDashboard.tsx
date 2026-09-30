@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage } from '../../context/LanguageContext.js';
-import { api, getRecordFileUrl } from '../../services/api.js';
+import { api } from '../../services/api.js';
+import { useOpenRecordFile } from '../../hooks/useOpenRecordFile.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { AllergyModal } from '../../components/patient/AllergyModal.js';
 import { MedicationModal } from '../../components/patient/MedicationModal.js';
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
+  const openFile = useOpenRecordFile();
   const { user } = useAuth();
   const { t, formatDate } = useLanguage();
   const [summary, setSummary] = useState<any>(null);
@@ -424,14 +426,13 @@ export const PatientDashboard: React.FC = () => {
                   </div>
                 </div>
                 {rec.file && (
-                  <a
-                    href={getRecordFileUrl(rec._id)}
-                    target="_blank"
-                    rel="noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openFile(rec._id)}
                     className="text-xs font-bold text-[#0c8b77] hover:text-[#0a7566] px-3 py-1.5 bg-white rounded-xl border border-[#0c8b77]/25 hover:border-[#0c8b77]/50 shadow-sm transition-all"
                   >
                     {t('common.viewFile')}
-                  </a>
+                  </button>
                 )}
               </div>
             ))}

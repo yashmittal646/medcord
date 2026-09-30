@@ -197,13 +197,42 @@ Pre-seeded ready-to-test accounts for judging and live demonstrations:
 
 ---
 
+## 🔐 Granular Access Control
+
+Doctors do not get blanket access to a patient's chart. Every read, list, timeline, summary and download of a record goes through one policy (`src/services/accessPolicy.service.ts`), which evaluates in this order:
+
+1. **Verified doctor** – accounts start `PENDING`; only `VERIFIED` doctors can open patient data.
+2. **Active patient–doctor connection** – approved by the patient, expires after 12 months.
+3. **Uploader** – a doctor can always see what they uploaded themselves.
+4. **Explicit consent** – an unexpired, unrevoked `ConsentGrant` that covers the record.
+5. **Specialization match** – the doctor's specialty is in the record's `targetSpecializations`.
+6. Otherwise **denied**. Untagged (`UNCLASSIFIED`) and `HIGHLY_CONFIDENTIAL` records are never opened by step 5 (the specialization match).
+
+**Classification.** Every record carries `category`, `associatedConditions`, `targetSpecializations` and `sensitivityLevel`. The routing table lives in `src/config/taxonomy.ts` (for example, `ecg` → Cardiology + General Practice; `skin_biopsy` → Dermatology + Oncology only; mental-health, HIV/STI, reproductive and genetic tags are highly confidential). Tags come from the upload form, from a doctor's own form, or from the automatic classifier (`classification.service.ts`), and the patient can always review or override them. The classifier sees only a record's title, notes and tags, never the document, and a language model can only choose from the fixed taxonomy: which specialties get access is always derived by code. With no `GROQ_API_KEY` it uses a local keyword classifier.
+
+**Cross-specialty access.** A doctor asks for records by specialty, condition or document type with a written reason (`POST /api/access-requests/create`). The patient is notified live, can narrow the request, must choose a duration of 24 hours, 7 days or 30 days, and approves or declines (`PATCH /api/access-requests/:id/respond`). They can revoke at any time (`DELETE /api/consent/:grantId/revoke`) and it takes effect on the very next request. Expiry is checked on every request, not by a background job.
+
+**Files.** Uploads to Cloudinary are stored as `authenticated` assets with no public URL, and downloads are streamed through the API after the policy check, so storage locations are never sent to a browser. Login tokens are accepted only in the `Authorization` header, never in URLs.
+
+**Audit.** Allowed and denied record access, connection and consent changes, tag changes and deletions are written to the `AuditLog`, and patients see them in their activity feed.
+
+**Upgrading an existing database:**
+```bash
+npx tsx src/scripts/migrate-access-control.ts               # mark old records UNCLASSIFIED, normalise doctor specialties
+npx tsx src/scripts/migrate-access-control.ts --cloudinary  # also make existing Cloudinary uploads private
+```
+Old records stay visible only to their patient until they are tagged (or auto-tagged on upload of new ones). Doctors created before this change keep working if their specialty maps onto the supported list; the script reports any that need manual mapping.
+
+---
+
 ## 🔒 Security & Compliance Design
-- **Password Hashing:** Passwords securely hashed with `bcryptjs` (salt rounds = 10).
-- **Stateless Authentication:** JSON Web Tokens (JWT) with configurable expiration.
-- **Role-Based Access Control (RBAC):** Strict separation between `PATIENT` and `DOCTOR` permissions.
-- **Input Sanitization & Validation:** Comprehensive Zod schemas preventing injection and malformed payloads.
-- **Audit Logging:** Every sensitive clinical access creates an unmodifiable `AuditLog` entry.
-- **Interactive Legal Modals:** In-app accessible Privacy Policy, Terms of Service, HIPAA Compliance Statement, and Security Safeguards.
+- **Password Hashing:** Passwords hashed with `bcryptjs` (cost factor 12).
+- **Stateless Authentication:** JSON Web Tokens (JWT) with configurable expiration, sent in the `Authorization` header only.
+- **Role-Based + Attribute-Based Access Control:** `PATIENT` / `DOCTOR` roles, plus per-record checks on doctor verification, connection, specialization and consent (see above).
+- **Input Sanitization & Validation:** Zod schemas on write endpoints; user search text is escaped before it becomes a regular expression.
+- **Audit Logging:** Sensitive access and consent events create `AuditLog` entries. The application only ever appends to this collection; restricting the database user to insert and read, and adding tamper-evidence, is recommended for production.
+- **Not yet in place:** rate limiting on login and the AI endpoint, an admin flow for verifying doctors, and a break-glass review of emergency access. Emergency access is logged but not consent-gated.
+- **Interactive Legal Modals:** In-app Privacy Policy, Terms of Service, HIPAA statement, and Security Safeguards pages. These describe intent and are not a compliance certification; have counsel review the obligations that apply to your deployment.
 
 ---
 

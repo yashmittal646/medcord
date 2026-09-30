@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { EmergencyController } from '../controllers/emergency.controller.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { authorizeRoles } from '../middleware/authorize.js';
+import { authorizeRoles, requireVerifiedDoctor } from '../middleware/authorize.js';
 
 const router = Router();
 
 // Protect emergency route: Doctor only
 router.use(authenticateToken);
 router.use(authorizeRoles('DOCTOR'));
+router.use(requireVerifiedDoctor);
 
 // Instant Emergency Snapshot
 router.get('/:patientId', EmergencyController.getEmergencySnapshot);

@@ -34,7 +34,7 @@ const DoctorProfileSchema = new Schema<IDoctorProfile>(
     verificationStatus: {
       type: String,
       enum: ['PENDING', 'VERIFIED', 'REJECTED'],
-      default: 'VERIFIED', // Default verified for smooth demo
+      default: 'PENDING',
     },
   },
   {

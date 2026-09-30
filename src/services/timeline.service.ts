@@ -1,7 +1,8 @@
 import { MedicalRecord } from '../models/MedicalRecord.js';
 import { PatientProfile } from '../models/PatientProfile.js';
 import { User } from '../models/User.js';
-import { AccessGrantService } from './accessGrant.service.js';
+import { AccessPolicy } from './accessPolicy.service.js';
+import { toClientRecord } from './record.service.js';
 import { AppError } from '../utils/appError.js';
 import { IJwtPayload, RecordType } from '../types/index.js';
 
@@ -20,32 +21,24 @@ export class TimelineService {
     patientId: string,
     filters: TimelineQueryFilters = {}
   ) {
-    // Permission check
-    if (requestingUser.role === 'PATIENT' && requestingUser.publicId !== patientId) {
-      throw new AppError('Forbidden: You can only view your own medical timeline', 403);
-    }
-
-    if (requestingUser.role === 'DOCTOR') {
-      const hasAccess = await AccessGrantService.hasApprovedAccess(requestingUser.publicId, patientId);
-      if (!hasAccess) {
-        throw new AppError('Access Denied: Patient consent is required before viewing the timeline.', 403);
-      }
-    }
-
-    const query: any = { patientId };
+    patientId = (patientId || '').trim().toUpperCase();
+    // Only records the requester may see (patients: all their own; doctors: specialization/consent scoped)
+    const visible = await AccessPolicy.visibleRecordsFilter(requestingUser, patientId);
+    const query: any = { $and: [visible] };
 
     if (filters.recordType) {
-      query.recordType = filters.recordType;
+      query.$and.push({ recordType: filters.recordType });
     }
 
     if (filters.year) {
       const startOfYear = new Date(`${filters.year}-01-01T00:00:00.000Z`);
       const endOfYear = new Date(`${filters.year}-12-31T23:59:59.999Z`);
-      query.recordDate = { $gte: startOfYear, $lte: endOfYear };
+      query.$and.push({ recordDate: { $gte: startOfYear, $lte: endOfYear } });
     } else if (filters.from || filters.to) {
-      query.recordDate = {};
-      if (filters.from) query.recordDate.$gte = new Date(filters.from);
-      if (filters.to) query.recordDate.$lte = new Date(filters.to);
+      const range: Record<string, Date> = {};
+      if (filters.from) range.$gte = new Date(filters.from);
+      if (filters.to) range.$lte = new Date(filters.to);
+      query.$and.push({ recordDate: range });
     }
 
     const page = Math.max(1, filters.page || 1);
@@ -100,19 +93,9 @@ export class TimelineService {
   }
 
   static async getPatientSummary(requestingUser: IJwtPayload, targetPatientId?: string) {
-    const patientId = targetPatientId || requestingUser.publicId;
-
-    // Permission check
-    if (requestingUser.role === 'PATIENT' && requestingUser.publicId !== patientId) {
-      throw new AppError('Forbidden: You can only view your own summary', 403);
-    }
-
-    if (requestingUser.role === 'DOCTOR') {
-      const hasAccess = await AccessGrantService.hasApprovedAccess(requestingUser.publicId, patientId);
-      if (!hasAccess) {
-        throw new AppError('Access Denied: Patient consent is required before viewing patient summary.', 403);
-      }
-    }
+    const patientId = (targetPatientId || requestingUser.publicId).trim().toUpperCase();
+    // Counts and recent records only cover what the requester is allowed to see
+    const visible = await AccessPolicy.visibleRecordsFilter(requestingUser, patientId);
 
     const patientUser = await User.findOne({ publicId: patientId, role: 'PATIENT' });
     if (!patientUser) {
@@ -125,14 +108,14 @@ export class TimelineService {
     }
 
     // Fetch recent 5 medical records
-    const recentRecords = await MedicalRecord.find({ patientId })
+    const recentRecords = await MedicalRecord.find(visible)
       .sort({ recordDate: -1 })
       .limit(5)
       .populate('uploadedBy', 'name publicId role');
 
     // Aggregate counts by record type
     const recordCounts = await MedicalRecord.aggregate([
-      { $match: { patientId } },
+      { $match: visible },
       { $group: { _id: '$recordType', count: { $sum: 1 } } },
     ]);
 
@@ -168,7 +151,7 @@ export class TimelineService {
         totalRecords: Object.values(countsMap).reduce((a, b) => a + b, 0),
         countsByType: countsMap,
       },
-      recentRecords,
+      recentRecords: recentRecords.map(toClientRecord),
     };
   }
 }

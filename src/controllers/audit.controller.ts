@@ -3,6 +3,18 @@ import { AuditLog } from '../models/AuditLog.js';
 import { AuditService } from '../services/audit.service.js';
 import { AuthenticatedRequest } from '../types/index.js';
 
+/** Structured audit details are JSON for machines; show patients only the human reason, if any */
+function publicDetails(details?: string): string | undefined {
+  if (!details) return undefined;
+  if (!details.startsWith('{')) return details;
+  try {
+    const parsed = JSON.parse(details);
+    return typeof parsed.reason === 'string' && !/^[A-Z_]+$/.test(parsed.reason) ? parsed.reason : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export class AuditController {
   static async getMyActivity(
     req: AuthenticatedRequest,
@@ -45,8 +57,58 @@ export class AuditController {
             message = `New medical record uploaded`;
             badge = 'RECORD';
             break;
+          case 'RECORD_VIEW':
+            message = `Doctor ${log.actor.name} (${log.actor.publicId}) opened one of your records`;
+            badge = 'DOCTOR_VIEW';
+            break;
+          case 'RECORD_DOWNLOAD':
+            message = `Doctor ${log.actor.name} (${log.actor.publicId}) downloaded a document from your records`;
+            badge = 'DOCTOR_VIEW';
+            break;
+          case 'RECORD_ACCESS_DENIED':
+            message = `${log.actor.name} (${log.actor.publicId}) tried to open a record they are not permitted to see. Access was blocked.`;
+            badge = 'BLOCKED';
+            break;
+          case 'RECORD_DELETE':
+            message = `${log.actor.role === 'PATIENT' ? 'You' : log.actor.name} deleted a medical record`;
+            badge = 'RECORD';
+            break;
+          case 'CONNECTION_REQUESTED':
+            message = `Doctor ${log.actor.name} (${log.actor.publicId}) asked to connect to your chart`;
+            badge = 'ACCESS_REQUEST';
+            break;
+          case 'CONNECTION_APPROVED':
+          case 'CONNECTION_REJECTED':
+          case 'CONNECTION_REVOKED':
+            message = `You ${log.action.replace('CONNECTION_', '').toLowerCase()} a doctor's connection to your chart`;
+            badge = 'CONSENT';
+            break;
+          case 'ACCESS_REQUEST_CREATED':
+            message = `Doctor ${log.actor.name} (${log.actor.publicId}) requested access to additional records`;
+            badge = 'ACCESS_REQUEST';
+            break;
+          case 'ACCESS_REQUEST_CANCELLED':
+            message = `Doctor ${log.actor.name} withdrew an access request`;
+            badge = 'ACCESS_REQUEST';
+            break;
+          case 'ACCESS_REQUEST_REJECTED':
+            message = 'You declined an access request';
+            badge = 'CONSENT';
+            break;
+          case 'CONSENT_GRANTED':
+            message = 'You approved access to additional records';
+            badge = 'CONSENT';
+            break;
+          case 'CONSENT_REVOKED':
+            message = "You revoked a doctor's access to additional records";
+            badge = 'CONSENT';
+            break;
+          case 'CONSENT_EXPIRED':
+            message = 'A time-limited access grant expired';
+            badge = 'CONSENT';
+            break;
           default:
-            message = log.details || `${log.action} performed by ${log.actor.name}`;
+            message = log.details && !log.details.startsWith('{') ? log.details : `${log.action} performed by ${log.actor.name}`;
             badge = 'GENERAL';
         }
 
@@ -55,7 +117,7 @@ export class AuditController {
           action: log.action,
           badge,
           message,
-          details: log.details,
+          details: publicDetails(log.details),
           actor: {
             name: log.actor.name,
             role: log.actor.role,
@@ -98,8 +160,8 @@ export class AuditController {
   ): Promise<void> {
     try {
       const query: any = {};
-      if (req.query.action) query.action = req.query.action;
-      if (req.query.patientId) query.targetPatientId = req.query.patientId;
+      if (typeof req.query.action === 'string') query.action = req.query.action;
+      if (typeof req.query.patientId === 'string') query.targetPatientId = req.query.patientId;
 
       const logs = await AuditLog.find(query).sort({ createdAt: -1 }).limit(100).lean();
       res.status(200).json({ success: true, data: logs });

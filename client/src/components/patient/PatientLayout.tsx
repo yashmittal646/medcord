@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage, LANGUAGES } from '../../context/LanguageContext.js';
 import { IdentityBadge } from '../common/IdentityBadge.js';
 import { LanguagePickerModal } from '../common/LanguagePickerModal.js';
+import { NotificationBell } from '../common/NotificationBell.js';
+import { NotificationProvider, useNotifications } from '../../context/NotificationContext.js';
 import {
   LayoutDashboard,
   User,
@@ -17,9 +19,12 @@ import {
   ChevronRight,
   MessageSquareHeart,
   Globe,
+  ShieldCheck,
 } from 'lucide-react';
 
-export const PatientLayout: React.FC = () => {
+const PatientLayoutInner: React.FC = () => {
+  const { items } = useNotifications();
+  const pendingRequests = items.filter((n) => n.type === 'ACCESS_REQUEST_RECEIVED' && !n.readAt).length;
   const { user, logout } = useAuth();
   const { lang, t, showPicker } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,6 +40,7 @@ export const PatientLayout: React.FC = () => {
     { to: '/patient/timeline', label: t('nav.timeline'), Icon: Clock },
     { to: '/patient/health-paths', label: t('nav.healthPaths'), Icon: HeartPulse },
     { to: '/patient/ask-advice', label: t('nav.askAdvice'), Icon: MessageSquareHeart },
+    { to: '/patient/privacy', label: 'Privacy & Access', Icon: ShieldCheck },
     { to: '/patient/activity', label: t('nav.privacyFeed'), Icon: Shield },
   ];
 
@@ -78,12 +84,15 @@ export const PatientLayout: React.FC = () => {
               <p className="text-sm font-bold text-slate-900 truncate">{user?.name}</p>
               <IdentityBadge id={user?.publicId || ''} type="PATIENT" size="sm" showLabel={false} />
             </div>
-            <button
-              className="ml-auto lg:hidden p-1 text-slate-400 hover:text-slate-700"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="ml-auto flex items-center gap-1">
+              <NotificationBell role="PATIENT" />
+              <button
+                className="lg:hidden p-1 text-slate-400 hover:text-slate-700"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Language Switcher Pill */}
@@ -120,6 +129,11 @@ export const PatientLayout: React.FC = () => {
                 <>
                   <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'}`} />
                   <span className="flex-1">{label}</span>
+                  {to === '/patient/privacy' && pendingRequests > 0 && (
+                    <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-bold flex items-center justify-center">
+                      {pendingRequests}
+                    </span>
+                  )}
                   {isActive && <ChevronRight className="w-3.5 h-3.5 text-blue-600" />}
                 </>
               )}
@@ -150,13 +164,16 @@ export const PatientLayout: React.FC = () => {
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-sm font-bold text-slate-800">{t('nav.patientPortal')}</span>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700"
-          >
-            <Globe className="w-3 h-3 text-blue-600" />
-            <span>{currentLang.code.toUpperCase()}</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell role="PATIENT" />
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700"
+            >
+              <Globe className="w-3 h-3 text-blue-600" />
+              <span>{currentLang.code.toUpperCase()}</span>
+            </button>
+          </div>
         </div>
 
         {/* Page Content */}
@@ -167,3 +184,9 @@ export const PatientLayout: React.FC = () => {
     </div>
   );
 };
+
+export const PatientLayout: React.FC = () => (
+  <NotificationProvider>
+    <PatientLayoutInner />
+  </NotificationProvider>
+);

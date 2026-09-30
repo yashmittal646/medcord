@@ -3,7 +3,11 @@ import { api } from '../../services/api.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
+import { RecordTagsModal } from '../../components/patient/RecordTagsModal.js';
+import { prettify } from '../../components/common/TagPicker.js';
 import {
+  Tags,
+  Lock,
   FileText,
   UploadCloud,
   Filter,
@@ -28,10 +32,36 @@ const typeConfig: Record<string, { label: string; color: string; Icon: any }> = 
   OTHER: { label: 'Other', color: 'text-slate-700 bg-slate-50 border-slate-200', Icon: File },
 };
 
+/** One-line summary of who can open a record, with a prompt when tags need attention */
+const VisibilityBadge: React.FC<{ classification?: any }> = ({ classification: c }) => {
+  if (!c || c.source === 'UNCLASSIFIED') {
+    return (
+      <p className="text-[10px] mt-1 font-semibold text-amber-700 flex items-center gap-1">
+        <Tags className="w-3 h-3" /> Needs tags · only you can open this
+      </p>
+    );
+  }
+  if (c.sensitivityLevel === 'HIGHLY_CONFIDENTIAL') {
+    return (
+      <p className="text-[10px] mt-1 font-semibold text-rose-700 flex items-center gap-1">
+        <Lock className="w-3 h-3" /> Highly confidential · shared only with doctors you approve
+      </p>
+    );
+  }
+  const specs: string[] = c.targetSpecializations ?? [];
+  return (
+    <p className="text-[10px] mt-1 text-slate-500">
+      {c.source === 'AI' && !c.patientReviewed && <span className="font-semibold text-amber-700">Suggested tags, please review · </span>}
+      Visible to: {specs.length ? specs.map(prettify).join(', ') : 'only you'}
+    </p>
+  );
+};
+
 export const PatientRecordsPage: React.FC = () => {
   const { t } = useLanguage();
   const [records, setRecords] = useState<any[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const [tagRecord, setTagRecord] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
@@ -166,6 +196,7 @@ export const PatientRecordsPage: React.FC = () => {
                         ))}
                       </div>
                     )}
+                    <VisibilityBadge classification={rec.classification} />
                   </div>
                 </div>
 
@@ -206,6 +237,14 @@ export const PatientRecordsPage: React.FC = () => {
                   </button>
 
                   <button
+                    onClick={() => setTagRecord(rec)}
+                    title="Choose who can see this record"
+                    className="p-1.5 text-slate-500 hover:text-teal-700 rounded-lg hover:bg-teal-50 transition-colors"
+                  >
+                    <Tags className="w-4 h-4" />
+                  </button>
+
+                  <button
                     onClick={() => handleDelete(rec._id)}
                     title="Delete record"
                     className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
@@ -242,6 +281,16 @@ export const PatientRecordsPage: React.FC = () => {
         onClose={() => setIsUploadOpen(false)}
         onSuccess={fetchRecords}
       />
+
+      {/* Who-can-see-this tags */}
+      {tagRecord && (
+        <RecordTagsModal
+          key={tagRecord._id}
+          record={tagRecord}
+          onClose={() => setTagRecord(null)}
+          onSaved={fetchRecords}
+        />
+      )}
 
       {/* Official Medical Prescription / Document Viewer & Download Modal */}
       <MedicalDocumentModal

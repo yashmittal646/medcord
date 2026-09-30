@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AccessGrantController } from '../controllers/accessGrant.controller.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { authorizeRoles } from '../middleware/authorize.js';
+import { authorizeRoles, requireVerifiedDoctor } from '../middleware/authorize.js';
 
 const router = Router();
 
@@ -10,6 +10,7 @@ router.post(
   '/request',
   authenticateToken,
   authorizeRoles('DOCTOR'),
+  requireVerifiedDoctor,
   AccessGrantController.requestAccess
 );
 

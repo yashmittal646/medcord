@@ -2,6 +2,7 @@ import http from 'http';
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createApp } from '../src/app.js';
+import { DoctorProfile } from '../src/models/DoctorProfile.js';
 
 async function runMasterE2ETests() {
   console.log('================================================================');
@@ -59,7 +60,7 @@ async function runMasterE2ETests() {
         name: 'Dr. Leonard McCoy',
         email: 'mccoy@starfleet.med',
         password: 'DocPassword123!',
-        specialization: 'Trauma & General Medicine',
+        specialization: 'CARDIOLOGY',
         licenseNumber: 'MD-NCC-1701',
         hospitalAffiliation: 'Starfleet General',
       }),
@@ -101,6 +102,8 @@ async function runMasterE2ETests() {
     formData.append('facilityName', 'Metro Cardiology Clinic');
     formData.append('doctorName', 'Dr. Adams');
     formData.append('tags', JSON.stringify(['Cardio', 'Echo', 'Ultrasound']));
+    formData.append('category', 'CARDIAC_TEST');
+    formData.append('conditions', JSON.stringify(['ecg', 'arrhythmia']));
 
     const dummyFile = new Blob(['%PDF-1.4 Mock Echocardiogram Document Content...'], { type: 'application/pdf' });
     formData.append('file', dummyFile, 'echocardiogram_scan.pdf');
@@ -281,8 +284,63 @@ async function runMasterE2ETests() {
     }
     console.log('✅ Doctor access successfully revoked and verified restricted!');
 
+    // STEP 15: Negative access-control checks (no cross-account leakage)
+    console.log('\n[STEP 15] Unauthorized Doctors Cannot Read, Download, Delete or Modify Patient Data');
+    const doc2Res: any = await (await fetch(`${baseUrl}/auth/doctor/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Dr. Stranger',
+        email: 'stranger@nowhere.med',
+        password: 'Password123!',
+        specialization: 'DERMATOLOGY',
+        licenseNumber: 'LIC-STRANGER',
+      }),
+    })).json();
+    const doctor2Token = doc2Res.data.token;
+
+    const call = (method: string, path: string, token: string, body?: unknown) =>
+      fetch(`${baseUrl}${path}`, {
+        method,
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+    const expectStatus = async (label: string, res: Response, status: number) => {
+      if (res.status !== status) {
+        throw new Error(`${label}: expected ${status} but got ${res.status}`);
+      }
+    };
+
+    // A doctor who was never granted access
+    await expectStatus('stranger GET record', await call('GET', `/records/${recordId}`, doctor2Token), 403);
+    await expectStatus('stranger download record', await call('GET', `/records/${recordId}/download`, doctor2Token), 403);
+    await expectStatus('stranger DELETE record', await call('DELETE', `/records/${recordId}`, doctor2Token), 403);
+    await expectStatus('stranger GET health path', await call('GET', `/health-paths/${pathId}`, doctor2Token), 403);
+    await expectStatus('stranger list health paths', await call('GET', `/health-paths?patientId=${patientId}`, doctor2Token), 403);
+    await expectStatus('stranger PATCH health path', await call('PATCH', `/health-paths/${pathId}/status`, doctor2Token, { status: 'ARCHIVED' }), 403);
+    await expectStatus('stranger note on health path', await call('POST', `/health-paths/${pathId}/notes`, doctor2Token, { note: 'x' }), 403);
+    await expectStatus('stranger list records', await call('GET', `/records?patientId=${patientId.toLowerCase()}`, doctor2Token), 403);
+
+    // The original doctor after the patient revoked consent
+    await expectStatus('revoked GET record', await call('GET', `/records/${recordId}`, doctorToken), 403);
+    await expectStatus('revoked DELETE record', await call('DELETE', `/records/${recordId}`, doctorToken), 403);
+    await expectStatus('revoked GET health path', await call('GET', `/health-paths/${pathId}`, doctorToken), 403);
+
+    // The patient still has full access to their own data
+    await expectStatus('owner GET record', await call('GET', `/records/${recordId}`, patientToken), 200);
+
+    // Audit log query is not open to patients or doctors
+    await expectStatus('doctor audit logs', await call('GET', '/audit/logs', doctorToken), 403);
+    await expectStatus('patient audit logs', await call('GET', '/audit/logs', patientToken), 403);
+
+    // A doctor pending verification cannot use doctor-only endpoints (incl. emergency access)
+    await DoctorProfile.updateOne({ doctorId: doc2Res.data.user.publicId }, { verificationStatus: 'PENDING' });
+    await expectStatus('pending doctor emergency', await call('GET', `/emergency/${patientId}`, doctor2Token), 403);
+    await expectStatus('pending doctor lookup', await call('GET', `/doctor/patient/${patientId}`, doctor2Token), 403);
+    console.log('✅ Cross-account read/download/delete/modify all blocked; audit logs and unverified doctors locked out');
+
     console.log('\n================================================================');
-    console.log('🎉 ALL 14 E2E CAPABILITY TESTS COMPLETED WITH 100% SUCCESS!');
+    console.log('🎉 ALL 15 E2E CAPABILITY TESTS COMPLETED WITH 100% SUCCESS!');
     console.log('================================================================\n');
   } finally {
     server.close();

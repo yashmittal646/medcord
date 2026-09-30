@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { Document, Types } from 'mongoose';
+import type { RecordCategory as RecordCategory_ } from '../config/taxonomy.js';
 
 export type UserRole = 'PATIENT' | 'DOCTOR' | 'SYSTEM';
 export type AccountStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING';
@@ -24,7 +25,20 @@ export type AuditActionType =
   | 'HEALTH_PATH_UPDATED'
   | 'HEALTH_PATH_COMPLETED'
   | 'HEALTH_PATH_ARCHIVED'
-  | 'EMERGENCY_ACCESS';
+  | 'EMERGENCY_ACCESS'
+  | 'RECORD_ACCESS_DENIED'
+  | 'ACCESS_REQUEST_CREATED'
+  | 'ACCESS_REQUEST_APPROVED'
+  | 'ACCESS_REQUEST_REJECTED'
+  | 'ACCESS_REQUEST_CANCELLED'
+  | 'CONSENT_GRANTED'
+  | 'CONSENT_REVOKED'
+  | 'CONSENT_EXPIRED'
+  | 'CLASSIFICATION_CHANGED'
+  | 'CONNECTION_REQUESTED'
+  | 'CONNECTION_APPROVED'
+  | 'CONNECTION_REJECTED'
+  | 'CONNECTION_REVOKED';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -108,6 +122,18 @@ export interface IFileAttachment {
   url?: string;
   publicCloudId?: string;
   storageType: 'cloudinary' | 'local';
+  /** 'authenticated' files have no public URL; they are only ever served through the API */
+  deliveryType?: 'authenticated' | 'public';
+}
+
+export interface IRecordClassification {
+  category: RecordCategory_;
+  associatedConditions: string[];
+  targetSpecializations: string[];
+  sensitivityLevel: 'STANDARD' | 'HIGHLY_CONFIDENTIAL';
+  source: 'AI' | 'UPLOADER_FORM' | 'PATIENT_OVERRIDE' | 'UNCLASSIFIED';
+  confidence?: number;
+  patientReviewed: boolean;
 }
 
 export interface IMedicalRecord extends Document {
@@ -125,6 +151,7 @@ export interface IMedicalRecord extends Document {
   diagnosis?: string;
   file?: IFileAttachment;
   tags?: string[];
+  classification: IRecordClassification;
   createdAt: Date;
   updatedAt: Date;
 }

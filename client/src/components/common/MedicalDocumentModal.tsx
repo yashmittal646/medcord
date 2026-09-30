@@ -10,7 +10,7 @@ import {
   Stethoscope,
   HeartPulse,
 } from 'lucide-react';
-import { getRecordFileUrl } from '../../services/api.js';
+import { useOpenRecordFile } from '../../hooks/useOpenRecordFile.js';
 
 interface MedicalDocumentModalProps {
   record: any | null;
@@ -25,6 +25,7 @@ export const MedicalDocumentModal: React.FC<MedicalDocumentModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const openFile = useOpenRecordFile();
   if (!isOpen || !record) return null;
 
   const handlePrint = () => {
@@ -109,15 +110,14 @@ Timestamp       : ${new Date().toISOString()}
 
           <div className="flex items-center gap-2">
             {record.file && (
-              <a
-                href={getRecordFileUrl(record._id)}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => openFile(record._id)}
                 className="px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Original Attachment</span>
-              </a>
+              </button>
             )}
 
             <button

@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext.js';
 import { useLanguage, LANGUAGES } from '../../context/LanguageContext.js';
 import { IdentityBadge } from '../common/IdentityBadge.js';
 import { LanguagePickerModal } from '../common/LanguagePickerModal.js';
+import { NotificationBell } from '../common/NotificationBell.js';
+import { NotificationProvider } from '../../context/NotificationContext.js';
 import {
   LayoutDashboard,
   Search,
@@ -17,7 +19,7 @@ import {
   Globe,
 } from 'lucide-react';
 
-export const DoctorLayout: React.FC = () => {
+const DoctorLayoutInner: React.FC = () => {
   const { user, logout } = useAuth();
   const { lang, t, showPicker } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
@@ -73,12 +75,15 @@ export const DoctorLayout: React.FC = () => {
               <p className="text-sm font-bold text-slate-900 truncate">{user?.name}</p>
               <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="sm" showLabel={false} />
             </div>
-            <button
-              className="ml-auto lg:hidden p-1 text-slate-400 hover:text-slate-700"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="ml-auto flex items-center gap-1">
+              <NotificationBell role="DOCTOR" />
+              <button
+                className="lg:hidden p-1 text-slate-400 hover:text-slate-700"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Language Switcher Pill */}
@@ -181,13 +186,16 @@ export const DoctorLayout: React.FC = () => {
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-sm font-bold text-slate-800">{t('nav.clinicalPortal')}</span>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700"
-          >
-            <Globe className="w-3 h-3 text-indigo-600" />
-            <span>{currentLang.code.toUpperCase()}</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell role="DOCTOR" />
+            <button
+              onClick={() => setModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700"
+            >
+              <Globe className="w-3 h-3 text-indigo-600" />
+              <span>{currentLang.code.toUpperCase()}</span>
+            </button>
+          </div>
         </div>
 
         {/* Page Content */}
@@ -198,3 +206,9 @@ export const DoctorLayout: React.FC = () => {
     </div>
   );
 };
+
+export const DoctorLayout: React.FC = () => (
+  <NotificationProvider>
+    <DoctorLayoutInner />
+  </NotificationProvider>
+);

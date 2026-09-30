@@ -92,9 +92,12 @@ export class HealthPathService {
     patientId: string,
     status?: HealthPathStatus
   ) {
-    if (requestingUser.role === 'PATIENT' && requestingUser.publicId !== patientId) {
-      throw new AppError('Forbidden: You can only view your own Health Paths', 403);
-    }
+    patientId = (patientId || '').trim().toUpperCase();
+    await AccessGrantService.assertPatientDataAccess(
+      requestingUser,
+      patientId,
+      'Forbidden: You can only view your own Health Paths'
+    );
 
     const query: any = { patientId };
     if (status) {
@@ -110,9 +113,11 @@ export class HealthPathService {
       throw new AppError('Health Path not found', 404);
     }
 
-    if (requestingUser.role === 'PATIENT' && healthPath.patientId !== requestingUser.publicId) {
-      throw new AppError('Forbidden: You do not have access to this Health Path', 403);
-    }
+    await AccessGrantService.assertPatientDataAccess(
+      requestingUser,
+      healthPath.patientId,
+      'Forbidden: You do not have access to this Health Path'
+    );
 
     return healthPath;
   }
@@ -127,9 +132,11 @@ export class HealthPathService {
       throw new AppError('Health Path not found', 404);
     }
 
-    if (requestingUser.role === 'PATIENT' && healthPath.patientId !== requestingUser.publicId) {
-      throw new AppError('Forbidden: You can only update your own Health Paths', 403);
-    }
+    await AccessGrantService.assertPatientDataAccess(
+      requestingUser,
+      healthPath.patientId,
+      'Forbidden: You can only update your own Health Paths'
+    );
 
     healthPath.status = newStatus;
     if (newStatus === 'COMPLETED' || newStatus === 'ARCHIVED') {
@@ -184,9 +191,11 @@ export class HealthPathService {
       throw new AppError('Health Path not found', 404);
     }
 
-    if (requestingUser.role === 'PATIENT' && healthPath.patientId !== requestingUser.publicId) {
-      throw new AppError('Forbidden: You can only comment on your own Health Paths', 403);
-    }
+    await AccessGrantService.assertPatientDataAccess(
+      requestingUser,
+      healthPath.patientId,
+      'Forbidden: You can only comment on your own Health Paths'
+    );
 
     const userObj = await User.findById(requestingUser.userId);
     const authorName = userObj ? userObj.name : requestingUser.publicId;

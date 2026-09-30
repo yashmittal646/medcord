@@ -135,10 +135,102 @@ export const api = {
     request<any>('/access-grants/request', { method: 'POST', body: JSON.stringify({ patientId, reason }) }),
   getDoctorAccessStatus: (patientId: string) =>
     request<any>(`/access-grants/status/${patientId}`),
+
+  // Record classification (which specialists may see a record)
+  getTaxonomy: () => request<any>('/meta/taxonomy'),
+  updateRecordClassification: (id: string, body: { category?: string; conditions: string[]; sensitive?: boolean }) =>
+    request<any>(`/records/${id}/classification`, { method: 'PATCH', body: JSON.stringify(body) }),
+  confirmRecordClassification: (id: string) =>
+    request<any>(`/records/${id}/classification/confirm`, { method: 'POST' }),
+
+  // Cross-specialization access requests & time-limited consent
+  createAccessRequest: (body: any) =>
+    request<any>('/access-requests/create', { method: 'POST', body: JSON.stringify(body) }),
+  listAccessRequests: (status?: string) =>
+    request<any>(`/access-requests${status ? `?status=${status}` : ''}`),
+  respondToAccessRequest: (id: string, body: any) =>
+    request<any>(`/access-requests/${id}/respond`, { method: 'PATCH', body: JSON.stringify(body) }),
+  cancelAccessRequest: (id: string) => request<any>(`/access-requests/${id}`, { method: 'DELETE' }),
+  listConsents: () => request<any>('/consent'),
+  listMyConsents: () => request<any>('/consent/mine'),
+  revokeConsent: (id: string, reason?: string) =>
+    request<any>(`/consent/${id}/revoke`, { method: 'DELETE', body: JSON.stringify({ reason }) }),
+
+  // Notifications
+  listNotifications: () => request<any>('/notifications'),
+  markNotificationRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'POST' }),
+  markAllNotificationsRead: () => request<any>('/notifications/read-all', { method: 'POST' }),
 };
 
-export const getRecordFileUrl = (recordId: string): string => {
+/**
+ * Opens a record's attachment. The file is fetched with the login token in a header (never in the URL)
+ * and shown from a temporary in-browser blob, so the storage location is never exposed.
+ */
+export async function openRecordFile(recordId: string): Promise<void> {
+  // Open the tab synchronously so browsers don't treat it as a blocked popup
+  const popup = window.open('', '_blank');
+  try {
+    const token = localStorage.getItem('async_health_token');
+    const res = await fetch(`${API_BASE}/records/${recordId}/download`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new ApiError(data.message || 'Could not open this file', res.status);
+    }
+    const url = URL.createObjectURL(await res.blob());
+    if (popup) popup.location.href = url;
+    else window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 5 * 60 * 1000);
+  } catch (err) {
+    popup?.close();
+    throw err;
+  }
+}
+
+/**
+ * Subscribes to live notifications (server-sent events). EventSource can't send an Authorization
+ * header, so this reads the stream with fetch. Returns a function that stops listening.
+ */
+export function subscribeToNotifications(onNotification: (n: any) => void, onOpen?: () => void): () => void {
+  const controller = new AbortController();
   const token = localStorage.getItem('async_health_token');
-  return token ? `/api/records/${recordId}/download?token=${encodeURIComponent(token)}` : `/api/records/${recordId}/download`;
-};
+
+  (async () => {
+    try {
+      const res = await fetch(`${API_BASE}/notifications/stream`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) return;
+      onOpen?.();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let idx: number;
+        while ((idx = buffer.indexOf('\n\n')) !== -1) {
+          const frame = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          if (!frame.includes('event: notification')) continue;
+          const data = frame.split('\n').find((l) => l.startsWith('data: '));
+          if (data) {
+            try {
+              onNotification(JSON.parse(data.slice(6)));
+            } catch {
+              /* ignore malformed frame */
+            }
+          }
+        }
+      }
+    } catch {
+      /* aborted or offline: the bell falls back to polling */
+    }
+  })();
+
+  return () => controller.abort();
+}
 

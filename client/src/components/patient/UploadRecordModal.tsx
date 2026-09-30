@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, UploadCloud, FileText, AlertCircle, Check } from 'lucide-react';
 import { api } from '../../services/api.js';
+import { TagPicker } from '../common/TagPicker.js';
 
 interface UploadRecordModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
   const [facilityName, setFacilityName] = useState('');
   const [recordDate, setRecordDate] = useState(new Date().toISOString().split('T')[0]);
   const [description, setDescription] = useState('');
+  const [tagNow, setTagNow] = useState(false);
+  const [tags, setTags] = useState({ category: 'OTHER', conditions: [] as string[], sensitive: false });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -60,6 +63,12 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
       if (facilityName) formData.append('facilityName', facilityName);
       if (description) formData.append('description', description);
       if (file) formData.append('file', file);
+      // Tags decide which specialists can open the record. If skipped, they are suggested automatically.
+      if (tagNow) {
+        formData.append('category', tags.category);
+        if (tags.conditions.length) formData.append('conditions', JSON.stringify(tags.conditions));
+        if (tags.sensitive) formData.append('sensitive', 'true');
+      }
 
       await api.uploadRecord(formData);
       onSuccess();
@@ -209,6 +218,25 @@ export const UploadRecordModal: React.FC<UploadRecordModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full glass-input text-xs resize-none bg-white"
             />
+          </div>
+
+          {/* Access tags */}
+          <div className="rounded-xl border border-slate-200 p-3 space-y-3">
+            <label className="flex items-start gap-2 text-xs text-slate-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={tagNow}
+                onChange={(e) => setTagNow(e.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                <span className="font-semibold">Choose who can see this now</span>
+                <span className="block text-[11px] text-slate-500">
+                  Skip this and we will suggest tags. Until they are set, only you can open the record.
+                </span>
+              </span>
+            </label>
+            {tagNow && <TagPicker {...tags} onChange={setTags} />}
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
