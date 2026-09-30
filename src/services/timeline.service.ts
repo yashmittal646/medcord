@@ -58,6 +58,8 @@ export class TimelineService {
     const events = records.map((rec) => ({
       id: rec._id,
       recordType: rec.recordType,
+      // finer-grained document type (imaging, vaccination, blood work...) for the unified timeline
+      category: rec.classification?.category,
       title: rec.title,
       recordDate: rec.recordDate,
       doctorName: rec.doctorName || (rec.uploaderRole === 'DOCTOR' ? (rec.uploadedBy as any)?.name : undefined),

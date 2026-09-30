@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api.js';
 import { useOpenRecordFile } from '../../hooks/useOpenRecordFile.js';
 import { DoctorAccessPanel } from '../../components/doctor/DoctorAccessPanel.js';
+import { UnifiedTimeline } from '../../components/timeline/UnifiedTimeline.js';
+import { eventToDocument, fromClinicalProfile, fromTimelineEvents } from '../../components/timeline/adapters.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { CreateHealthPathModal } from '../../components/doctor/CreateHealthPathModal.js';
 import { DoctorConsultationModal } from '../../components/doctor/DoctorConsultationModal.js';
@@ -49,6 +51,10 @@ export const DoctorPatientChartPage: React.FC = () => {
   const [isHealthPathOpen, setIsHealthPathOpen] = useState(false);
   const [isConsultationOpen, setIsConsultationOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const unifiedTimeline = useMemo(
+    () => [...fromTimelineEvents(timeline), ...fromClinicalProfile(profile?.summary?.criticalInformation)],
+    [timeline, profile]
+  );
 
   const fetchChart = async () => {
     if (!patientId) return;
@@ -117,7 +123,7 @@ export const DoctorPatientChartPage: React.FC = () => {
   const TABS = [
     { id: 'overview', label: t('Overview'), Icon: User },
     { id: 'records',  label: t('Records ({count})', { count: records.length }), Icon: FileText },
-    { id: 'timeline', label: t('Timeline ({count})', { count: timeline.length }), Icon: Clock },
+    { id: 'timeline', label: t('Timeline ({count})', { count: unifiedTimeline.length }), Icon: Clock },
     { id: 'paths',   label: t('Health Paths ({count})', { count: healthPaths.length }), Icon: HeartPulse },
   ] as const;
 
@@ -192,7 +198,7 @@ export const DoctorPatientChartPage: React.FC = () => {
             {[
               { label: t('Records'), value: records.length },
               { label: t('Health Paths'), value: healthPaths.length },
-              { label: t('Timeline Events'), value: timeline.length },
+              { label: t('Timeline Events'), value: unifiedTimeline.length },
             ].map((s) => (
               <div key={s.label} className="px-3 border-l border-slate-100 first:border-0">
                 <div className="text-xl font-extrabold text-slate-900">{s.value ?? 0}</div>
@@ -378,57 +384,15 @@ export const DoctorPatientChartPage: React.FC = () => {
       )}
 
       {activeTab === 'timeline' && (
-        <div>
-          {timeline.length > 0 ? (
-            <div className="relative pl-6 border-l-2 border-slate-200 space-y-5">
-              {timeline.map((event: any) => (
-                <div key={event.id} className="relative group">
-                  <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-emerald-500 group-hover:bg-emerald-500 transition-all shadow-xs" />
-                  <div className="glass-card p-5 border-slate-200 bg-white hover:border-emerald-300 transition-all space-y-2.5 shadow-xs">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getBadgeColor(event.recordType)}`}>
-                          {enumLabel(event.recordType)}
-                        </span>
-                        <span className="text-xs text-slate-500 font-mono font-semibold">
-                          {new Date(event.recordDate).toLocaleDateString(getLocale())}
-                        </span>
-                      </div>
-                      {event.hasAttachment && (
-                        <button
-                          type="button"
-                          onClick={() => openFile(event.id)}
-                          className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 font-bold transition-colors"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          {event.fileDetails?.originalName || t('Download File')}
-                        </button>
-                      )}
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900">{event.title}</h3>
-                    {event.diagnosis && (
-                      <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 font-medium">
-                        <strong className="font-bold">{t('Diagnosis:')}</strong> {event.diagnosis}
-                      </div>
-                    )}
-                    {event.description && <p className="text-xs text-slate-600 leading-relaxed">{event.description}</p>}
-                    <div className="flex flex-wrap gap-3 text-[11px] text-slate-400 pt-1.5 border-t border-slate-100">
-                      {event.doctorName && <span className="font-medium text-slate-600">{t('Dr. {doctorName}', { doctorName: event.doctorName })}</span>}
-                      {event.facilityName && <><span>•</span><span>{event.facilityName}</span></>}
-                      <span>{t('• Recorded by: {name} ({role})', { name: event.uploadedBy?.name, role: event.uploadedBy?.role })}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="glass-card p-12 text-center border-slate-200 bg-white">
-              <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-800">{t('No timeline events yet')}</p>
-              <p className="text-xs text-slate-500 mt-1">{t('Add a consultation to start building this patient\'s history.')}</p>
-            </div>
-          )}
-        </div>
+        <UnifiedTimeline
+          records={unifiedTimeline}
+          onViewRecord={(r) => {
+            const event = timeline.find((e: any) => String(e.id) === r.recordId);
+            if (event) setSelectedRecord(eventToDocument(event));
+          }}
+          onOpenFile={openFile}
+          emptyMessage={t('No timeline events yet')}
+        />
       )}
 
       {activeTab === 'paths' && (

@@ -112,6 +112,19 @@ try {
     DoctorRegister: ['/src/pages/auth/DoctorRegister.tsx', 'DoctorRegister'],
     PatientRegister: ['/src/pages/auth/PatientRegister.tsx', 'PatientRegister'],
     DoctorLogin: ['/src/pages/auth/DoctorLogin.tsx', 'DoctorLogin'],
+    UnifiedTimeline: ['/src/components/timeline/UnifiedTimeline.tsx', 'UnifiedTimeline', {
+      onViewRecord() {}, onOpenFile() {},
+      records: [
+        { id: '1', recordId: 'r1', hasFile: true, date: '2026-03-15', type: 'lab_report', title: 'CBC', description: 'Routine', metrics: [{ label: 'Hb', value: '14.2', status: 'normal' }, { label: 'WBC', value: '12.8', status: 'warning' }] },
+        { id: '2', date: '2026-02-01T10:30:00Z', type: 'consultation', title: 'Follow-up', description: 'Stable', doctorName: 'Dr. Rao', facility: 'Apollo Clinic' },
+        { id: '3', date: '2025-11-20', type: 'prescription', title: 'Metformin', description: '500mg' },
+        { id: '4', date: '2025-10-01', type: 'medication', title: 'Amlodipine 5mg', description: '', status: 'Active' },
+        { id: '5', date: '2025-06-12', type: 'vaccination', title: 'Influenza', description: '' },
+        { id: '6', date: '2025-05-02', type: 'imaging', title: 'MRI', description: '' },
+        { id: '7', date: '2024-09-09', type: 'diagnosis', title: 'Hypertension', description: '' },
+        { id: '8', date: '2024-01-01', type: 'allergy', title: 'Penicillin', description: '', status: 'Severe', critical: true },
+      ],
+    }],
     // Dialogs, rendered open
     AllergyModal: ['/src/components/patient/AllergyModal.tsx', 'AllergyModal', { isOpen: true, onClose() {}, onSuccess() {} }],
     ConditionModal: ['/src/components/patient/ConditionModal.tsx', 'ConditionModal', { isOpen: true, onClose() {}, onSuccess() {} }],
@@ -125,7 +138,7 @@ try {
     MedicalDocumentModal: ['/src/components/common/MedicalDocumentModal.tsx', 'MedicalDocumentModal', { isOpen: true, onClose() {}, record: { _id: 'abc12345', title: 'Sample', recordType: 'PRESCRIPTION', recordDate: '2026-01-05', file: { originalName: 'x.pdf' } } }],
   };
   // Words that are legitimately the same in every language (brands, acronyms, sample data)
-  const ALLOWED = /^(FollowUp|HIPAA|GDPR|TLS|AES|PAT|DOC|IST|PDF|CBC|WBC|GitHub|Bengaluru|India|Tech|Hub|Innovation|Corridor|Labs|Health|Sarah|Jenkins|Connor|Leonard|McCoy|Metro|General|Hospital|Amoxicillin|Penicillin|David|Marcus|Reed|Emily|Chen|Sharma|Apollo|SNOMED|PHI|BAA|RBAC|EMR|MRI|Innovation|Senior|Lead|Architect|Sovereign|Vault|SHA|US|Mon|Fri|Sat|Sun|Dr|Sign|Unspecified|Hackathon|Follow|Node|Express|React|Tailwind|TypeScript|Distributed|State|Yash|Mittal|yashmittal|gmail|XXXX+|XXXXXX+|mccoy|hospital|example|asynchealth|demo|doctor|mail|Robert|Chen|City|Priya|Arjun|Mehta|Clinic|Diagnostic|Centre|Penicillin|Metformin|Lisinopril|Atorvastatin|Amoxicillin|Chest|Latex|Aspirin|Rx|name|WebP|English|Hindi|Kannada|Tamil|Telugu|Sample|Medical|Profile|Timeline|Care|Plan)$/i; // (the last five are English terms kept in parentheses by the existing Tamil nav labels)
+  const ALLOWED = /^(FollowUp|HIPAA|GDPR|TLS|AES|PAT|DOC|IST|PDF|CBC|WBC|GitHub|Bengaluru|India|Tech|Hub|Innovation|Corridor|Labs|Health|Sarah|Jenkins|Connor|Leonard|McCoy|Metro|General|Hospital|Amoxicillin|Penicillin|David|Marcus|Reed|Emily|Chen|Sharma|Apollo|SNOMED|PHI|BAA|RBAC|EMR|MRI|Innovation|Senior|Lead|Architect|Sovereign|Vault|SHA|US|Mon|Fri|Sat|Sun|Dr|Sign|Unspecified|Hackathon|Follow|Node|Express|React|Tailwind|TypeScript|Distributed|State|Yash|Mittal|yashmittal|gmail|XXXX+|XXXXXX+|mccoy|hospital|example|asynchealth|demo|doctor|mail|Robert|Chen|City|Priya|Arjun|Mehta|Clinic|Diagnostic|Centre|Penicillin|Metformin|Lisinopril|Atorvastatin|Amoxicillin|Chest|Latex|Aspirin|Rx|name|WebP|English|Hindi|Kannada|Tamil|Telugu|Sample|Medical|Profile|Timeline|Care|Plan|CBC|Follow|Stable|Metformin|Amlodipine|Active|Influenza|Routine|Hypertension|Severe|Rao)$/i; // (the last five are English terms kept in parentheses by the existing Tamil nav labels)
   for (const lang of ['hi', 'kn', 'ta', 'te']) {
     store['FollowUp_language'] = lang;
     for (const [name, [file, exp, props]] of Object.entries(PAGES)) {
