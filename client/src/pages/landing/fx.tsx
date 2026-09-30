@@ -88,6 +88,66 @@ export const Marquee: React.FC<{ items: string[]; reverse?: boolean; className?:
   );
 };
 
+/**
+ * A single row of cards gliding across the screen in an endless loop. Scroll velocity nudges it along,
+ * and hovering eases it to a stop so a card can be read.
+ */
+export const AutoSlider: React.FC<{ children: React.ReactNode; className?: string; speed?: number }> = ({
+  children,
+  className = '',
+  speed = 0.05,
+}) => {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const reduced = usePrefersReducedMotion();
+  const state = useRef({ x: 0, boost: 0, raf: 0, last: 0, rate: 1, target: 1 });
+
+  useScrollVelocity((v) => {
+    state.current.boost = Math.max(-30, Math.min(30, state.current.boost + Math.abs(v) * 0.25));
+  });
+
+  React.useEffect(() => {
+    if (reduced) return;
+    const s = state.current;
+    const tick = (now: number) => {
+      const dt = s.last ? Math.min(50, now - s.last) : 16;
+      s.last = now;
+      s.rate += (s.target - s.rate) * 0.08;
+      const track = trackRef.current;
+      if (track) {
+        const half = track.scrollWidth / 2;
+        s.x -= (speed * dt + s.boost * 0.3) * s.rate;
+        s.boost *= 0.92;
+        if (half > 0 && s.x <= -half) s.x += half;
+        track.style.transform = `translate3d(${s.x}px,0,0)`;
+      }
+      s.raf = requestAnimationFrame(tick);
+    };
+    s.raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(s.raf);
+  }, [reduced, speed]);
+
+  return (
+    <div
+      className={`relative select-none ${reduced ? 'overflow-x-auto' : 'overflow-hidden'} ${className}`}
+      onPointerEnter={() => (state.current.target = 0)}
+      onPointerLeave={() => (state.current.target = 1)}
+      style={{
+        maskImage: 'linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)',
+        WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)',
+      }}
+    >
+      <div ref={trackRef} className="flex w-max will-change-transform">
+        <div className="flex shrink-0 gap-5 pr-5">{children}</div>
+        {!reduced && (
+          <div className="flex shrink-0 gap-5 pr-5" aria-hidden="true">
+            {children}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 /** A paragraph whose words darken one by one as it scrolls through the viewport */
 export const ScrollWords: React.FC<{ text: string; className?: string; highlightEnd?: number }> = ({
   text,

@@ -209,6 +209,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
 
 .lp-root { --lp-ink: #0b0b12; --lp-soft: #6b6b80; --lp-lilac: #8b7cf6; --lp-bg: #f4f3f8; background: var(--lp-bg); color: var(--lp-ink); }
 .lp-display { font-family: 'Inter Tight', 'Inter', system-ui, sans-serif; letter-spacing: -0.045em; line-height: 0.98; }
+.lp-serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -0.02em; }
+.lp-grotesk { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.035em; }
+.lp-mono { font-family: 'DM Mono', ui-monospace, monospace; letter-spacing: 0.08em; }
+.lp-ring { stroke-dasharray: 1600; stroke-dashoffset: 1600; transition: stroke-dashoffset 2.2s cubic-bezier(.2,.7,.2,1); }
+.is-in .lp-ring { stroke-dashoffset: 0; }
+.lp-ring-dot { opacity: 0; transform: scale(.4); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+.is-in .lp-ring-dot { opacity: 1; transform: none; }
+.lp-ring-pulse { animation: lp-ring-pulse 2.4s ease-out infinite; }
+@keyframes lp-ring-pulse { 0% { transform: scale(1); opacity: .55 } 100% { transform: scale(2.8); opacity: 0 } }
 
 /* soft moving aurora behind the hero */
 .lp-aurora { position: absolute; inset: -20% -10% auto -10%; height: 140%; pointer-events: none; filter: blur(70px); opacity: .85; }
@@ -262,4 +271,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
   .lp-aurora > i, .lp-orb, .lp-ecg path { animation: none !important; }
   .lp-reveal { opacity: 1; transform: none; filter: none; transition: none; }
   .lp-word { color: var(--lp-ink); }
+  .lp-ring { stroke-dashoffset: 0; transition: none; }
+  .lp-ring-dot { opacity: 1; transform: none; transition: none; }
+  .lp-ring-pulse { animation: none; }
 }
