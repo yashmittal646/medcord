@@ -134,7 +134,8 @@
 
   /* ── Page Enter ───────────────────────────────────── */
   .page-enter {
-    animation: pageEnter 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+    /* backwards, not forwards: a lingering transform would trap fixed-position dialogs inside the page */
+    animation: pageEnter 0.3s cubic-bezier(0.22,1,0.36,1) backwards;
   }
 
   /* ── Action Tile ──────────────────────────────────── */
@@ -301,3 +302,116 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
   28% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .ecg-heartbeat { animation: none; } }
+
+/* ═══════════════════ Patient & doctor portals ═══════════════════ */
+.portal-root { background: #f4f3f8; color: #0b0b12; }
+
+/* Drifting aurora behind every portal page */
+.portal-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.portal-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(99,102,241,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at 70% 0%, #000 10%, transparent 65%);
+  mask-image: radial-gradient(ellipse at 70% 0%, #000 10%, transparent 65%);
+}
+.portal-bg > i { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55; animation: portal-drift 26s ease-in-out infinite alternate; }
+.portal-bg > i:nth-child(1) { width: 38rem; height: 38rem; top: -12rem; right: -8rem; background: #c4b5fd; }
+.portal-bg > i:nth-child(2) { width: 30rem; height: 30rem; bottom: -10rem; left: 18%; background: #99f6e4; animation-duration: 32s; animation-delay: -8s; }
+.portal-bg > i:nth-child(3) { width: 24rem; height: 24rem; top: 30%; left: -6rem; background: #bfdbfe; animation-duration: 29s; animation-delay: -14s; opacity: .4; }
+@keyframes portal-drift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(4rem,3rem,0) scale(1.08); } 100% { transform: translate3d(-3rem,1rem,0) scale(.95); } }
+
+
+/* Ink sidebar */
+.portal-sidebar {
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(99,102,241,.28), transparent 60%),
+    radial-gradient(90% 50% at 100% 100%, rgba(20,184,166,.18), transparent 60%),
+    linear-gradient(180deg, #11111c 0%, #0b0b12 100%);
+  box-shadow: 1px 0 0 rgba(255,255,255,.04), 12px 0 40px -20px rgba(15,15,40,.6);
+}
+.portal-sidebar nav::-webkit-scrollbar { width: 4px; }
+.portal-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+.portal-avatar { background: conic-gradient(from 0deg, #8b5cf6, #6366f1, #14b8a6, #8b5cf6); animation: portal-spin 6s linear infinite; }
+.portal-avatar > div { animation: portal-spin 6s linear infinite reverse; }
+@keyframes portal-spin { to { transform: rotate(360deg); } }
+
+/* The glowing pill that slides to the active link */
+.portal-indicator {
+  position: absolute; left: .75rem; right: .75rem; top: 0; z-index: 0; border-radius: .75rem;
+  background: linear-gradient(90deg, rgba(99,102,241,.55), rgba(139,92,246,.35) 55%, rgba(20,184,166,.25));
+  box-shadow: 0 8px 24px -8px rgba(99,102,241,.7), inset 0 0 0 1px rgba(255,255,255,.12);
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), height .3s ease, background .3s ease;
+}
+.portal-indicator::before { content: ''; position: absolute; left: -.75rem; top: 22%; bottom: 22%; width: 3px; border-radius: 3px; background: #a5b4fc; box-shadow: 0 0 12px #818cf8; }
+.portal-indicator.is-danger { background: linear-gradient(90deg, rgba(244,63,94,.5), rgba(244,63,94,.18)); box-shadow: 0 8px 24px -8px rgba(244,63,94,.7), inset 0 0 0 1px rgba(255,255,255,.1); }
+.portal-indicator.is-danger::before { background: #fda4af; box-shadow: 0 0 12px #f43f5e; }
+
+/* Frosted top bar */
+.portal-topbar { background: rgba(244,243,248,.72); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); border-bottom: 1px solid rgba(15,15,40,.06); }
+.portal-title { animation: portal-title-in .5s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes portal-title-in { from { opacity: 0; transform: translateY(6px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* Page entrance: the page rises in, then its sections follow one after another */
+.portal-page { animation: portal-page-in .55s cubic-bezier(.2,.8,.2,1) backwards; }
+@keyframes portal-page-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* "backwards" fill: no transform is left behind, so fixed-position modals inside pages still cover the screen */
+.portal-page > * > * { animation: portal-rise .6s cubic-bezier(.2,.8,.2,1) backwards; }
+.portal-page > * > *:nth-child(1) { animation-delay: .04s; }
+.portal-page > * > *:nth-child(2) { animation-delay: .1s; }
+.portal-page > * > *:nth-child(3) { animation-delay: .16s; }
+.portal-page > * > *:nth-child(4) { animation-delay: .22s; }
+.portal-page > * > *:nth-child(5) { animation-delay: .28s; }
+.portal-page > * > *:nth-child(6) { animation-delay: .34s; }
+.portal-page > * > *:nth-child(n+7) { animation-delay: .4s; }
+@keyframes portal-rise { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+/* modals/fixed overlays inside pages must not inherit the entrance transform */
+.portal-page .fixed { animation: none; }
+
+/* Cards: frosted glass, hover lift with a gradient hairline */
+.portal-root .glass-card, .portal-root .glass-card-hover, .portal-root .action-tile {
+  background: rgba(255,255,255,.84);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(15,15,40,.04), 0 12px 32px -18px rgba(40,30,120,.25);
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
+}
+.portal-root .glass-card:hover, .portal-root .glass-card-hover:hover, .portal-root .action-tile:hover {
+  box-shadow: 0 1px 2px rgba(15,15,40,.04), 0 22px 44px -20px rgba(79,70,229,.35);
+  border-color: rgba(165,180,252,.8);
+}
+.portal-root .glass-card-hover:hover, .portal-root .action-tile:hover { transform: translateY(-3px); }
+.portal-root .fixed .glass-card { background: #fff; }
+
+/* Dark banners get the aurora + an animated sheen */
+.portal-root .card-dark {
+  position: relative; overflow: hidden; border-radius: 26px;
+  background:
+    radial-gradient(80% 120% at 100% 0%, rgba(99,102,241,.45), transparent 55%),
+    radial-gradient(70% 90% at 0% 100%, rgba(20,184,166,.28), transparent 60%),
+    linear-gradient(135deg, #14142a 0%, #0b0b12 60%);
+  box-shadow: 0 30px 60px -30px rgba(40,30,120,.7);
+}
+.portal-root .card-dark::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.07) 45%, transparent 60%);
+  transform: translateX(-100%); animation: portal-sheen 7s ease-in-out infinite;
+}
+.portal-root .card-dark > * { position: relative; }
+@keyframes portal-sheen { 0%, 60% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+.portal-root .skeleton { background: linear-gradient(90deg, rgba(226,232,240,.7) 25%, rgba(241,245,249,.9) 50%, rgba(226,232,240,.7) 75%); background-size: 200% 100%; }
+
+/* Stat tiles used on the dashboards */
+.portal-stat { position: relative; overflow: hidden; }
+.portal-stat::after { content: ''; position: absolute; right: -2.5rem; top: -2.5rem; width: 7rem; height: 7rem; border-radius: 9999px; background: var(--stat-glow, rgba(139,92,246,.18)); filter: blur(10px); transition: transform .5s ease; }
+.portal-stat:hover::after { transform: scale(1.35); }
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-bg > i, .portal-avatar, .portal-avatar > div, .portal-root .card-dark::before { animation: none; }
+  .portal-page, .portal-page > * > *, .portal-title { animation: none; }
+  .portal-indicator { transition: none; }
+}
+
+/* Full-screen dialogs rendered inside a "space-y-*" stack must not pick up its top margin */
+.fixed.inset-0 { margin: 0 !important; }

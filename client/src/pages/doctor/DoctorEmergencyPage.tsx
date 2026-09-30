@@ -109,7 +109,7 @@ export const DoctorEmergencyPage: React.FC = () => {
               {t('Patient ID *')}
             </label>
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 id="emergency-hud-patient-id"
                 type="text"
@@ -117,7 +117,8 @@ export const DoctorEmergencyPage: React.FC = () => {
                 placeholder={t('PAT-XXXXXX')}
                 value={patientId}
                 onChange={(e) => setPatientId(e.target.value.toUpperCase())}
-                className="glass-input w-full pl-9 font-mono text-sm text-rose-800 font-bold uppercase"
+                className="glass-input w-full font-mono text-sm text-rose-800 font-bold uppercase"
+                style={{ paddingLeft: '40px' }}
               />
             </div>
           </div>

@@ -16,9 +16,11 @@ import {
   Clock,
 } from 'lucide-react';
 import { useLanguage, getLocale } from '../../context/LanguageContext.js';
+import { EcgTrace } from '../../components/common/EcgBackground.js';
+import { PortalStat, greeting } from '../../components/common/PortalStat.js';
 
 export const DoctorDashboard: React.FC = () => {
-  const { t, tn } = useLanguage();
+  const { t } = useLanguage();
   const { user, profile } = useAuth();
   const doctorProfile = profile as IDoctorProfile | null;
   const navigate = useNavigate();
@@ -66,16 +68,18 @@ export const DoctorDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-5 page-enter">
 
       {/* ── Hero Banner (dark card) ── */}
-      <div className="card-dark p-7 sm:p-9">
+      <div className="card-dark p-7 sm:p-9 pb-20 sm:pb-20">
+        <EcgTrace className="!absolute inset-x-0 bottom-3 h-14" color="#818cf8" duration={6} amp={1.1} opacity={0.95} />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <p className="text-[#a0a0a0] text-sm font-medium mb-1">
+            <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-indigo-200">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-300 opacity-70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-300" /></span>
               {new Date().toLocaleDateString(getLocale(), { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              {tn('Welcome back, {name}', { name: <span className="text-[#5eead4]">{t('Dr. {name}', { name: user?.name })}</span> })}
+            <h1 className="text-3xl sm:text-[2.6rem] font-extrabold text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter Tight', Inter, sans-serif" }}>
+              {greeting(t('Dr. {name}', { name: user?.name }))}
             </h1>
-            <div className="flex items-center gap-3 mt-3">
+            <div className="flex flex-wrap items-center gap-3 mt-3">
               <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="md" showLabel={false} />
               {doctorProfile?.specialization && (
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#5eead4]/15 text-[#5eead4] border border-[#5eead4]/30">
@@ -111,44 +115,9 @@ export const DoctorDashboard: React.FC = () => {
 
       {/* ── Stat Cards Row ── */}
       <div className="grid sm:grid-cols-3 gap-4">
-        {/* Patients Today — big dark-accent */}
-        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#0c8b77]">
-          <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-[#e3f4f0] flex items-center justify-center">
-              <Users className="w-4.5 h-4.5 text-[#0c8b77]" />
-            </div>
-            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
-              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : todayActivity}
-            </span>
-          </div>
-          <p className="text-xs font-semibold text-[#555] mt-3">{t('Patients Accessed Today')}</p>
-        </div>
-
-        {/* Active Paths */}
-        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#6d3ec8]">
-          <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-[#f1eafb] flex items-center justify-center">
-              <HeartPulse className="w-4.5 h-4.5 text-[#6d3ec8]" />
-            </div>
-            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
-              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : healthPaths.length}
-            </span>
-          </div>
-          <p className="text-xs font-semibold text-[#555] mt-3">{t('Active Treatment Plans')}</p>
-        </div>
-
-        {/* Total Lookups */}
-        <div className="glass-card p-6 flex flex-col justify-between min-h-[110px] border-l-4 border-[#c86a0a]">
-          <div className="flex items-center justify-between">
-            <div className="w-9 h-9 rounded-xl bg-[#fdf0e0] flex items-center justify-center">
-              <Eye className="w-4.5 h-4.5 text-[#c86a0a]" />
-            </div>
-            <span className="text-4xl font-extrabold text-[#111] tracking-tight leading-none">
-              {isLoading ? <span className="skeleton w-10 h-9 inline-block" /> : recentLookups.length}
-            </span>
-          </div>
-          <p className="text-xs font-semibold text-[#555] mt-3">{t('Total Chart Lookups')}</p>
-        </div>
+        <PortalStat label={t('Patients Accessed Today')} value={todayActivity} Icon={Users} tone="bg-teal-50 text-teal-600" glow="rgba(20,184,166,.2)" loading={isLoading} to="/doctor/activity" />
+        <PortalStat label={t('Active Treatment Plans')} value={healthPaths.length} Icon={HeartPulse} tone="bg-violet-50 text-violet-600" glow="rgba(139,92,246,.2)" loading={isLoading} to="/doctor/health-paths" delay={120} />
+        <PortalStat label={t('Total Chart Lookups')} value={recentLookups.length} Icon={Eye} tone="bg-amber-50 text-amber-600" glow="rgba(245,158,11,.2)" loading={isLoading} to="/doctor/lookup" delay={240} />
       </div>
 
       {/* ── Main Content: 2 columns ── */}

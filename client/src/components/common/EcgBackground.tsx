@@ -54,7 +54,7 @@ const LAYERS = [
 ];
 const TRAVEL = 1.4; // head runs from 0 to 1.4 so the tail fully leaves before the next sweep
 
-const TraceLine: React.FC<{ trace: Trace; reduced: boolean }> = ({ trace, reduced }) => {
+const TraceLine: React.FC<{ trace: Trace; reduced: boolean; fill?: boolean }> = ({ trace, reduced, fill = false }) => {
   const refs = useRef<(SVGPathElement | null)[]>([]);
   const d = beatPath(VIEW_W / BEAT_W, trace.amp);
 
@@ -75,8 +75,8 @@ const TraceLine: React.FC<{ trace: Trace; reduced: boolean }> = ({ trace, reduce
 
   return (
     <svg
-      className="absolute left-0 w-full h-24 sm:h-28 -translate-y-1/2"
-      style={{ top: trace.top, opacity: trace.opacity }}
+      className={fill ? "absolute inset-0 h-full w-full" : "absolute left-0 w-full h-24 sm:h-28 -translate-y-1/2"}
+      style={fill ? { opacity: trace.opacity } : { top: trace.top, opacity: trace.opacity }}
       viewBox={`0 0 ${VIEW_W} 100`}
       preserveAspectRatio="none"
       aria-hidden="true"
@@ -106,9 +106,28 @@ const TraceLine: React.FC<{ trace: Trace; reduced: boolean }> = ({ trace, reduce
   );
 };
 
+const prefersReduced = () =>
+  typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * A single heartbeat trace for use inside other layouts (sidebars, hero banners). Fills its container;
+ * size and place it with `className`.
+ */
+export const EcgTrace: React.FC<{ color?: string; duration?: number; delay?: number; amp?: number; opacity?: number; className?: string }> = ({
+  color = '#5eead4',
+  duration = 6,
+  delay = 0,
+  amp = 1,
+  opacity = 1,
+  className = '',
+}) => (
+  <div className={`pointer-events-none relative ${className}`} aria-hidden="true">
+    <TraceLine trace={{ top: '50%', color, duration, delay, amp, opacity }} reduced={prefersReduced()} fill />
+  </div>
+);
+
 export const EcgBackground: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const reduced =
-    typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced = prefersReduced();
 
   return (
     <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">

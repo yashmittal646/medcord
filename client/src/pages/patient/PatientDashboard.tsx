@@ -10,6 +10,8 @@ import { MedicationModal } from '../../components/patient/MedicationModal.js';
 import { ConditionModal } from '../../components/patient/ConditionModal.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import { DoctorAccessRequestsModal } from '../../components/patient/DoctorAccessRequestsModal.js';
+import { EcgTrace } from '../../components/common/EcgBackground.js';
+import { PortalStat, greeting } from '../../components/common/PortalStat.js';
 import {
   AlertTriangle,
   Pill,
@@ -116,15 +118,17 @@ export const PatientDashboard: React.FC = () => {
       )}
 
       {/* ── Hero Profile Banner (dark card) ── */}
-      <div className="card-dark p-7 sm:p-9">
+      <div className="card-dark p-7 sm:p-9 pb-20 sm:pb-20">
+        <EcgTrace className="!absolute inset-x-0 bottom-3 h-14" color="#5eead4" duration={6.5} amp={1.1} opacity={0.9} />
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <p className="text-[#888] text-sm font-medium mb-1">
+            <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-teal-200">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-300 opacity-70" /><span className="relative inline-flex h-2 w-2 rounded-full bg-teal-300" /></span>
               {formatDate(new Date(), { weekday: 'long', month: 'long', day: 'numeric' })}
             </p>
             <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                {patient?.name || user?.name}
+              <h1 className="text-3xl sm:text-[2.6rem] font-extrabold text-white tracking-tight leading-tight" style={{ fontFamily: "'Inter Tight', Inter, sans-serif" }}>
+                {greeting((patient?.name || user?.name || '').split(' ')[0])}
               </h1>
               <IdentityBadge id={patient?.patientId || user?.publicId || ''} type="PATIENT" size="md" showLabel={false} />
             </div>
@@ -178,6 +182,14 @@ export const PatientDashboard: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* ── At a glance ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <PortalStat label={t('Allergies')} value={critical?.allergies?.length || 0} Icon={AlertTriangle} tone="bg-rose-50 text-rose-600" glow="rgba(244,63,94,.18)" to="/patient/profile" />
+        <PortalStat label={t('Medicines')} value={critical?.currentMedications?.length || 0} Icon={Pill} tone="bg-teal-50 text-teal-600" glow="rgba(20,184,166,.2)" to="/patient/medications" delay={120} />
+        <PortalStat label={t('Conditions')} value={critical?.chronicConditions?.length || 0} Icon={Activity} tone="bg-violet-50 text-violet-600" glow="rgba(139,92,246,.2)" to="/patient/profile" delay={240} />
+        <PortalStat label={t('Care plans')} value={healthPaths.length} Icon={HeartPulse} tone="bg-indigo-50 text-indigo-600" glow="rgba(99,102,241,.2)" to="/patient/health-paths" delay={360} />
       </div>
 
       {/* ── Critical Information: 3-col ── */}
@@ -251,7 +263,7 @@ export const PatientDashboard: React.FC = () => {
                 to="/patient/medications"
                 className="text-[11px] font-bold text-[#0c8b77] hover:text-[#0a7566] flex items-center gap-1 transition-colors"
               >
-                Manage <ArrowUpRight className="w-3 h-3" />
+                {t('Manage')} <ArrowUpRight className="w-3 h-3" />
               </Link>
               <button
                 onClick={() => setIsMedicationOpen(true)}
