@@ -1,945 +1,784 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Shield,
-  HeartPulse,
-  Stethoscope,
-  Clock,
-  Lock,
   Activity,
   ArrowRight,
-  FileText,
-  CheckCircle,
-  UserCheck,
-  Bell,
-  Zap,
-  ShieldCheck,
-  ChevronRight,
+  ArrowUpRight,
+  BrainCircuit,
   Check,
-  Award,
+  ChevronDown,
+  Clock,
+  FileStack,
+  Fingerprint,
+  HeartPulse,
+  KeyRound,
+  Languages,
+  Lock,
+  Route,
+  ScrollText,
+  ShieldCheck,
+  Siren,
+  Sparkles,
+  Stethoscope,
+  UploadCloud,
+  UserRound,
+  X,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext.js';
+import { HelixCanvas } from './landing/HelixCanvas.js';
+import { Marquee, Orb, Reveal, ScrollWords, TiltCard } from './landing/fx.js';
+import { useCountUp, useInView, useScrollProgress } from './landing/scrollFx.js';
 
-/* ─── Stat card with trustworthy clinical styling ─── */
-const StatCard: React.FC<{
-  value: string;
-  label: string;
-  subtext: string;
-  icon: React.ReactNode;
-  accentColor: string;
-  bgLight: string;
-}> = ({ value, label, subtext, icon, accentColor, bgLight }) => (
-  <div
-    className="bg-white rounded-2xl p-6 flex flex-col gap-3 transition-all duration-200 hover:-translate-y-1"
-    style={{
-      border: '1px solid #E2E8F0',
-      boxShadow: '0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(0,0,0,0.02)',
-    }}
-  >
-    <div className="flex items-center justify-between">
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-        style={{ background: bgLight, color: accentColor }}
-      >
-        {icon}
-      </div>
-      <span className="text-3xl sm:text-4xl font-black tracking-tight" style={{ color: accentColor }}>
-        {value}
-      </span>
-    </div>
-    <div>
-      <div className="text-base font-bold text-slate-900">{label}</div>
-      <div className="text-xs text-slate-500 mt-0.5">{subtext}</div>
-    </div>
-  </div>
-);
+/* ────────────────────────────── Hero ────────────────────────────── */
 
-/* ─── Feature card ─── */
-const FeatureCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  iconBg: string;
-  iconColor: string;
-  badgeText: string;
-  badgeBg: string;
-  badgeColor: string;
-}> = ({ icon, title, description, iconBg, iconColor, badgeText, badgeBg, badgeColor }) => (
-  <div
-    className="bg-white rounded-2xl p-7 flex flex-col gap-4 group transition-all duration-200 hover:-translate-y-1"
-    style={{
-      border: '1px solid #E2E8F0',
-      boxShadow: '0 4px 20px -4px rgba(15, 23, 42, 0.04)',
-    }}
-    onMouseEnter={(e) => {
-      (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 30px -4px rgba(37, 99, 235, 0.08)';
-      (e.currentTarget as HTMLElement).style.borderColor = '#BFDBFE';
-    }}
-    onMouseLeave={(e) => {
-      (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px -4px rgba(15, 23, 42, 0.04)';
-      (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0';
-    }}
-  >
-    <div className="flex items-center justify-between">
-      <div className="w-13 h-13 rounded-2xl flex items-center justify-center p-3.5 shadow-sm" style={{ background: iconBg, color: iconColor }}>
-        {icon}
-      </div>
-      <span
-        className="text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
-        style={{ background: badgeBg, color: badgeColor }}
-      >
-        {badgeText}
-      </span>
-    </div>
-
-    <div>
-      <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
-        {title}
-      </h3>
-      <p className="text-sm text-slate-600 leading-relaxed">{description}</p>
-    </div>
-  </div>
-);
-
-/* ─── Step item ─── */
-const StepItem: React.FC<{
-  num: number;
-  title: string;
-  body: string;
-  badge: string;
-  color: string;
-  bgLight: string;
-  isLast?: boolean;
-}> = ({ num, title, body, badge, color, bgLight, isLast }) => (
-  <div className="relative flex gap-5">
-    <div className="flex flex-col items-center">
-      <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shadow-sm shrink-0"
-        style={{ background: bgLight, color: color, border: `2px solid ${color}40` }}
-      >
-        0{num}
-      </div>
-      {!isLast && <div className="w-0.5 flex-1 my-3 rounded-full bg-slate-200" />}
-    </div>
-    <div className="pb-8 pt-0.5">
-      <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
-        <h4 className="text-base font-bold text-slate-900">{title}</h4>
-        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full" style={{ background: bgLight, color: color }}>
-          {badge}
-        </span>
-      </div>
-      <p className="text-sm text-slate-600 leading-relaxed">{body}</p>
-    </div>
-  </div>
-);
-
-export const LandingPage: React.FC = () => {
+const Hero: React.FC = () => {
   const { t, tn } = useLanguage();
-  const [activeHeroTab, setActiveHeroTab] = useState<'timeline' | 'consent' | 'emergency' | 'path'>('timeline');
+  const scroll = useRef(0);
+  const ref = useScrollProgress<HTMLElement>('through', (p) => {
+    // hero progress runs ~0.5 -> 1 while it scrolls away; normalise to 0..1 for the helix dissolve
+    scroll.current = Math.max(0, (p - 0.5) * 2);
+  });
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
+    <section ref={ref} className="lp-grain relative min-h-[100svh] overflow-hidden" style={{ ['--p' as any]: 0.5 }}>
+      <div className="lp-aurora" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="lp-grid absolute inset-0" aria-hidden="true" />
 
-      {/* ══════════ TOP ALERT BAR (Clean Navy & Blue) ══════════ */}
-      <div className="bg-slate-900 text-slate-200 py-2.5 px-4 text-xs font-semibold text-center tracking-wide flex items-center justify-center gap-2 border-b border-slate-800">
-        <ShieldCheck className="w-4 h-4 text-blue-400" />
-        <span>{t('100% Patient-Owned Longitudinal Health Records • Instant Consent Revocation & Emergency Access')}</span>
-        <Link to="/patient/register" className="underline font-bold text-blue-300 hover:text-white ml-2 inline-flex items-center gap-1">
-          
-          {t('Create Free ID')} <ChevronRight className="w-3 h-3" />
-        </Link>
+      {/* helix: right half on desktop, behind the copy on mobile */}
+      <div
+        className="absolute inset-y-0 right-[-10%] w-full lg:w-[62%] opacity-60 lg:opacity-100"
+        style={{ transform: 'translate3d(0, calc((var(--p) - 0.5) * -120px), 0)' }}
+      >
+        <HelixCanvas className="h-full w-full" scrollRef={scroll} />
       </div>
 
-      {/* ══════════ HERO SECTION ══════════ */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24 px-4 sm:px-6 lg:px-8">
-        
-        {/* Subtle, clean top ambient illumination */}
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-[500px] pointer-events-none rounded-[40px] opacity-40"
-          style={{
-            background: 'radial-gradient(ellipse at top, rgba(219, 234, 254, 0.8) 0%, rgba(241, 245, 249, 0.4) 50%, transparent 100%)',
-          }}
-        />
-
-        <div className="relative max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 bg-white border border-slate-200 text-slate-700 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-blue-600" />
-              <Shield className="w-3.5 h-3.5 text-blue-600" />
-              
-              {t('Patient-Controlled Health Platform')}
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.08] mb-6">
-              {tn('Your health, {records}', { records: <span className="text-blue-600">{t('your records,')}</span> })}
-              <br />
-              {t('always in your hands.')}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-8 font-normal">
-              
-              {t('FollowUp brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.')}
-            </p>
-
-            {/* Action buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-              <Link
-                to="/patient/register"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl font-bold text-base text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all duration-150 hover:-translate-y-0.5"
-              >
-                <HeartPulse className="w-5 h-5 text-blue-200" />
-                
-                {t('Get Your Patient ID Free')}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                to="/doctor/login"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-bold text-base text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm hover:border-slate-300 transition-all duration-150 hover:-translate-y-0.5"
-              >
-                <Stethoscope className="w-5 h-5 text-indigo-600" />
-                
-                {t('Doctor Portal Login')}
-              </Link>
-            </div>
-
-            {/* Trust highlights */}
-            <div className="flex flex-wrap items-center justify-center gap-y-2.5 gap-x-8 text-xs text-slate-600 font-medium">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>{t('100% Free for Patients')}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>{t('Instant Emergency HUD')}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>{t('Zero Data Sold')}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
-                <span>{t('Immutable Audit History')}</span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ══════════ LIVE INTERACTIVE PREVIEW CARD ══════════ */}
-          <div className="max-w-4xl mx-auto">
-            <div
-              className="bg-white rounded-2xl p-5 sm:p-8 border border-slate-200 shadow-xl shadow-slate-900/5 transition-all"
-            >
-              {/* Card Window Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-5 border-b border-slate-100 gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-                    <HeartPulse className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-slate-900 text-sm sm:text-base">{t('Sarah Jenkins')}</span>
-                      <span className="bg-blue-50 text-blue-700 border border-blue-200 font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                        
-                        {t('PAT-A892F1')}
-                      </span>
-                    </div>
-                    <span className="text-xs text-slate-500">{t('Blood Group: O+ • 29 yrs • Active Medical Record')}</span>
-                  </div>
-                </div>
-
-                {/* Interactive tab selector */}
-                <div className="flex bg-slate-100 p-1 rounded-xl gap-1 text-xs font-semibold w-full sm:w-auto overflow-x-auto">
-                  <button
-                    onClick={() => setActiveHeroTab('timeline')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      activeHeroTab === 'timeline'
-                        ? 'bg-white text-blue-700 font-bold shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Clock className="w-3.5 h-3.5" />  {t('Timeline')}
-                  </button>
-                  <button
-                    onClick={() => setActiveHeroTab('consent')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      activeHeroTab === 'consent'
-                        ? 'bg-white text-indigo-700 font-bold shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Lock className="w-3.5 h-3.5" />  {t('Consents')}
-                  </button>
-                  <button
-                    onClick={() => setActiveHeroTab('emergency')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      activeHeroTab === 'emergency'
-                        ? 'bg-white text-rose-700 font-bold shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Zap className="w-3.5 h-3.5" />  {t('Emergency HUD')}
-                  </button>
-                  <button
-                    onClick={() => setActiveHeroTab('path')}
-                    className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      activeHeroTab === 'path'
-                        ? 'bg-white text-slate-900 font-bold shadow-sm'
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Activity className="w-3.5 h-3.5" />  {t('Health Path')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Tab Body */}
-              <div className="pt-5">
-                {activeHeroTab === 'timeline' && (
-                  <div className="grid sm:grid-cols-3 gap-3.5">
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-100/80 px-2 py-0.5 rounded-full">
-                          
-                          {t('Prescription')}
-                        </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Amoxicillin 500mg')}</h4>
-                        <p className="text-xs text-slate-600 mt-1">{t('Prescribed by Dr. Marcus Reed for acute bronchitis.')}</p>
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>{t('2 days ago')}</span>
-                        <span className="font-semibold text-blue-600">{t('Verified ✓')}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full">
-                          
-                          {t('Lab Report')}
-                        </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Complete Blood Count (CBC)')}</h4>
-                        <p className="text-xs text-slate-600 mt-1">{t('WBC: 6.8 • Hemoglobin: 14.2 g/dL (Normal Range)')}</p>
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>{t('1 week ago')}</span>
-                        <span className="font-semibold text-indigo-600">{t('PDF Attached')}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-full">
-                          
-                          {t('Consultation')}
-                        </span>
-                        <h4 className="text-sm font-bold text-slate-900 mt-2">{t('Cardiology Review')}</h4>
-                        <p className="text-xs text-slate-600 mt-1">{t('Normal rhythm. Scheduled 6-month routine follow-up.')}</p>
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium mt-3 flex items-center justify-between">
-                        <span>{t('3 weeks ago')}</span>
-                        <span className="font-semibold text-amber-700">{t('Dr. Sharma')}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeHeroTab === 'consent' && (
-                  <div className="space-y-2.5">
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
-                          
-                          {t('DR')}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-900">{t('Dr. Marcus Reed (Cardiology) • DOC-491B28')}</div>
-                          <div className="text-[11px] text-slate-500">{t('Reason: Routine Follow-up Consultation')}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
-                          
-                          {t('Active Access ✓')}
-                        </span>
-                        <button className="text-xs font-semibold text-rose-600 hover:text-rose-800 px-2 py-1">
-                          
-                          {t('Revoke')}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between flex-wrap gap-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                          
-                          {t('DR')}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-900">{t('Dr. Emily Chen (Orthopedic) • DOC-774A12')}</div>
-                          <div className="text-[11px] text-slate-500">{t('Reason: Pre-Op Knee Evaluation')}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg">
-                          
-                          {t('Approve')}
-                        </button>
-                        <button className="text-xs font-bold text-slate-700 bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded-lg">
-                          
-                          {t('Deny')}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeHeroTab === 'emergency' && (
-                  <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200 grid sm:grid-cols-3 gap-3">
-                    <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-rose-600 uppercase">{t('🩸 Blood Group')}</span>
-                      <div className="text-xl font-black text-slate-900 mt-1">{t('O Positive (O+)')}</div>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-amber-600 uppercase">{t('⚠️ Allergies')}</span>
-                      <div className="text-sm font-bold text-slate-900 mt-1">{t('Penicillin (Severe)')}</div>
-                    </div>
-                    <div className="bg-white p-3 rounded-xl border border-rose-100">
-                      <span className="text-[11px] font-bold text-slate-700 uppercase">{t('📞 Emergency Contact')}</span>
-                      <div className="text-sm font-bold text-slate-900 mt-1">{t('David (Spouse): +1 555-0192')}</div>
-                    </div>
-                  </div>
-                )}
-
-                {activeHeroTab === 'path' && (
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <span className="text-xs font-bold text-slate-900">{t('Post-Op Recovery & Rehab Plan')}</span>
-                        <div className="text-[11px] text-slate-500">{t('Prescribed by Dr. Emily Chen • 4-Week Path')}</div>
-                      </div>
-                      <span className="text-xs font-bold text-blue-700 bg-white px-2.5 py-1 rounded-full border border-blue-200">
-                        
-                        {t('75% Complete')}
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2 mb-3">
-                      <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                      <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Week 1 Mobility')}
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Meds Protocol')}
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-200 flex items-center gap-1.5 text-slate-800 font-semibold">
-                        <Check className="w-3.5 h-3.5 text-blue-600" />  {t('Physical Therapy')}
-                      </div>
-                      <div className="bg-blue-50 p-2 rounded-lg border border-blue-200 flex items-center gap-1.5 text-blue-900 font-bold">
-                        <Clock className="w-3.5 h-3.5 text-blue-600" />  {t('Final Check-in')}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ KEY METRICS ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            value="100%"
-            label={t('Patient-Approved')}
-            subtext={t('Zero unauthorized doctor access')}
-            icon={<ShieldCheck className="w-6 h-6" />}
-            accentColor="#2563EB"
-            bgLight="#EFF6FF"
-          />
-          <StatCard
-            value={t("< 2s")}
-            label={t('Emergency Lookup')}
-            subtext={t('Immediate access to vital allergies & blood type')}
-            icon={<Zap className="w-6 h-6" />}
-            accentColor="#E11D48"
-            bgLight="#FFE4E6"
-          />
-          <StatCard
-            value={t("Lifetime")}
-            label={t('Unified Timeline')}
-            subtext={t('Chronological archive of all consultations')}
-            icon={<Clock className="w-6 h-6" />}
-            accentColor="#4F46E5"
-            bgLight="#EEF2FF"
-          />
-          <StatCard
-            value={t("1 ID")}
-            label={t('Collision-Free')}
-            subtext={t('PAT-ID & DOC-ID strict role separation')}
-            icon={<Award className="w-6 h-6" />}
-            accentColor="#D97706"
-            bgLight="#FEF3C7"
-          />
-        </div>
-      </section>
-
-      {/* ══════════ WHAT WE OFFER ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            
-            {t('Platform Capabilities')}
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            
-            {t('Everything your medical history requires')}
-          </h2>
-          <p className="text-base text-slate-600">
-            
-            {t('A cohesive clinical ecosystem designed to replace scattered physical papers and stressful hospital record requests.')}
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FeatureCard
-            icon={<FileText className="w-6 h-6" />}
-            title={t('Unified Health Vault')}
-            description={t('Upload prescriptions, lab reports, MRI scans, and discharge notes in seconds. Tagged, indexed, and available anywhere.')}
-            iconBg="#EFF6FF"
-            iconColor="#2563EB"
-            badgeText={t('All Formats')}
-            badgeBg="#DBEAFE"
-            badgeColor="#1D4ED8"
-          />
-
-          <FeatureCard
-            icon={<Clock className="w-6 h-6" />}
-            title={t('Longitudinal Timeline')}
-            description={t('Scroll through your entire medical journey chronologically. From early treatments to recent specialist reviews.')}
-            iconBg="#EEF2FF"
-            iconColor="#4F46E5"
-            badgeText={t('Chronological')}
-            badgeBg="#E0E7FF"
-            badgeColor="#3730A3"
-          />
-
-          <FeatureCard
-            icon={<Activity className="w-6 h-6" />}
-            title={t('Doctor-Prescribed Paths')}
-            description={t('Clinicians establish clear recovery plans, medication schedules, and milestone checklists for continuous care.')}
-            iconBg="#F0FDF4"
-            iconColor="#166534"
-            badgeText={t('Care Paths')}
-            badgeBg="#DCFCE7"
-            badgeColor="#15803D"
-          />
-
-          <FeatureCard
-            icon={<UserCheck className="w-6 h-6" />}
-            title={t('Consent-First Doctor Access')}
-            description={t('Doctors must provide a valid clinical justification. You review, approve, or deny requests in real time.')}
-            iconBg="#F8FAFC"
-            iconColor="#0F172A"
-            badgeText={t('Patient Controlled')}
-            badgeBg="#E2E8F0"
-            badgeColor="#334155"
-          />
-
-          <FeatureCard
-            icon={<Zap className="w-6 h-6" />}
-            title={t('Emergency Medical HUD')}
-            description={t('Critical blood type, active medication list, and severe allergies surfaced instantly via emergency link without requiring login.')}
-            iconBg="#FFE4E6"
-            iconColor="#E11D48"
-            badgeText={t('Zero Login')}
-            badgeBg="#FFF1F2"
-            badgeColor="#BE123C"
-          />
-
-          <FeatureCard
-            icon={<Bell className="w-6 h-6" />}
-            title={t('Immutable Audit Trail')}
-            description={t('Every record access, upload, and consultation note is logged with timestamps. Full transparency on who looked at your chart.')}
-            iconBg="#FEF3C7"
-            iconColor="#D97706"
-            badgeText={t('Audit Log')}
-            badgeBg="#FFFBEB"
-            badgeColor="#B45309"
-          />
-        </div>
-      </section>
-
-      {/* ══════════ HOW IT WORKS ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-12 max-w-7xl mx-auto w-full">
-        <div className="bg-white rounded-2xl p-8 sm:p-14 border border-slate-200 shadow-sm">
-          <div className="text-center max-w-xl mx-auto mb-14">
-            <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 mb-3">
-              
-              {t('Clear & Intuitive')}
+      <div
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-5 sm:px-8 pt-20 pb-28"
+        style={{
+          transform: 'translate3d(0, calc((var(--p) - 0.5) * -160px), 0)',
+          opacity: 'calc(1 - (var(--p) - 0.5) * 1.6)',
+        }}
+      >
+        <Reveal>
+          <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/80 bg-white/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700 backdrop-blur">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
-              
-              {t('Designed for ease from day one')}
-            </h2>
-            <p className="text-sm sm:text-base text-slate-600">
-              
-              {t('Straightforward workflows built for both patients and clinicians.')}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
-            {/* Patient Flow */}
-            <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-blue-600 text-white shadow-sm">
-                <HeartPulse className="w-4 h-4 text-blue-100" />  {t('Patient Experience')}
-              </div>
-
-              <StepItem
-                num={1}
-                title={t('Create your unique PAT-ID')}
-                body={t('Takes under 45 seconds. Receive your collision-free identifier (e.g. PAT-A3F92B) that stays with you for life.')}
-                badge={t('Instant Setup')}
-                color="#2563EB"
-                bgLight="#EFF6FF"
-              />
-              <StepItem
-                num={2}
-                title={t('Upload & organize health documents')}
-                body={t('Drag and drop prescriptions, lab scans, or blood work. Everything gets categorized and indexed.')}
-                badge={t('Drag & Drop')}
-                color="#0284C7"
-                bgLight="#E0F2FE"
-              />
-              <StepItem
-                num={3}
-                title={t('Approve or deny doctor requests')}
-                body={t('When a physician needs access to your chart, they submit a reason. You grant or revoke access anytime.')}
-                badge={t('Granular Consent')}
-                color="#4F46E5"
-                bgLight="#EEF2FF"
-              />
-              <StepItem
-                num={4}
-                title={t('Track your Health Paths & Recovery')}
-                body={t('Follow physician-prescribed steps, check off milestone achievements, and stay on top of your health.')}
-                badge={t('Care Progress')}
-                color="#0F172A"
-                bgLight="#F1F5F9"
-                isLast
-              />
-            </div>
-
-            {/* Doctor Flow */}
-            <div className="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200">
-              <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-slate-900 text-white shadow-sm">
-                <Stethoscope className="w-4 h-4 text-blue-300" />  {t('Doctor Experience')}
-              </div>
-
-              <StepItem
-                num={1}
-                title={t('Register your verified DOC-ID')}
-                body={t('Physicians receive a dedicated DOC-XXXXXX identifier, strictly separated from patient credentials.')}
-                badge={t('Verified ID')}
-                color="#0F172A"
-                bgLight="#F1F5F9"
-              />
-              <StepItem
-                num={2}
-                title={t('Search patient by PAT-ID & request access')}
-                body={t('Quickly lookup the patient and provide clinical justification for chart inspection.')}
-                badge={t('Clinical Reason')}
-                color="#2563EB"
-                bgLight="#EFF6FF"
-              />
-              <StepItem
-                num={3}
-                title={t('Review longitudinal clinical chart')}
-                body={t('View allergies, conditions, active medications, past surgeries, and lab history in one view.')}
-                badge={t('Full Overview')}
-                color="#4F46E5"
-                bgLight="#EEF2FF"
-              />
-              <StepItem
-                num={4}
-                title={t('Prescribe Health Paths & record consults')}
-                body={t('Create structured recovery roadmaps, log encounter notes, and coordinate follow-up appointments.')}
-                badge={t('Care Plans')}
-                color="#D97706"
-                bgLight="#FEF3C7"
-                isLast
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ ID ARCHITECTURE CARD ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 mb-3">
-            
-            {t('Identity Separation')}
+            {t('Patient-Controlled Health Platform')}
           </span>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
-            
-            {t('Two distinct ID formats for security')}
-          </h2>
-          <p className="text-sm text-slate-600">
-            
-            {t('Patients and doctors use distinct identity schemes to prevent credential cross-contamination.')}
+        </Reveal>
+
+        <Reveal delay={120}>
+          <h1 className="lp-display mt-7 max-w-4xl text-[clamp(3rem,7.4vw,6.6rem)] font-medium text-[#0b0b12]">
+            {tn('Your health, {records}', {
+              records: (
+                <span className="bg-gradient-to-r from-violet-500 via-indigo-500 to-teal-400 bg-clip-text text-transparent">
+                  {t('your records,')}
+                </span>
+              ),
+            })}{' '}
+            <span className="text-[#0b0b12]/35">{t('always in your hands.')}</span>
+          </h1>
+        </Reveal>
+
+        <Reveal delay={260}>
+          <p className="mt-7 max-w-xl text-base sm:text-lg leading-relaxed text-[#4a4a5c]">
+            {t('FollowUp brings your prescriptions, diagnostic reports, allergies, and treatment plans into one secure lifetime record — shared only with your explicit permission.')}
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid sm:grid-cols-2 gap-6">
-          {/* Patient ID Card */}
-          <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <HeartPulse className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-blue-50 text-blue-700 uppercase">
-                
-                {t('Patient Identifier')}
-              </span>
-            </div>
-            <div className="font-mono text-3xl font-black text-slate-900 mb-2">{t('PAT-XXXXXX')}</div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">{t('Patient Credential')}</h3>
-            <ul className="space-y-2.5 text-sm text-slate-600">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-blue-600 shrink-0 font-bold" />
-                <span>{t('Given to doctors to request access to your records')}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{t('Publicly usable for emergency HUD scan')}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>{t('Cannot be used in doctor portal')}</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Doctor ID Card */}
-          <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center">
-                <Stethoscope className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-800 uppercase">
-                
-                {t('Doctor Identifier')}
-              </span>
-            </div>
-            <div className="font-mono text-3xl font-black text-slate-900 mb-2">{t('DOC-XXXXXX')}</div>
-            <h3 className="text-lg font-bold text-slate-900 mb-4">{t('Clinical Credential')}</h3>
-            <ul className="space-y-2.5 text-sm text-slate-600">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>{t('Issued upon clinician registration')}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>{t('Attached to every access request for accountability')}</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-slate-800 shrink-0" />
-                <span>{t('Cannot be used in patient login portal')}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ CHOOSE YOUR PORTAL (CTA) ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-xl mx-auto mb-12">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            
-            {t('Get Started')}
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-            
-            {t('Choose your portal')}
-          </h2>
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Patient Card */}
-          <div
-            className="bg-white rounded-2xl p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-200 hover:-translate-y-1"
-            style={{
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 8px 30px -4px rgba(37, 99, 235, 0.08)',
-            }}
-          >
-            <div className="w-18 h-18 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 p-4">
-              <HeartPulse className="w-10 h-10" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('I am a Patient')}</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-8 max-w-xs">
-              
-              {t('Own your medical timeline, grant doctor permissions, and access your emergency profile.')}
-            </p>
-
-            <div className="flex flex-col w-full gap-3">
-              <Link
-                to="/patient/register"
-                className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all text-center"
-              >
-                
-                {t('Create Free Patient ID')}
-              </Link>
-              <Link
-                to="/patient/login"
-                className="w-full py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all text-center"
-              >
-                
-                {t('Sign In to Patient Portal')}
-              </Link>
-            </div>
-          </div>
-
-          {/* Doctor Card */}
-          <div
-            className="bg-white rounded-2xl p-8 sm:p-10 flex flex-col items-center text-center transition-all duration-200 hover:-translate-y-1"
-            style={{
-              border: '1px solid #E2E8F0',
-              boxShadow: '0 8px 30px -4px rgba(15, 23, 42, 0.08)',
-            }}
-          >
-            <div className="w-18 h-18 rounded-2xl bg-slate-100 text-slate-800 flex items-center justify-center mb-6 p-4">
-              <Stethoscope className="w-10 h-10" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 mb-2">{t('I am a Doctor')}</h3>
-            <p className="text-sm text-slate-600 leading-relaxed mb-8 max-w-xs">
-              
-              {t('Request patient access, view full clinical charts, establish treatment plans, and log notes.')}
-            </p>
-
-            <div className="flex flex-col w-full gap-3">
-              <Link
-                to="/doctor/register"
-                className="w-full py-3.5 rounded-xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all text-center"
-              >
-                
-                {t('Create Doctor Account')}
-              </Link>
-              <Link
-                to="/doctor/login"
-                className="w-full py-3.5 rounded-xl font-bold text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all text-center"
-              >
-                
-                {t('Sign In to Doctor Portal')}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════ FAQS SECTION ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 py-16 max-w-7xl mx-auto w-full">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 mb-3">
-            
-            {t('Got Questions?')}
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-3">
-            
-            {t('Frequently Asked Questions')}
-          </h2>
-          <p className="text-sm sm:text-base text-slate-600">
-            
-            {t('Learn how FollowUp keeps your healthcare records safe, universal, and strictly consent-controlled.')}
-          </p>
-        </div>
-
-        <div className="max-w-4xl mx-auto space-y-4 mb-8">
-          {[
-            {
-              q: t('How does patient-controlled consent work on FollowUp?'),
-              a: t('You own and hold your records. When a doctor wants to view your charts, they must submit a request with a clinical reason. You approve or deny instantly, and can revoke access anytime with one click.'),
-            },
-            {
-              q: t('What is the difference between my PAT-ID and a doctor’s DOC-ID?'),
-              a: t('Patients receive collision-resistant PAT-XXXXXX IDs, while doctors receive verified DOC-XXXXXX IDs. The two namespaces never overlap, ensuring zero privilege escalation or portal confusion.'),
-            },
-            {
-              q: t('How do first responders access the Emergency HUD without logging in?'),
-              a: t('First responders can look up your PAT-ID to view life-saving triage data (Blood Group, Severe Allergies, Emergency Contacts). No sensitive consultation notes are exposed without login, and all lookups are logged.'),
-            },
-            {
-              q: t('Can doctors view or download my medical records without my permission?'),
-              a: t('No. Cryptographic role-based access control blocks all unauthorized queries. Without an active consent grant recorded by you, doctors cannot access your documents.'),
-            },
-            {
-              q: t('What are Doctor-Prescribed Health Paths?'),
-              a: t('Health Paths are structured recovery and treatment roadmaps created by attending physicians. You can track and check off recovery milestones, giving your doctor real-time progress visibility.'),
-            },
-            {
-              q: t('How is my medical data encrypted and protected?'),
-              a: t('All data is encrypted in transit using TLS 1.3 and encrypted at rest using AES-256 in compliance with HIPAA technical safeguards. We never sell or monetize your data.'),
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:border-blue-200 transition-all"
-            >
-              <h4 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
-                {item.q}
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pl-4.5">
-                {item.a}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center">
+        <Reveal delay={380} className="mt-10 flex flex-col sm:flex-row gap-3">
           <Link
-            to="/faq"
-            className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
+            to="/patient/register"
+            className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#0b0b12] px-7 py-4 text-sm font-semibold text-white shadow-[0_20px_40px_-18px_rgba(40,30,120,.7)] transition hover:bg-violet-700"
           >
-            
-            {t('View All FAQs with Search Filter')} <ChevronRight className="w-3.5 h-3.5" />
+            {t('Get Your Patient ID Free')}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
-        </div>
-      </section>
+          <Link
+            to="/doctor/login"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#0b0b12]/15 bg-white/60 px-7 py-4 text-sm font-semibold text-[#0b0b12] backdrop-blur transition hover:bg-white"
+          >
+            <Stethoscope className="h-4 w-4" /> {t('Doctor Portal Login')}
+          </Link>
+        </Reveal>
 
-      {/* ══════════ SECURITY ASSURANCE BANNER ══════════ */}
-      <section className="px-4 sm:px-6 lg:px-8 pt-6 pb-12 max-w-7xl mx-auto w-full">
-        <div className="bg-slate-900 text-white rounded-2xl p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-600/30 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
-              <Shield className="w-6 h-6" />
-            </div>
-            <div>
-              <h4 className="text-lg font-bold text-white">{t('Your Privacy & Consent Are Fully Protected')}</h4>
-              <p className="text-sm text-slate-300 mt-1">
-                
-                {t('Data is encrypted at rest and in transit. Doctors can only see records you explicitly authorize.')}
-              </p>
+        <Reveal delay={480} className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-xs font-medium text-[#4a4a5c]">
+          {[t('100% Free for Patients'), t('Instant Emergency HUD'), t('Zero Data Sold')].map((s) => (
+            <span key={s} className="inline-flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-teal-500/15 text-teal-700">
+                <Check className="h-3 w-3" />
+              </span>
+              {s}
+            </span>
+          ))}
+        </Reveal>
+      </div>
+
+      {/* floating glass data cards (desktop), each drifting at its own scroll speed */}
+      <div className="pointer-events-none absolute inset-0 z-10 hidden lg:block" aria-hidden="true">
+        <div
+          className="lp-glass absolute right-[13%] top-[13%] w-60 rounded-3xl p-4"
+          style={{ transform: 'translate3d(0, calc((var(--p) - 0.5) * -260px), 0) rotate(-4deg)' }}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-violet-600">{t('Patient Identifier')}</p>
+          <p className="mt-1 font-mono text-xl font-bold tracking-tight text-[#0b0b12]">PAT-A892F1</p>
+          <p className="mt-1 text-[11px] text-[#6b6b80]">{t('Blood Group: O+ • 29 yrs • Active Medical Record')}</p>
+        </div>
+        <div
+          className="lp-glass absolute right-[3%] top-[46%] w-72 rounded-3xl p-4"
+          style={{ transform: 'translate3d(0, calc((var(--p) - 0.5) * -420px), 0) rotate(3deg)' }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+              <UserRound className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-[#0b0b12]">{t('Dr. Marcus Reed (Cardiology) • DOC-491B28')}</p>
+              <p className="truncate text-[11px] text-[#6b6b80]">{t('Reason: Routine Follow-up Consultation')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 bg-slate-800 border border-slate-700 px-4 py-2 rounded-full shadow-sm">
-              <Lock className="w-3.5 h-3.5 text-blue-400" />
-              
-              {t('End-to-End Encrypted')}
-            </div>
+          <div className="mt-3 flex gap-2">
+            <span className="flex-1 rounded-full bg-[#0b0b12] py-1.5 text-center text-[11px] font-semibold text-white">{t('Approve')}</span>
+            <span className="flex-1 rounded-full border border-[#0b0b12]/15 py-1.5 text-center text-[11px] font-semibold text-[#0b0b12]">{t('Deny')}</span>
           </div>
         </div>
-      </section>
+        <div
+          className="lp-glass absolute right-[19%] bottom-[9%] w-56 rounded-3xl p-4"
+          style={{ transform: 'translate3d(0, calc((var(--p) - 0.5) * -180px), 0) rotate(-2deg)' }}
+        >
+          <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-rose-500">
+            <HeartPulse className="h-3.5 w-3.5" /> {t('Heart rate')}
+          </p>
+          <div className="mt-1 flex items-end justify-between">
+            <p className="lp-display text-4xl font-medium text-[#0b0b12]">
+              72<span className="ml-1 text-sm font-normal text-[#6b6b80]">{t('bpm')}</span>
+            </p>
+            <svg viewBox="0 0 120 40" className="lp-ecg h-10 w-24" fill="none">
+              <path d="M0 24 L30 24 L38 10 L46 34 L54 6 L62 28 L70 24 L120 24" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
 
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#6b6b80]">
+        <span className="block">{t('Scroll to explore')}</span>
+        <ChevronDown className="mx-auto mt-2 h-4 w-4 animate-bounce" aria-hidden="true" />
+      </div>
+    </section>
+  );
+};
+
+/* ───────────────────────────── Mission ───────────────────────────── */
+
+const Mission: React.FC = () => {
+  const { t } = useLanguage();
+  return (
+    <section className="relative mx-auto max-w-7xl px-5 sm:px-8 py-28 sm:py-40">
+      <Orb className="right-[4%] top-10 h-28 w-28 sm:h-40 sm:w-40" />
+      <Orb variant="teal" className="right-[22%] bottom-10 h-14 w-14 [animation-delay:-3s]" />
+      <Reveal>
+        <p className="mb-8 text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Our mission')}</p>
+      </Reveal>
+      <ScrollWords
+        className="lp-display max-w-5xl text-[clamp(1.9rem,4.4vw,4rem)] font-medium"
+        text={t('We give every patient one lifelong medical record that they own, and every doctor exactly the part of it they need, only when the patient says yes.')}
+      />
+    </section>
+  );
+};
+
+/* ────────────────────────────── Stats ────────────────────────────── */
+
+const Stat: React.FC<{ value: number; suffix?: string; label: string; start: boolean; delay: number }> = ({
+  value,
+  suffix = '',
+  label,
+  start,
+  delay,
+}) => {
+  const n = useCountUp(value, start, 1800 + delay);
+  return (
+    <div className="border-t border-[#0b0b12]/10 pt-6">
+      <p className="lp-display text-[clamp(3.2rem,7vw,6rem)] font-medium tabular-nums text-[#0b0b12]">
+        {n}
+        <span className="text-violet-500">{suffix}</span>
+      </p>
+      <p className="mt-3 max-w-[16rem] text-sm leading-snug text-[#6b6b80]">{label}</p>
     </div>
   );
 };
+
+const Stats: React.FC = () => {
+  const { t } = useLanguage();
+  const [ref, inView] = useInView<HTMLDivElement>({ threshold: 0.35 });
+  return (
+    <section className="mx-auto max-w-7xl px-5 sm:px-8 pb-28">
+      <div ref={ref} className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        <Stat value={100} suffix="%" label={t('Patient-owned records')} start={inView} delay={0} />
+        <Stat value={18} label={t('Medical specialties with scoped access')} start={inView} delay={150} />
+        <Stat value={5} label={t('Languages, including Hindi, Kannada, Tamil and Telugu')} start={inView} delay={300} />
+        <Stat value={0} label={t('Records ever sold')} start={inView} delay={450} />
+      </div>
+    </section>
+  );
+};
+
+/* ───────────────────── How it works (pinned story) ───────────────────── */
+
+const StepVisual: React.FC<{ step: number }> = ({ step }) => {
+  const { t } = useLanguage();
+  const layer = (i: number) =>
+    `absolute inset-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(.2,.7,.2,1)] ${
+      step === i ? 'opacity-100 translate-y-0 scale-100' : step > i ? 'opacity-0 -translate-y-10 scale-95' : 'opacity-0 translate-y-10 scale-95'
+    }`;
+  return (
+    <div className="relative h-[420px] sm:h-[480px] w-full">
+      <Orb className="left-[6%] top-[8%] h-24 w-24" />
+      <Orb variant="teal" className="right-[8%] bottom-[10%] h-16 w-16 [animation-delay:-4s]" />
+
+      {/* 1. identity */}
+      <div className={layer(0)} aria-hidden={step !== 0}>
+        <div className="lp-glass w-[min(360px,90%)] rounded-[28px] p-6 rotate-[-3deg]">
+          <div className="flex items-center justify-between">
+            <Fingerprint className="h-6 w-6 text-violet-600" />
+            <span className="rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-semibold text-violet-700">{t('Patient Credential')}</span>
+          </div>
+          <p className="mt-10 text-[11px] uppercase tracking-wider text-[#6b6b80]">{t('Patient Identifier')}</p>
+          <p className="font-mono text-3xl font-bold tracking-tight text-[#0b0b12]">PAT-A3F92B</p>
+          <div className="mt-6 h-1.5 w-full overflow-hidden rounded-full bg-violet-100">
+            <div className={`h-full rounded-full bg-gradient-to-r from-violet-500 to-teal-400 transition-[width] duration-[1600ms] ${step === 0 ? 'w-full' : 'w-0'}`} />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. upload + auto-tag */}
+      <div className={layer(1)} aria-hidden={step !== 1}>
+        <div className="lp-glass w-[min(380px,92%)] rounded-[28px] p-6">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+              <UploadCloud className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[#0b0b12]">{t('Complete Blood Count (CBC)')}</p>
+              <p className="text-[11px] text-[#6b6b80]">{t('PDF Attached')}</p>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {[t('Blood Work'), t('Anemia'), t('General Practice')].map((tag, i) => (
+              <span
+                key={tag}
+                className={`rounded-full border border-violet-200 bg-white px-3 py-1 text-xs font-medium text-violet-700 transition-all duration-500 ${
+                  step === 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+                }`}
+                style={{ transitionDelay: `${300 + i * 180}ms` }}
+              >
+                <Sparkles className="mr-1 inline h-3 w-3" />
+                {tag}
+              </span>
+            ))}
+          </div>
+          <p className="mt-5 flex items-center gap-1.5 text-[11px] font-semibold text-teal-700">
+            <Check className="h-3.5 w-3.5" /> {t('Verified ✓')}
+          </p>
+        </div>
+      </div>
+
+      {/* 3. consent request */}
+      <div className={layer(2)} aria-hidden={step !== 2}>
+        <div className="lp-glass w-[min(400px,94%)] rounded-[28px] p-6 rotate-[2deg]">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+              <Stethoscope className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-[#0b0b12]">{t('Dr. Emily Chen (Orthopedic) • DOC-774A12')}</p>
+              <p className="truncate text-[11px] text-[#6b6b80]">{t('Reason: Pre-Op Knee Evaluation')}</p>
+            </div>
+          </div>
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            {[t('24 hours'), t('7 days'), t('30 days')].map((d, i) => (
+              <span
+                key={d}
+                className={`rounded-xl border py-2 text-center text-xs font-semibold ${
+                  i === 1 ? 'border-violet-500 bg-violet-600 text-white' : 'border-[#0b0b12]/10 bg-white text-[#0b0b12]'
+                }`}
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          <div className="mt-4 flex gap-2">
+            <span className="flex-1 rounded-full bg-[#0b0b12] py-2.5 text-center text-xs font-semibold text-white">{t('Approve')}</span>
+            <span className="flex-1 rounded-full border border-[#0b0b12]/15 py-2.5 text-center text-xs font-semibold text-[#0b0b12]">{t('Deny')}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. care plan progress */}
+      <div className={layer(3)} aria-hidden={step !== 3}>
+        <div className="lp-glass w-[min(400px,94%)] rounded-[28px] p-6">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-[#0b0b12]">{t('Post-Op Recovery & Rehab Plan')}</p>
+              <p className="text-[11px] text-[#6b6b80]">{t('Prescribed by Dr. Emily Chen • 4-Week Path')}</p>
+            </div>
+            <span className="rounded-full bg-teal-100 px-2.5 py-1 text-[10px] font-bold text-teal-800">{t('75% Complete')}</span>
+          </div>
+          <ol className="mt-5 space-y-2.5">
+            {[t('Week 1 Mobility'), t('Meds Protocol'), t('Physical Therapy'), t('Final Check-in')].map((m, i) => (
+              <li
+                key={m}
+                className={`flex items-center gap-3 text-sm transition-all duration-500 ${step === 3 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-3'}`}
+                style={{ transitionDelay: `${200 + i * 150}ms` }}
+              >
+                <span className={`flex h-6 w-6 items-center justify-center rounded-full ${i < 3 ? 'bg-teal-500 text-white' : 'border-2 border-[#0b0b12]/15'}`}>
+                  {i < 3 && <Check className="h-3.5 w-3.5" />}
+                </span>
+                <span className={i < 3 ? 'text-[#0b0b12]' : 'text-[#6b6b80]'}>{m}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HowItWorks: React.FC = () => {
+  const { t } = useLanguage();
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: t('Create your unique PAT-ID'), body: t('Takes under 45 seconds. Receive your collision-free identifier (e.g. PAT-A3F92B) that stays with you for life.'), Icon: Fingerprint },
+    { title: t('Upload & organize health documents'), body: t('Drag and drop prescriptions, lab scans, or blood work. Everything gets categorized and indexed.'), Icon: UploadCloud },
+    { title: t('Approve or deny doctor requests'), body: t('When a physician needs access to your chart, they submit a reason. You grant or revoke access anytime.'), Icon: KeyRound },
+    { title: t('Track your Health Paths & Recovery'), body: t('Follow physician-prescribed steps, check off milestone achievements, and stay on top of your health.'), Icon: Route },
+  ];
+  const ref = useScrollProgress<HTMLElement>('pin', (p) => {
+    const next = Math.min(steps.length - 1, Math.floor(p * steps.length * 0.999));
+    setStep((s) => (s === next ? s : next));
+  });
+
+  return (
+    <section ref={ref} className="relative h-[380vh]" style={{ ['--p' as any]: 0 }}>
+      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
+        <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-2">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Clear & Intuitive')}</p>
+            <h2 className="lp-display mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-medium text-[#0b0b12]">{t('Designed for ease from day one')}</h2>
+
+            {/* progress rail with dots, as in a stepper */}
+            <div className="relative mt-10">
+              <div className="absolute left-[11px] top-2 bottom-2 w-px bg-[#0b0b12]/10" aria-hidden="true" />
+              <div
+                className="absolute left-[11px] top-2 w-px bg-gradient-to-b from-violet-500 to-teal-400 transition-[height] duration-500"
+                style={{ height: `calc(${(step / (steps.length - 1)) * 100}% - 8px)` }}
+                aria-hidden="true"
+              />
+              <ol className="space-y-6">
+                {steps.map((s, i) => (
+                  <li key={s.title} className="relative flex gap-5">
+                    <span
+                      className={`relative z-[1] mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500 ${
+                        i <= step ? 'border-violet-500 bg-violet-500 text-white' : 'border-[#0b0b12]/15 bg-[var(--lp-bg)] text-transparent'
+                      }`}
+                    >
+                      <Check className="h-3 w-3" />
+                    </span>
+                    <div className={`transition-all duration-500 ${i === step ? 'opacity-100' : 'opacity-40'}`}>
+                      <p className="flex items-center gap-2 text-base sm:text-lg font-semibold text-[#0b0b12]">
+                        <span className="font-mono text-xs text-violet-500">0{i + 1}</span>
+                        {s.title}
+                      </p>
+                      <div className={`grid transition-all duration-500 ${i === step ? 'grid-rows-[1fr] mt-1.5' : 'grid-rows-[0fr]'}`}>
+                        <p className="overflow-hidden text-sm leading-relaxed text-[#6b6b80] max-w-md">{s.body}</p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+          <div className="hidden sm:block">
+            <StepVisual step={step} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ───────────────────────────── Advantages ───────────────────────────── */
+
+const Advantages: React.FC = () => {
+  const { t } = useLanguage();
+  const cards = [
+    { title: t('Unified Health Vault'), body: t('Upload prescriptions, lab reports, MRI scans, and discharge notes in seconds. Tagged, indexed, and available anywhere.'), chip: t('All Formats'), Icon: FileStack, orb: 'lilac' as const },
+    { title: t('Unified Timeline'), body: t('Scroll through your entire medical journey chronologically. From early treatments to recent specialist reviews.'), chip: t('Chronological'), Icon: Clock, orb: 'teal' as const },
+    { title: t('Consent-First Doctor Access'), body: t('Doctors must provide a valid clinical justification. You review, approve, or deny requests in real time.'), chip: t('Patient Controlled'), Icon: ShieldCheck, orb: 'lilac' as const },
+    { title: t('Doctor-Prescribed Paths'), body: t('Clinicians establish clear recovery plans, medication schedules, and milestone checklists for continuous care.'), chip: t('Care Paths'), Icon: Route, orb: 'teal' as const },
+    { title: t('Emergency Medical HUD'), body: t('Critical blood type, active medication list, and severe allergies surfaced instantly via emergency link without requiring login.'), chip: t('Zero Login'), Icon: Siren, orb: 'rose' as const },
+    { title: t('Immutable Audit Trail'), body: t('Every record access, upload, and consultation note is logged with timestamps. Full transparency on who looked at your chart.'), chip: t('Audit Log'), Icon: ScrollText, orb: 'lilac' as const },
+  ];
+  return (
+    <section className="mx-auto max-w-7xl px-5 sm:px-8 py-28">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <Reveal>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Platform Capabilities')}</p>
+          <h2 className="lp-display mt-4 max-w-2xl text-[clamp(2.4rem,5vw,4.4rem)] font-medium text-[#0b0b12]">{t('Everything your medical history requires')}</h2>
+        </Reveal>
+        <Reveal delay={150}>
+          <p className="max-w-sm text-sm leading-relaxed text-[#6b6b80]">
+            {t('A cohesive clinical ecosystem designed to replace scattered physical papers and stressful hospital record requests.')}
+          </p>
+        </Reveal>
+      </div>
+
+      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((c, i) => (
+          <Reveal key={c.title} delay={(i % 3) * 110}>
+            <TiltCard className="group h-full overflow-hidden rounded-[28px] border border-white bg-white/70 p-7 shadow-[0_24px_60px_-34px_rgba(40,30,120,.35)] backdrop-blur">
+              <Orb variant={c.orb} className="-right-8 -top-8 h-28 w-28 opacity-70 transition-transform duration-700 group-hover:scale-110" />
+              <div className="relative flex items-center justify-between">
+                <span className="rounded-full border border-[#0b0b12]/10 bg-white px-3 py-1 text-[10px] font-semibold text-[#0b0b12]">{c.chip}</span>
+                <ArrowUpRight className="h-5 w-5 text-violet-400 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1" />
+              </div>
+              <c.Icon className="relative mt-10 h-7 w-7 text-violet-600" />
+              <h3 className="relative mt-4 text-xl font-semibold tracking-tight text-[#0b0b12]">{c.title}</h3>
+              <p className="relative mt-2 text-sm leading-relaxed text-[#6b6b80]">{c.body}</p>
+              <p className="lp-display relative mt-8 text-[5.5rem] font-light leading-none text-[#0b0b12]/[0.07] transition-colors duration-500 group-hover:text-violet-500/20">
+                0{i + 1}
+              </p>
+            </TiltCard>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ─────────────────── Horizontal showcase (dark, pinned) ─────────────────── */
+
+const Showcase: React.FC = () => {
+  const { t } = useLanguage();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const ref = useScrollProgress<HTMLElement>('pin', (p) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const max = Math.max(0, track.scrollWidth - window.innerWidth);
+    track.style.transform = `translate3d(${-p * max}px,0,0)`;
+  });
+
+  const panels = [
+    {
+      Icon: Stethoscope,
+      kicker: t('Specialty-scoped access'),
+      title: t('A cardiologist sees your heart, not your whole life.'),
+      body: t('Every record is tagged by condition. Doctors see what matches their specialty; anything else needs your time-limited approval.'),
+      art: (
+        <div className="flex flex-wrap gap-2">
+          {[t('Cardiology'), t('ECG'), t('Hypertension')].map((s) => (
+            <span key={s} className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white">{s}</span>
+          ))}
+          <span className="rounded-full border border-dashed border-white/25 px-3 py-1.5 text-xs text-white/50">
+            <Lock className="mr-1 inline h-3 w-3" />
+            {t('Psychiatry')}
+          </span>
+        </div>
+      ),
+    },
+    {
+      Icon: Siren,
+      kicker: t('Emergency Medical HUD'),
+      title: t('Seconds matter. The essentials are one lookup away.'),
+      body: t('Critical blood type, active medication list, and severe allergies surfaced instantly via emergency link without requiring login.'),
+      art: (
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="rounded-2xl bg-white/10 p-3"><p className="text-white/50">{t('🩸 Blood Group')}</p><p className="mt-1 font-semibold text-white">{t('O Positive (O+)')}</p></div>
+          <div className="rounded-2xl bg-rose-500/20 p-3"><p className="text-rose-200">{t('⚠️ Allergies')}</p><p className="mt-1 font-semibold text-white">{t('Penicillin (Severe)')}</p></div>
+        </div>
+      ),
+    },
+    {
+      Icon: BrainCircuit,
+      kicker: t('AI health advisor'),
+      title: t('Plain-language answers, any hour.'),
+      body: t('Ask about symptoms or reports and get calm, practical guidance, with a clear nudge to see a doctor when it matters.'),
+      art: (
+        <div className="space-y-2 text-xs">
+          <p className="ml-auto w-fit rounded-2xl rounded-br-sm bg-violet-500 px-3 py-2 text-white">{t('What does a high WBC count mean?')}</p>
+          <p className="w-fit max-w-[90%] rounded-2xl rounded-bl-sm bg-white/10 px-3 py-2 text-white/85">{t('Usually your body is fighting an infection…')}</p>
+        </div>
+      ),
+    },
+    {
+      Icon: Languages,
+      kicker: t('Five languages'),
+      title: t('Care in the language you think in.'),
+      body: t('Every screen, message and report view works in English, Hindi, Kannada, Tamil and Telugu.'),
+      art: (
+        <div className="flex flex-wrap gap-2 text-sm font-semibold text-white">
+          {['English', 'हिन्दी', 'ಕನ್ನಡ', 'தமிழ்', 'తెలుగు'].map((l) => (
+            <span key={l} className="rounded-full bg-white/10 px-3 py-1.5">{l}</span>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <section ref={ref} className="relative h-[340vh] bg-[#0b0b12] text-white" style={{ ['--p' as any]: 0 }}>
+      <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute -left-40 top-10 h-[36rem] w-[36rem] rounded-full bg-violet-600/25 blur-[120px]" />
+          <div className="absolute -right-40 bottom-0 h-[30rem] w-[30rem] rounded-full bg-teal-500/20 blur-[120px]" />
+        </div>
+        <div className="relative mx-auto w-full max-w-7xl px-5 sm:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300">{t('Why FollowUp')}</p>
+          <h2 className="lp-display mt-3 max-w-3xl text-[clamp(2.2rem,4.6vw,4rem)] font-medium">{t('Built for how care actually works')}</h2>
+        </div>
+        <div ref={trackRef} className="relative mt-10 flex w-max gap-5 px-5 sm:px-8 will-change-transform lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))]">
+          {panels.map((p, i) => (
+            <article
+              key={p.kicker}
+              className="flex w-[82vw] sm:w-[440px] shrink-0 flex-col justify-between rounded-[32px] border border-white/10 bg-white/[0.04] p-7 sm:p-8 backdrop-blur"
+              style={{ minHeight: 'min(440px, 58svh)' }}
+            >
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                    <p.Icon className="h-5 w-5 text-violet-200" />
+                  </span>
+                  <span className="font-mono text-xs text-white/40">0{i + 1} / 0{panels.length}</span>
+                </div>
+                <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-300">{p.kicker}</p>
+                <h3 className="lp-display mt-3 text-[clamp(1.6rem,2.6vw,2.2rem)] font-medium">{p.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">{p.body}</p>
+              </div>
+              <div className="mt-8">{p.art}</div>
+            </article>
+          ))}
+          <div className="w-[10vw] shrink-0" aria-hidden="true" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ───────────────────────────── Identity ───────────────────────────── */
+
+const Identity: React.FC = () => {
+  const { t } = useLanguage();
+  const cards = [
+    {
+      label: t('Patient Identifier'), badge: t('Patient Credential'), id: 'PAT-XXXXXX', Icon: UserRound,
+      tone: 'from-violet-500/15 to-transparent text-violet-700',
+      points: [t('Given to doctors to request access to your records'), t('Publicly usable for emergency HUD scan'), t('Cannot be used in doctor portal')],
+    },
+    {
+      label: t('Doctor Identifier'), badge: t('Clinical Credential'), id: 'DOC-XXXXXX', Icon: Stethoscope,
+      tone: 'from-teal-500/15 to-transparent text-teal-700',
+      points: [t('Issued upon clinician registration'), t('Attached to every access request for accountability'), t('Cannot be used in patient login portal')],
+    },
+  ];
+  return (
+    <section className="mx-auto max-w-7xl px-5 sm:px-8 py-28 sm:py-36">
+      <Reveal className="max-w-2xl">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Identity Separation')}</p>
+        <h2 className="lp-display mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-medium text-[#0b0b12]">{t('Two distinct ID formats for security')}</h2>
+        <p className="mt-4 text-sm leading-relaxed text-[#6b6b80]">{t('Patients and doctors use distinct identity schemes to prevent credential cross-contamination.')}</p>
+      </Reveal>
+      <div className="mt-14 grid gap-5 lg:grid-cols-2">
+        {cards.map((c, i) => (
+          <Reveal key={c.id} delay={i * 150}>
+            <TiltCard className={`h-full overflow-hidden rounded-[32px] border border-white bg-gradient-to-br ${c.tone} bg-white/70 p-8 shadow-[0_24px_60px_-34px_rgba(40,30,120,.35)]`}>
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-sm font-semibold"><c.Icon className="h-5 w-5" /> {c.label}</span>
+                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-semibold text-[#0b0b12]">{c.badge}</span>
+              </div>
+              <p className="lp-display mt-10 font-mono text-[clamp(2.4rem,5vw,3.6rem)] font-semibold text-[#0b0b12]">{c.id}</p>
+              <ul className="mt-8 space-y-3">
+                {c.points.map((pt, j) => (
+                  <li key={pt} className="flex items-start gap-3 text-sm text-[#4a4a5c]">
+                    <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${j === 2 ? 'bg-rose-100 text-rose-600' : 'bg-white text-teal-600'}`}>
+                      {j === 2 ? <X className="h-3 w-3" /> : <Check className="h-3 w-3" />}
+                    </span>
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            </TiltCard>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ────────────────────────────── Portals ────────────────────────────── */
+
+const Portals: React.FC = () => {
+  const { t } = useLanguage();
+  return (
+    <section className="mx-auto max-w-7xl px-5 sm:px-8 pb-28">
+      <Reveal className="text-center">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Get Started')}</p>
+        <h2 className="lp-display mt-4 text-[clamp(2.4rem,5vw,4.4rem)] font-medium text-[#0b0b12]">{t('Choose your portal')}</h2>
+      </Reveal>
+      <div className="mt-14 grid gap-5 lg:grid-cols-2">
+        {[
+          { title: t('I am a Patient'), body: t('Own your medical timeline, grant doctor permissions, and access your emergency profile.'), primary: [t('Create Free Patient ID'), '/patient/register'], secondary: [t('Sign In to Patient Portal'), '/patient/login'], Icon: HeartPulse, orb: 'lilac' as const, dark: false },
+          { title: t('I am a Doctor'), body: t('Request patient access, view full clinical charts, establish treatment plans, and log notes.'), primary: [t('Create Doctor Account'), '/doctor/register'], secondary: [t('Sign In to Doctor Portal'), '/doctor/login'], Icon: Stethoscope, orb: 'teal' as const, dark: true },
+        ].map((p, i) => (
+          <Reveal key={p.title} delay={i * 150}>
+            <div className={`group relative h-full overflow-hidden rounded-[36px] p-9 sm:p-12 ${p.dark ? 'bg-[#0b0b12] text-white' : 'bg-white text-[#0b0b12]'} shadow-[0_30px_70px_-40px_rgba(40,30,120,.5)]`}>
+              <Orb variant={p.orb} className="-right-10 -bottom-10 h-48 w-48 transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-2" />
+              <p.Icon className={`relative h-8 w-8 ${p.dark ? 'text-teal-300' : 'text-violet-600'}`} />
+              <h3 className="lp-display relative mt-8 text-4xl font-medium">{p.title}</h3>
+              <p className={`relative mt-3 max-w-sm text-sm leading-relaxed ${p.dark ? 'text-white/60' : 'text-[#6b6b80]'}`}>{p.body}</p>
+              <div className="relative mt-10 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to={p.primary[1]}
+                  className={`inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition ${p.dark ? 'bg-white text-[#0b0b12] hover:bg-teal-100' : 'bg-[#0b0b12] text-white hover:bg-violet-700'}`}
+                >
+                  {p.primary[0]} <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to={p.secondary[1]}
+                  className={`inline-flex items-center justify-center rounded-full border px-6 py-3.5 text-sm font-semibold transition ${p.dark ? 'border-white/20 hover:bg-white/10' : 'border-[#0b0b12]/15 hover:bg-[#0b0b12]/5'}`}
+                >
+                  {p.secondary[0]}
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ──────────────────────────────── FAQ ──────────────────────────────── */
+
+const Faq: React.FC = () => {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState<number | null>(0);
+  const items = [
+    [t('How does patient-controlled consent work on FollowUp?'), t('You own and hold your records. When a doctor wants to view your charts, they must submit a request with a clinical reason. You approve or deny instantly, and can revoke access anytime with one click.')],
+    [t('What is the difference between my PAT-ID and a doctor’s DOC-ID?'), t('Patients receive collision-resistant PAT-XXXXXX IDs, while doctors receive verified DOC-XXXXXX IDs. The two namespaces never overlap, ensuring zero privilege escalation or portal confusion.')],
+    [t('How do first responders access the Emergency HUD without logging in?'), t('First responders can look up your PAT-ID to view life-saving triage data (Blood Group, Severe Allergies, Emergency Contacts). No sensitive consultation notes are exposed without login, and all lookups are logged.')],
+    [t('Can doctors view or download my medical records without my permission?'), t('No. Cryptographic role-based access control blocks all unauthorized queries. Without an active consent grant recorded by you, doctors cannot access your documents.')],
+    [t('What are Doctor-Prescribed Health Paths?'), t('Health Paths are structured recovery and treatment roadmaps created by attending physicians. You can track and check off recovery milestones, giving your doctor real-time progress visibility.')],
+    [t('How is my medical data encrypted and protected?'), t('All data is encrypted in transit using TLS 1.3 and encrypted at rest using AES-256 in compliance with HIPAA technical safeguards. We never sell or monetize your data.')],
+  ];
+  return (
+    <section className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 py-28 lg:grid-cols-[1fr_1.4fr]">
+      <Reveal>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600">{t('Got Questions?')}</p>
+        <h2 className="lp-display mt-4 text-[clamp(2.4rem,5vw,4rem)] font-medium text-[#0b0b12]">{t('Frequently Asked Questions')}</h2>
+        <p className="mt-4 max-w-sm text-sm leading-relaxed text-[#6b6b80]">{t('Learn how FollowUp keeps your healthcare records safe, universal, and strictly consent-controlled.')}</p>
+        <Link to="/faq" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-violet-700 hover:text-violet-900">
+          {t('View All FAQs with Search Filter')} <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Reveal>
+      <div className="divide-y divide-[#0b0b12]/10 border-y border-[#0b0b12]/10">
+        {items.map(([q, a], i) => {
+          const isOpen = open === i;
+          return (
+            <div key={q}>
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : i)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center justify-between gap-6 py-6 text-left"
+              >
+                <span className="text-base sm:text-lg font-medium text-[#0b0b12]">{q}</span>
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#0b0b12]/15 transition-transform duration-300 ${isOpen ? 'rotate-45 bg-[#0b0b12] text-white' : ''}`}>
+                  <span className="text-xl leading-none">+</span>
+                </span>
+              </button>
+              <div className={`grid transition-all duration-500 ${isOpen ? 'grid-rows-[1fr] pb-6' : 'grid-rows-[0fr]'}`}>
+                <p className="overflow-hidden text-sm leading-relaxed text-[#6b6b80] max-w-2xl">{a}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
+/* ─────────────────────────────── Finale ─────────────────────────────── */
+
+const Finale: React.FC = () => {
+  const { t } = useLanguage();
+  const ref = useScrollProgress<HTMLElement>('through');
+  return (
+    <section ref={ref} className="lp-grain relative overflow-hidden py-28 sm:py-40" style={{ ['--p' as any]: 0 }}>
+      <div className="lp-aurora opacity-60" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <h2
+        className="lp-display relative text-center text-[clamp(4rem,17vw,16rem)] font-medium uppercase text-[#0b0b12]"
+        style={{ transform: 'translate3d(calc((0.5 - var(--p)) * 18vw), 0, 0)' }}
+      >
+        {t('Get Started')}
+      </h2>
+      <div
+        className="relative z-10 mx-auto -mt-[clamp(2.5rem,8vw,7rem)] w-[min(560px,90%)]"
+        style={{ transform: 'translate3d(0, calc((0.5 - var(--p)) * 80px), 0) rotate(calc((var(--p) - 0.5) * -6deg))' }}
+      >
+        <div className="rounded-[32px] bg-gradient-to-br from-violet-500 to-indigo-600 p-8 text-white shadow-[0_40px_80px_-30px_rgba(79,70,229,.7)]">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-100">
+            <Lock className="h-4 w-4" /> {t('End-to-End Encrypted')}
+          </div>
+          <p className="lp-display mt-4 text-3xl font-medium">{t('Your Privacy & Consent Are Fully Protected')}</p>
+          <p className="mt-3 text-sm leading-relaxed text-violet-100/90">{t('Data is encrypted at rest and in transit. Doctors can only see records you explicitly authorize.')}</p>
+          <div className="mt-7 flex flex-col sm:flex-row gap-3">
+            <Link to="/patient/register" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-indigo-700 transition hover:bg-violet-50">
+              {t('Create Free ID')} <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/emergency" className="inline-flex items-center justify-center gap-2 rounded-full border border-white/30 px-6 py-3.5 text-sm font-semibold transition hover:bg-white/10">
+              <Activity className="h-4 w-4" /> {t('Emergency Lookup')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+/* ─────────────────────────────── Page ─────────────────────────────── */
+
+export const LandingPage: React.FC = () => {
+  const { t } = useLanguage();
+  return (
+    <div className="lp-root overflow-x-clip">
+      <Hero />
+      <div className="border-y border-[#0b0b12]/10 bg-white/50 py-6 text-[#0b0b12]">
+        <Marquee items={[t('Consent first'), t('Unified timeline'), t('Emergency ready'), t('Five languages'), t('Zero Data Sold')]} />
+      </div>
+      <Mission />
+      <Stats />
+      <HowItWorks />
+      <Advantages />
+      <Showcase />
+      <div className="overflow-hidden py-10 text-[#0b0b12]">
+        <Marquee reverse accent items={[t('Your health'), t('Your records'), t('Your consent'), t('Your timeline')]} />
+      </div>
+      <Identity />
+      <Portals />
+      <Faq />
+      <Finale />
+    </div>
+  );
+};
+
+export default LandingPage;
