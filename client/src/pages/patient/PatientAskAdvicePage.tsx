@@ -13,6 +13,7 @@ import {
   Sparkles,
   ShieldAlert,
   Trash2,
+  FileHeart,
 } from 'lucide-react';
 import { tr } from '../../context/LanguageContext.js';
 import { translateServerMessage } from '../../utils/serverMessage.js';
@@ -38,7 +39,31 @@ const SPEECH_LANG_MAP: Record<LangCode, string> = {
 
 
 
-async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: string | null): Promise<string> {
+/** What the advisor read from the patient's record for the latest answer (counts only) */
+interface AdvisorContext {
+  conditions: number;
+  medications: number;
+  allergies: number;
+  labTests: number;
+  records: number;
+  carePlans: number;
+}
+
+const USE_RECORD_KEY = 'FollowUp_advice_use_record';
+const readUseRecord = () => {
+  try {
+    return localStorage.getItem(USE_RECORD_KEY) !== 'false';
+  } catch {
+    return true;
+  }
+};
+
+async function callAiAdvice(
+  messages: ChatMessage[],
+  langCode: LangCode,
+  token: string | null,
+  useHealthContext: boolean
+): Promise<{ reply: string; context: AdvisorContext | null }> {
   if (!token) throw new Error(tr('Not authenticated. Please log in and try again.'));
 
   const res = await fetch('/api/ai/advice', {
@@ -50,6 +75,7 @@ async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: 
     body: JSON.stringify({
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
       langCode,
+      useHealthContext,
     }),
   });
 
@@ -62,7 +88,7 @@ async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: 
 
   const data = await res.json();
   if (!data?.reply) throw new Error(tr('No response received from the AI advisor.'));
-  return data.reply;
+  return { reply: data.reply, context: data.context ?? null };
 }
 
 /* ─── Markdown-light renderer ────────────────────────────────── */
@@ -94,8 +120,38 @@ function renderTextBlock(text: string) {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
 
+  // Markdown tables (the model sometimes uses them despite instructions): collect consecutive "|" rows
+  let table: string[][] = [];
+  const flushTable = (key: number) => {
+    if (!table.length) return;
+    const [head, ...body] = table;
+    elements.push(
+      <div key={`t${key}`} className="my-2 overflow-x-auto rounded-lg border border-slate-200">
+        <table className="w-full text-xs">
+          <thead className="bg-slate-100">
+            <tr>{head.map((c, j) => <th key={j} className="px-2.5 py-1.5 text-left font-semibold text-slate-700">{renderInline(c)}</th>)}</tr>
+          </thead>
+          <tbody>
+            {body.map((row, r) => (
+              <tr key={r} className="border-t border-slate-100 align-top">
+                {row.map((c, j) => <td key={j} className="px-2.5 py-1.5">{renderInline(c.replace(/<br\s*\/?>/gi, ' · '))}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+    table = [];
+  };
+
   lines.forEach((line, i) => {
     const trimmed = line.trim();
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const cells = trimmed.slice(1, -1).split('|').map((c) => c.trim());
+      if (!cells.every((c) => /^:?-{2,}:?$/.test(c))) table.push(cells); // skip the |---| divider row
+      return;
+    }
+    flushTable(i);
     if (!trimmed) {
       elements.push(<br key={i} />);
     } else if (trimmed.startsWith('### ')) {
@@ -134,6 +190,7 @@ function renderTextBlock(text: string) {
     }
   });
 
+  flushTable(lines.length);
   return <>{elements}</>;
 }
 
@@ -164,6 +221,20 @@ export const PatientAskAdvicePage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
+  const [useRecord, setUseRecord] = useState<boolean>(readUseRecord);
+  const [usedContext, setUsedContext] = useState<AdvisorContext | null>(null);
+
+  const toggleUseRecord = () => {
+    setUseRecord((on) => {
+      try {
+        localStorage.setItem(USE_RECORD_KEY, String(!on));
+      } catch {
+        /* per-browser preference only */
+      }
+      return !on;
+    });
+    setUsedContext(null);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -239,7 +310,8 @@ export const PatientAskAdvicePage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const reply = await callAiAdvice(updatedMessages, lang, token);
+      const { reply, context } = await callAiAdvice(updatedMessages, lang, token, useRecord);
+      setUsedContext(context);
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -268,12 +340,25 @@ export const PatientAskAdvicePage: React.FC = () => {
 
   const hasMessages = messages.length > 0;
 
-  const suggestions = [
-    t('advice.suggestion1'),
-    t('advice.suggestion2'),
-    t('advice.suggestion3'),
-    t('advice.suggestion4'),
-  ];
+  const suggestions = useRecord
+    ? [
+        t('Explain my latest lab results in simple words'),
+        t('What should I eat based on my conditions and reports?'),
+        t('Could any of my medicines be making me tired?'),
+        t('Summarise my health history for my next doctor visit'),
+      ]
+    : [t('advice.suggestion1'), t('advice.suggestion2'), t('advice.suggestion3'), t('advice.suggestion4')];
+
+  const contextChips = usedContext
+    ? [
+        { label: t('Conditions'), n: usedContext.conditions },
+        { label: t('Medicines'), n: usedContext.medications },
+        { label: t('Allergies'), n: usedContext.allergies },
+        { label: t('Lab tests'), n: usedContext.labTests },
+        { label: t('Care plans'), n: usedContext.carePlans },
+        { label: t('Records'), n: usedContext.records },
+      ].filter((c) => c.n > 0)
+    : [];
 
   /* ── Render ──────────────────────────────────────────────── */
   return (
@@ -306,6 +391,42 @@ export const PatientAskAdvicePage: React.FC = () => {
         <p className="text-xs text-amber-700 leading-relaxed">
           <span className="font-bold">{t('advice.disclaimer')}</span> {t('advice.disclaimerText')}
         </p>
+      </div>
+
+      {/* Health record switch: answers are grounded in the patient's own data unless they turn it off */}
+      <div className={`rounded-xl border p-3 mb-4 flex items-start gap-3 shrink-0 transition-colors ${useRecord ? 'bg-indigo-50/70 border-indigo-200' : 'bg-slate-50 border-slate-200'}`}>
+        <FileHeart className={`w-4 h-4 shrink-0 mt-0.5 ${useRecord ? 'text-indigo-600' : 'text-slate-400'}`} aria-hidden="true" />
+        <div className="flex-1 min-w-0">
+          <p className={`text-xs font-bold ${useRecord ? 'text-indigo-900' : 'text-slate-700'}`}>
+            {useRecord ? t('Personalised with your health record') : t('General answers (health record not used)')}
+          </p>
+          {useRecord && contextChips.length > 0 ? (
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {contextChips.map((c) => (
+                <span key={c.label} className="inline-flex items-center gap-1 rounded-full bg-white border border-indigo-200 px-2 py-0.5 text-[10px] font-semibold text-indigo-700">
+                  {c.label} <span className="text-indigo-400">{c.n}</span>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className={`mt-0.5 text-[11px] leading-relaxed ${useRecord ? 'text-indigo-700/80' : 'text-slate-500'}`}>
+              {useRecord
+                ? t('The advisor reads your conditions, medicines, allergies, lab results and recent records to tailor its answers. They go to our AI provider only to answer you.')
+                : t('Turn this on for answers that take your conditions, medicines, allergies and lab results into account.')}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={useRecord}
+          aria-label={t('Use my health record')}
+          title={t('Use my health record')}
+          onClick={toggleUseRecord}
+          className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors ${useRecord ? 'bg-indigo-600' : 'bg-slate-300'}`}
+        >
+          <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${useRecord ? 'translate-x-5' : ''}`} />
+        </button>
       </div>
 
       {/* Chat Area */}

@@ -253,6 +253,31 @@ async function run() {
     await expectStatus('bad language', await call('POST', '/health-tracker/insights', patient.token, { langCode: 'fr' }), 400);
     console.log('✅ [6] Insights are personalised, anonymised, localised and cached');
 
+    // ── [6b] Context-aware AI advisor ───────────────────────────────────────
+    await expectStatus('allergy', await call('POST', '/patient/allergies', patient.token, { substance: 'Peanuts', severity: 'SEVERE' }), 201);
+    await expectStatus('condition', await call('POST', '/patient/conditions', patient.token, { condition: 'Type 2 Diabetes', status: 'ACTIVE' }), 201);
+    await expectStatus('medication', await call('POST', '/medications', patient.token, { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', purpose: 'Diabetes' }), 201);
+    await MedicalRecord.updateOne({ _id: r1 }, { description: 'Complains of tiredness and frequent thirst for 2 weeks', diagnosis: 'Uncontrolled diabetes' });
+
+    const ask = (token: string, extra: object = {}) =>
+      call('POST', '/ai/advice', token, { messages: [{ role: 'user', content: 'I feel tired all the time. What should I eat?' }], langCode: 'en', ...extra });
+    const advice = await json(await expectStatus('advisor', await ask(patient.token), 200));
+    const system: string = lastGroqBody.messages[0].content;
+    ok(system.includes('<record>') && system.includes('Peanuts (severe) [also avoid: groundnut, moongphali'), 'allergies (with their local names) in the advisor context');
+    ok(system.includes('Type 2 Diabetes, active') && system.includes('Metformin 500mg, Twice daily, for Diabetes'), 'conditions and medicines in context');
+    ok(/HbA1c: 7\.4 % on \d{4}-\d{2}-\d{2} \(high\)/.test(system), 'latest lab values with flag and date in context');
+    ok(system.includes('diagnosis: Uncontrolled diabetes') && system.includes('tiredness and frequent thirst'), 'recent diagnoses and noted symptoms in context');
+    ok(!system.includes('Asha') && !system.includes(patient.publicId) && !system.includes('asha@example.com'), 'no name, ID or email sent to the AI');
+    ok(advice.context?.allergies === 1 && advice.context.conditions === 1 && advice.context.medications === 1 && advice.context.labTests > 0 && advice.context.records > 0, 'reply reports what was used');
+
+    await expectStatus('advisor opt-out', await ask(patient.token, { useHealthContext: false }), 200);
+    ok(!lastGroqBody.messages[0].content.includes('<record>'), 'patient can switch the record off');
+    const doctorAdvice = await json(await expectStatus('doctor uses advisor', await ask(doctor.token), 200));
+    ok(!lastGroqBody.messages[0].content.includes('<record>') && doctorAdvice.context === null, 'doctors get no patient record');
+    const otherAdvice = await json(await expectStatus('other patient', await ask(other.token), 200));
+    ok(!lastGroqBody.messages[0].content.includes('Peanuts') && otherAdvice.context.allergies === 0, 'each patient only gets their own record');
+    console.log('✅ [6b] The AI advisor answers from the patient\'s own record, without identifiers, and only when allowed');
+
     // ── [7] Isolation and cleanup ────────────────────────────────────────────
     const readingId = hba2.points[0].id;
     await expectStatus('other patient cannot delete', await call('DELETE', `/health-tracker/readings/${readingId}`, other.token), 404);

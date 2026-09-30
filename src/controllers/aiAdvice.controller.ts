@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { AppError } from '../utils/appError.js';
+import { AuthenticatedRequest } from '../types/index.js';
+import { buildAdvisorContext, advisorContextInstructions, AdvisorContextSummary } from '../services/advisorContext.service.js';
 
 const GROQ_CANDIDATE_MODELS = [
   'openai/gpt-oss-120b',
@@ -51,16 +53,19 @@ CLINICAL INTERACTION PROTOCOL:
 ***⚠️ [Important Note: This is general AI health advice and is not a substitute for a real doctor's treatment. For any serious problem, please consult a qualified doctor.]*** (translate into natural, simple ${langName})
 
 5. If symptoms suggest an emergency (e.g., severe chest pain, sudden paralysis/numbness, acute breathing difficulty, uncontrolled bleeding), immediately and prominently advise urgent hospital/emergency care.
-6. Never prescribe specific medication dosages or prescription-only drugs.
+6. Never prescribe specific medication dosages or prescription-only drugs. This includes supplements and vitamins: you may say a supplement is worth discussing with the doctor, but never give a dose, strength or brand.
 7. Keep tone supportive, clear, and reassuring.
-8. STRICT BOUNDARY: ONLY answer questions related to health, medical conditions, symptoms, wellness, nutrition, and fitness. If a user asks a question completely unrelated to the medical field (e.g., programming, math, general trivia, unrelated tasks), politely decline to answer. Tell the user you are a specialized Health Advisor and ask them to ask relevant health-related questions only.`;
+8. FORMAT: Keep answers focused and easy to read on a phone (usually under 300 words unless the patient asks for detail). Use short headings, bullet points and **bold** only. NEVER use tables, the chat cannot display them. Prefer everyday foods common in Indian homes (dals, sabzis, millets, curd, eggs, seasonal fruit) unless the patient says otherwise.
+9. STRICT BOUNDARY: ONLY answer questions related to health, medical conditions, symptoms, wellness, nutrition, and fitness. If a user asks a question completely unrelated to the medical field (e.g., programming, math, general trivia, unrelated tasks), politely decline to answer. Tell the user you are a specialized Health Advisor and ask them to ask relevant health-related questions only.`;
 }
 
 export const getAiAdvice = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { messages, langCode = 'en' } = req.body as {
+    const { messages, langCode = 'en', useHealthContext = true } = req.body as {
       messages: ChatTurn[];
       langCode: string;
+      /** Patients can switch off sending their record to the AI */
+      useHealthContext?: boolean;
     };
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -71,13 +76,29 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
     }
     const failures: string[] = [];
 
+    // Patients get answers grounded in their own record (conditions, medicines, allergies, labs, recent
+    // records). Built fresh per message so it reflects the latest data; never for doctors or on opt-out.
+    const caller = (req as AuthenticatedRequest).user;
+    let systemInstruction = getSystemInstruction(langCode);
+    let context: AdvisorContextSummary | null = null;
+    if (caller?.role === 'PATIENT' && useHealthContext !== false) {
+      const built = await buildAdvisorContext(caller).catch((e) => {
+        console.warn('Advisor context unavailable:', e?.message);
+        return null;
+      });
+      if (built) {
+        systemInstruction += advisorContextInstructions(built.text);
+        context = built.summary;
+      }
+    }
+
     const groqApiKey = process.env.GROQ_API_KEY;
     const lastMessage = messages[messages.length - 1];
 
     // 1. Try Groq API first if GROQ_API_KEY is available
     if (groqApiKey) {
       const groqMessages = [
-        { role: 'system', content: getSystemInstruction(langCode) },
+        { role: 'system', content: systemInstruction },
         ...messages.map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
@@ -104,7 +125,7 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
             const data = (await response.json()) as any;
             const reply = data?.choices?.[0]?.message?.content;
             if (reply) {
-              return res.json({ reply, model: modelName });
+              return res.json({ reply, model: modelName, context });
             }
           } else {
             const errText = await response.text();
@@ -132,7 +153,7 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
         try {
           const model = genAI.getGenerativeModel({
             model: modelName,
-            systemInstruction: getSystemInstruction(langCode),
+            systemInstruction,
             generationConfig: {
               temperature: 0.7,
               topP: 0.95,
@@ -152,7 +173,7 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
           const text = result.response.text();
 
           if (text) {
-            return res.json({ reply: text, model: modelName });
+            return res.json({ reply: text, model: modelName, context });
           }
         } catch (e: any) {
           failures.push(`gemini:${modelName}:error`);
