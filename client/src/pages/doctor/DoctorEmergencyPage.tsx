@@ -80,7 +80,7 @@ export const DoctorEmergencyPage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
       {/* Header */}
-      <div className="glass-card p-6 border-rose-200 bg-gradient-to-r from-rose-50/80 via-white to-amber-50/50 shadow-sm">
+      <div className="glass-card p-6 border-rose-200 bg-white shadow-sm">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center shrink-0">
             <ShieldAlert className="w-6 h-6 text-rose-600" />
@@ -165,7 +165,7 @@ export const DoctorEmergencyPage: React.FC = () => {
           <div className="glass-card p-6 border-rose-200 bg-white shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-400 to-amber-400 p-0.5 shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-[#b42318] p-0.5 shrink-0">
                   <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center font-bold text-2xl text-rose-600">
                     {p?.name?.charAt(0)}
                   </div>

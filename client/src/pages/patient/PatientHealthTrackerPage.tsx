@@ -87,8 +87,8 @@ export const ParameterCard: React.FC<{ series: TrackerSeries; active: boolean; o
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`group text-left rounded-2xl border bg-white/80 p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-violet-500/5 ${
-        active ? 'border-violet-400 ring-2 ring-violet-500/20' : 'border-slate-200/90'
+      className={`group text-left rounded-lg border bg-white p-4 transition-colors hover:border-[#c9cfd8] ${
+        active ? 'border-[#1f4e8c] ring-2 ring-[#1f4e8c]/15' : 'border-slate-200/90'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -133,7 +133,7 @@ export const SeriesDetail: React.FC<{
     <section className="glass-card border-slate-200/90 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-violet-600">{groupLabel(series.group)}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#1f4e8c]">{groupLabel(series.group)}</p>
           <h2 className="mt-1 text-xl font-bold text-slate-900">{parameterLabel(series.name, series.custom)}</h2>
           <p className="mt-1 text-xs text-slate-500">
             {rangeText ? t('Healthy range: {range}', { range: rangeText }) : t('No reference range for this test')}
@@ -174,7 +174,7 @@ export const SeriesDetail: React.FC<{
 
       <div className="mt-6 flex items-center justify-between">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">{t('All readings')}</h3>
-        <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 text-xs font-semibold text-violet-700 hover:text-violet-900">
+        <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 text-xs font-semibold text-[#1f4e8c] hover:text-[#172030]">
           <Plus className="w-3.5 h-3.5" aria-hidden="true" /> {t('Add result')}
         </button>
       </div>
@@ -337,7 +337,7 @@ export const PatientHealthTrackerPage: React.FC = () => {
       <header className="glass-card p-6 border-slate-200/90 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-violet-600" aria-hidden="true" />
+            <Activity className="w-5 h-5 text-[#1f4e8c]" aria-hidden="true" />
             {t('Health Tracker')}
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">{t('See how your lab results change over time, with AI guidance on what to do next.')}</p>
@@ -369,17 +369,17 @@ export const PatientHealthTrackerPage: React.FC = () => {
 
       {isLoading ? (
         <div className="glass-card border-slate-200/90 flex items-center justify-center gap-3 py-20 text-sm text-slate-500" role="status">
-          <Loader2 className="w-5 h-5 animate-spin text-violet-500" aria-hidden="true" />
+          <Loader2 className="w-5 h-5 animate-spin text-[#1f4e8c]" aria-hidden="true" />
           {t('Loading your results…')}
         </div>
       ) : (
         <>
           {/* Reports waiting to be read */}
           {(pending > 0 || analyzing) && (
-            <section className="relative overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-white to-teal-50 p-5">
+            <section className="relative overflow-hidden rounded-2xl border border-[#dfe3e9] bg-white p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="flex gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1f4e8c] text-white">
                     <FileSearch className="w-5 h-5" aria-hidden="true" />
                   </span>
                   <div>
@@ -398,16 +398,16 @@ export const PatientHealthTrackerPage: React.FC = () => {
                   type="button"
                   onClick={() => analyze()}
                   disabled={!!analyzing || !data?.ai.text}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 hover:bg-violet-500 transition disabled:opacity-60"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#1f4e8c] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#183f72] transition disabled:opacity-60"
                 >
                   {analyzing ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4" aria-hidden="true" />}
                   {analyzing ? t('Reading…') : t('Read my reports')}
                 </button>
               </div>
               {analyzing && analyzing.total > 0 && (
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-violet-100">
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#e9eff8]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500 to-teal-400 transition-[width] duration-500"
+                    className="h-full rounded-full bg-[#1f4e8c] transition-[width] duration-500"
                     style={{ width: `${Math.max(6, (analyzing.done / analyzing.total) * 100)}%` }}
                   />
                 </div>
@@ -417,7 +417,7 @@ export const PatientHealthTrackerPage: React.FC = () => {
 
           {!hasData ? (
             <section className="glass-card border-slate-200/90 px-6 py-14 text-center">
-              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e9eff8] text-[#1f4e8c]">
                 <FlaskConical className="w-7 h-7" aria-hidden="true" />
               </span>
               <h2 className="mt-4 text-lg font-bold text-slate-900">{t('No lab results to show yet')}</h2>
@@ -438,16 +438,16 @@ export const PatientHealthTrackerPage: React.FC = () => {
           ) : (
             <>
               {/* Summary */}
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <div className="portal-figs">
                 {[
                   { label: t('Tests tracked'), value: summary!.parameters, tone: 'text-slate-900' },
                   { label: t('Readings'), value: summary!.readings, tone: 'text-slate-900' },
                   { label: t('Outside healthy range'), value: summary!.outOfRange, tone: summary!.outOfRange ? 'text-rose-600' : 'text-emerald-600' },
                   { label: t('Lab reports'), value: summary!.labReports, tone: 'text-slate-900' },
                 ].map((s) => (
-                  <div key={s.label} className="glass-card border-slate-200/90 p-4">
-                    <p className={`text-2xl font-bold tracking-tight ${s.tone}`}>{s.value}</p>
-                    <p className="mt-0.5 text-[11px] font-medium text-slate-500">{s.label}</p>
+                  <div key={s.label}>
+                    <p className={`portal-fig-value ${s.tone}`}>{s.value}</p>
+                    <p className="portal-fig-label">{s.label}</p>
                   </div>
                 ))}
               </div>

@@ -250,7 +250,7 @@ export const CreateHealthPathModal: React.FC<CreateHealthPathModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl hover:opacity-95 shadow-md shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl hover:opacity-95 transition-all disabled:opacity-50 flex items-center gap-2"
             >
               <HeartPulse className="w-3.5 h-3.5" />
               {isSubmitting ? t('Creating...') : t('Create Treatment Plan')}

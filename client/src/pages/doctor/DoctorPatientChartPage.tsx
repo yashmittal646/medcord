@@ -168,7 +168,7 @@ export const DoctorPatientChartPage: React.FC = () => {
       <div className="glass-card p-6 sm:p-8 border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 p-0.5 shrink-0 shadow-sm">
+            <div className="w-13 h-13 rounded-2xl bg-[#1f4e8c] p-0.5 shrink-0 shadow-sm">
               <div className="w-full h-full bg-white rounded-[14px] flex items-center justify-center font-bold text-xl text-teal-600">
                 {patient?.name?.charAt(0)}
               </div>

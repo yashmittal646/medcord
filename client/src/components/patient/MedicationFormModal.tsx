@@ -181,14 +181,14 @@ export const MedicationFormModal: React.FC<Props> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="glass-card max-w-2xl w-full shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#f0ede7] shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-[#eceff3] shrink-0">
           <h3 className="text-base font-bold text-[#111] flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#e3f4f0] flex items-center justify-center">
-              <Pill className="w-4 h-4 text-[#0c8b77]" />
+            <div className="w-7 h-7 rounded-lg bg-[#e9eff8] flex items-center justify-center">
+              <Pill className="w-4 h-4 text-[#1f4e8c]" />
             </div>
             {isEditing ? 'Edit Medication' : 'Add Medication'}
           </h3>
-          <button onClick={onClose} className="p-1.5 text-[#999] hover:text-[#111] rounded-lg hover:bg-[#f0ede7] transition-colors">
+          <button onClick={onClose} className="p-1.5 text-slate-500 hover:text-[#111] rounded-lg hover:bg-[#eceff3] transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -216,7 +216,7 @@ export const MedicationFormModal: React.FC<Props> = ({
 
             {/* ── Names ── */}
             <div>
-              <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-wider mb-3">Medication Identity</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Medication Identity</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#555] mb-1.5">
@@ -242,7 +242,7 @@ export const MedicationFormModal: React.FC<Props> = ({
 
             {/* ── Dosing ── */}
             <div>
-              <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-wider mb-3">Dosing</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Dosing</h4>
               <div className="grid sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#555] mb-1.5">
@@ -274,7 +274,7 @@ export const MedicationFormModal: React.FC<Props> = ({
 
             {/* ── Frequency & Schedule ── */}
             <div>
-              <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-wider mb-3">Frequency & Schedule</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Frequency & Schedule</h4>
 
               {/* Quick presets */}
               <div className="flex flex-wrap gap-1.5 mb-3">
@@ -284,8 +284,8 @@ export const MedicationFormModal: React.FC<Props> = ({
                     onClick={() => applyPreset(p)}
                     className={`text-[10px] px-2.5 py-1 rounded-lg border font-semibold transition-colors ${
                       form.frequency === p.frequency
-                        ? 'bg-[#0c8b77] text-white border-[#0c8b77]'
-                        : 'bg-white text-[#555] border-[#e5e7eb] hover:border-[#0c8b77]/40'
+                        ? 'bg-[#1f4e8c] text-white border-[#1f4e8c]'
+                        : 'bg-white text-[#555] border-[#e5e7eb] hover:border-[#1f4e8c]/40'
                     }`}
                   >
                     {p.label}
@@ -313,7 +313,7 @@ export const MedicationFormModal: React.FC<Props> = ({
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-[#555] mb-1.5">
-                    Schedule Times <span className="text-[10px] text-[#999] font-normal ml-1">(comma-separated, e.g. 08:00, 20:00)</span>
+                    Schedule Times <span className="text-[10px] text-slate-500 font-normal ml-1">(comma-separated, e.g. 08:00, 20:00)</span>
                   </label>
                   <input
                     type="text" value={form.scheduleTimes} onChange={set('scheduleTimes')}
@@ -326,7 +326,7 @@ export const MedicationFormModal: React.FC<Props> = ({
 
             {/* ── Dates ── */}
             <div>
-              <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-wider mb-3">Duration</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Duration</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#555] mb-1.5">Start Date</label>
@@ -341,7 +341,7 @@ export const MedicationFormModal: React.FC<Props> = ({
 
             {/* ── Clinical Info ── */}
             <div>
-              <h4 className="text-[10px] font-bold text-[#999] uppercase tracking-wider mb-3">Clinical Information</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Clinical Information</h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-[#555] mb-1.5">Purpose / Condition</label>
@@ -380,16 +380,16 @@ export const MedicationFormModal: React.FC<Props> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-5 border-t border-[#f0ede7] shrink-0 flex items-center justify-end gap-2">
+          <div className="p-5 border-t border-[#eceff3] shrink-0 flex items-center justify-end gap-2">
             <button
               type="button" onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-[#777] hover:text-[#111] transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-500 hover:text-[#111] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit" disabled={isSubmitting}
-              className="px-5 py-2.5 bg-[#0c8b77] hover:bg-[#0a7566] text-white font-bold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 shadow-md shadow-[#0c8b77]/20"
+              className="px-5 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 shadow-md shadow-[#1f4e8c]/20"
             >
               {isSubmitting ? 'Saving…' : isEditing ? 'Update Medication' : 'Add Medication'}
             </button>

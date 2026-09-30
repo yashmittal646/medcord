@@ -120,7 +120,7 @@ export const DoctorHealthPathsPage: React.FC = () => {
           ))}
           <button
             onClick={() => navigate('/doctor/lookup')}
-            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl hover:opacity-95 transition-all flex items-center gap-1.5 ml-2 shadow-sm"
+            className="px-4 py-2 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl hover:opacity-95 transition-all flex items-center gap-1.5 ml-2 shadow-sm"
           >
             <Search className="w-3.5 h-3.5" />  {t('Lookup Patient')}
           </button>

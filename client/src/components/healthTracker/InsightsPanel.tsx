@@ -62,21 +62,20 @@ export const InsightsPanel: React.FC<Props> = ({ insights, isLoading, error, can
 
   return (
     <aside className="glass-card overflow-hidden border-slate-200/90">
-      <div className="relative bg-gradient-to-br from-violet-600 via-indigo-600 to-teal-500 p-5 text-white">
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
-        <div className="relative flex items-start justify-between gap-3">
+      <div className="border-b border-[#dfe3e9] p-5 text-[#172030]">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="flex items-center gap-2 text-base font-bold">
-              <Sparkles className="w-5 h-5" aria-hidden="true" />
+            <h2 className="flex items-center gap-2 text-base font-semibold">
+              <Sparkles className="w-5 h-5 text-[#1f4e8c]" aria-hidden="true" />
               {t('AI Health Insights')}
             </h2>
-            <p className="mt-1 text-xs text-white/80">{t('Personal guidance based on your lab results and health profile.')}</p>
+            <p className="mt-1 text-xs text-slate-500">{t('Personal guidance based on your lab results and health profile.')}</p>
           </div>
           {insights && !isLoading && (
             <button
               type="button"
               onClick={() => onGenerate(true)}
-              className="shrink-0 rounded-lg bg-white/15 p-2 hover:bg-white/25 transition"
+              className="shrink-0 rounded-md border border-[#c9cfd8] p-2 text-slate-600 hover:bg-[#f0f2f5] transition-colors"
               title={t('Refresh insights')}
               aria-label={t('Refresh insights')}
             >
@@ -89,7 +88,7 @@ export const InsightsPanel: React.FC<Props> = ({ insights, isLoading, error, can
       <div className="space-y-5 p-5">
         {isLoading && (
           <div className="flex flex-col items-center gap-3 py-10 text-center" role="status">
-            <Loader2 className="w-7 h-7 animate-spin text-violet-500" aria-hidden="true" />
+            <Loader2 className="w-7 h-7 animate-spin text-[#1f4e8c]" aria-hidden="true" />
             <p className="text-sm font-medium text-slate-700">{t('Reading your results…')}</p>
             <p className="text-xs text-slate-400">{t('This can take a few seconds.')}</p>
           </div>
@@ -110,7 +109,7 @@ export const InsightsPanel: React.FC<Props> = ({ insights, isLoading, error, can
               <button
                 type="button"
                 onClick={() => onGenerate(false)}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-violet-500/20 hover:bg-violet-500 transition"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#1f4e8c] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#183f72] transition"
               >
                 <Sparkles className="w-4 h-4" aria-hidden="true" />
                 {t('Generate insights')}
@@ -156,7 +155,7 @@ export const InsightsPanel: React.FC<Props> = ({ insights, isLoading, error, can
             <List title={t('Eat more')} items={insights.eatMore} Icon={Salad} tone="text-emerald-700" />
             <List title={t('Cut down on')} items={insights.limit} Icon={Ban} tone="text-amber-700" />
             <List title={t('Daily habits')} items={insights.lifestyle} Icon={Footprints} tone="text-sky-700" />
-            <List title={t('Next steps')} items={insights.followUp} Icon={CalendarCheck} tone="text-violet-700" />
+            <List title={t('Next steps')} items={insights.followUp} Icon={CalendarCheck} tone="text-[#1f4e8c]" />
 
             <div className="flex gap-2 rounded-xl bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-500">
               <CheckCircle2 className="mt-0.5 w-3.5 h-3.5 shrink-0" aria-hidden="true" />

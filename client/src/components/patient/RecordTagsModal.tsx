@@ -107,7 +107,7 @@ export const RecordTagsModal: React.FC<RecordTagsModalProps> = ({ record, onClos
           <button
             onClick={save}
             disabled={saving}
-            className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl flex items-center gap-2 disabled:opacity-50"
           >
             <Check className="w-4 h-4" />
             

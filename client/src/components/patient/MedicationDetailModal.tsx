@@ -47,10 +47,10 @@ interface Props {
 }
 
 const STATUS_LABELS: Record<string, { color: string; bg: string }> = {
-  TAKEN:   { color: '#0c8b77', bg: '#e3f4f0' },
+  TAKEN:   { color: '#1f4e8c', bg: '#e9eff8' },
   SKIPPED: { color: '#c86a0a', bg: '#fdf0e0' },
   MISSED:  { color: '#be3b2f', bg: '#fdecea' },
-  SNOOZED: { color: '#6d3ec8', bg: '#f1eafb' },
+  SNOOZED: { color: '#3a4556', bg: '#eef1f5' },
 };
 
 function formatTime(t: string) {
@@ -93,27 +93,27 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
   }, [tab, medication._id, adherenceDays]);
 
   const statusS = {
-    ACTIVE:       'bg-[#0c8b77] text-white',
+    ACTIVE:       'bg-[#1f4e8c] text-white',
     PAUSED:       'bg-[#fdf0e0] text-[#c86a0a]',
     DISCONTINUED: 'bg-[#fdecea] text-[#be3b2f]',
-    COMPLETED:    'bg-[#f1eafb] text-[#6d3ec8]',
-  }[medication.status] ?? 'bg-[#f6f4f0] text-[#555]';
+    COMPLETED:    'bg-[#eef1f5] text-[#3a4556]',
+  }[medication.status] ?? 'bg-[#f5f6f8] text-[#555]';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
       <div className="glass-card max-w-2xl w-full shadow-2xl flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="p-5 border-b border-[#f0ede7] shrink-0">
+        <div className="p-5 border-b border-[#eceff3] shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#e3f4f0] flex items-center justify-center shrink-0">
-                <Pill className="w-4.5 h-4.5 text-[#0c8b77]" />
+              <div className="w-9 h-9 rounded-xl bg-[#e9eff8] flex items-center justify-center shrink-0">
+                <Pill className="w-4.5 h-4.5 text-[#1f4e8c]" />
               </div>
               <div className="min-w-0">
                 <h3 className="text-base font-bold text-[#111] truncate">{medication.name}</h3>
                 {medication.genericName && (
-                  <p className="text-xs text-[#888] italic truncate">{medication.genericName}</p>
+                  <p className="text-xs text-slate-500 italic truncate">{medication.genericName}</p>
                 )}
               </div>
             </div>
@@ -122,23 +122,23 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                 {medication.status}
               </span>
               {medication.status !== 'DISCONTINUED' && (
-                <button onClick={onEdit} className="p-1.5 text-[#888] hover:text-[#0c8b77] hover:bg-[#e3f4f0] rounded-lg transition-colors" title="Edit">
+                <button onClick={onEdit} className="p-1.5 text-slate-500 hover:text-[#1f4e8c] hover:bg-[#e9eff8] rounded-lg transition-colors" title="Edit">
                   <Edit2 className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button onClick={onClose} className="p-1.5 text-[#999] hover:text-[#111] hover:bg-[#f0ede7] rounded-lg transition-colors">
+              <button onClick={onClose} className="p-1.5 text-slate-500 hover:text-[#111] hover:bg-[#eceff3] rounded-lg transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Tab bar */}
-          <div className="flex items-center gap-1 mt-4 bg-[#f6f4f0] rounded-xl p-1">
+          <div className="flex items-center gap-1 mt-4 bg-[#f5f6f8] rounded-xl p-1">
             {(['details', 'history', 'adherence'] as const).map((t) => (
               <button
                 key={t} onClick={() => setTab(t)}
                 className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold capitalize transition-all ${
-                  tab === t ? 'bg-white text-[#111] shadow-sm' : 'text-[#777] hover:text-[#111]'
+                  tab === t ? 'bg-white text-[#111] shadow-sm' : 'text-slate-500 hover:text-[#111]'
                 }`}
               >
                 {t === 'details' ? 'Details' : t === 'history' ? 'Dose History' : 'Adherence'}
@@ -165,10 +165,10 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
               ]} />
               {medication.scheduleTimes && medication.scheduleTimes.length > 0 && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#999] mb-2">Daily Schedule</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Daily Schedule</p>
                   <div className="flex flex-wrap gap-2">
                     {medication.scheduleTimes.map((t) => (
-                      <span key={t} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#e3f4f0] text-[#0c8b77] text-xs font-mono font-bold rounded-lg">
+                      <span key={t} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#e9eff8] text-[#1f4e8c] text-xs font-mono font-bold rounded-lg">
                         <Clock className="w-3 h-3" />
                         {formatTime(t)}
                       </span>
@@ -178,8 +178,8 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
               )}
               {medication.instructions && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#999] mb-2">Instructions</p>
-                  <p className="text-xs text-[#555] bg-[#f6f4f0] rounded-xl p-3 leading-relaxed">{medication.instructions}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Instructions</p>
+                  <p className="text-xs text-[#555] bg-[#f5f6f8] rounded-xl p-3 leading-relaxed">{medication.instructions}</p>
                 </div>
               )}
             </div>
@@ -190,13 +190,13 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
             <div>
               {isLoading ? (
                 <div className="flex justify-center py-12">
-                  <div className="w-6 h-6 border-2 border-[#0c8b77]/20 border-t-[#0c8b77] rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#1f4e8c]/20 border-t-[#1f4e8c] rounded-full animate-spin" />
                 </div>
               ) : logs.length === 0 ? (
                 <div className="text-center py-12">
                   <Clock className="w-8 h-8 text-[#ccc] mx-auto mb-2" />
-                  <p className="text-xs text-[#888]">No dose history yet</p>
-                  <p className="text-[11px] text-[#bbb] mt-0.5">Use the schedule to log doses</p>
+                  <p className="text-xs text-slate-500">No dose history yet</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Use the schedule to log doses</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -212,7 +212,7 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                           <p className="text-xs font-bold text-[#111]">
                             {formatDate(log.scheduledDate.split('T')[0])} · {formatTime(log.scheduledTime)}
                           </p>
-                          {log.notes && <p className="text-[11px] text-[#888] truncate">{log.notes}</p>}
+                          {log.notes && <p className="text-[11px] text-slate-500 truncate">{log.notes}</p>}
                         </div>
                         <span
                           className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0"
@@ -240,8 +240,8 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                     onClick={() => setAdherenceDays(d)}
                     className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors ${
                       adherenceDays === d
-                        ? 'bg-[#0c8b77] text-white'
-                        : 'bg-[#f0ede7] text-[#777] hover:bg-[#e5e0d8]'
+                        ? 'bg-[#1f4e8c] text-white'
+                        : 'bg-[#eceff3] text-slate-500 hover:bg-[#e5e0d8]'
                     }`}
                   >
                     {d}d
@@ -251,20 +251,20 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
 
               {isLoading ? (
                 <div className="flex justify-center py-12">
-                  <div className="w-6 h-6 border-2 border-[#0c8b77]/20 border-t-[#0c8b77] rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-[#1f4e8c]/20 border-t-[#1f4e8c] rounded-full animate-spin" />
                 </div>
               ) : !adherence ? (
-                <p className="text-center text-xs text-[#888] py-12">No data yet</p>
+                <p className="text-center text-xs text-slate-500 py-12">No data yet</p>
               ) : (
                 <>
                   {/* Donut-style percentage */}
                   <div className="flex flex-col items-center gap-1 py-4">
                     <div className="relative w-28 h-28">
                       <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#f0ede7" strokeWidth="12" />
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#eceff3" strokeWidth="12" />
                         <circle
                           cx="50" cy="50" r="40" fill="none"
-                          stroke={adherence.adherencePercent !== null && adherence.adherencePercent >= 80 ? '#0c8b77' : '#c86a0a'}
+                          stroke={adherence.adherencePercent !== null && adherence.adherencePercent >= 80 ? '#1f4e8c' : '#c86a0a'}
                           strokeWidth="12"
                           strokeDasharray={`${2 * Math.PI * 40}`}
                           strokeDashoffset={`${2 * Math.PI * 40 * (1 - (adherence.adherencePercent ?? 0) / 100)}`}
@@ -276,7 +276,7 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                           {adherence.adherencePercent ?? '—'}
                           {adherence.adherencePercent !== null && <span className="text-sm font-bold">%</span>}
                         </span>
-                        <span className="text-[10px] text-[#999]">adherence</span>
+                        <span className="text-[10px] text-slate-500">adherence</span>
                       </div>
                     </div>
                   </div>
@@ -284,10 +284,10 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                   {/* Stats grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {[
-                      { label: 'Taken', value: adherence.taken, color: '#0c8b77', bg: '#e3f4f0' },
+                      { label: 'Taken', value: adherence.taken, color: '#1f4e8c', bg: '#e9eff8' },
                       { label: 'Skipped', value: adherence.skipped, color: '#c86a0a', bg: '#fdf0e0' },
                       { label: 'Missed', value: adherence.missed, color: '#be3b2f', bg: '#fdecea' },
-                      { label: 'Snoozed', value: adherence.snoozed, color: '#6d3ec8', bg: '#f1eafb' },
+                      { label: 'Snoozed', value: adherence.snoozed, color: '#3a4556', bg: '#eef1f5' },
                     ].map(({ label, value, color, bg }) => (
                       <div key={label} className="rounded-xl p-3 text-center" style={{ background: bg }}>
                         <p className="text-xl font-extrabold" style={{ color }}>{value}</p>
@@ -295,7 +295,7 @@ export const MedicationDetailModal: React.FC<Props> = ({ medication, onClose, on
                       </div>
                     ))}
                   </div>
-                  <p className="text-[11px] text-center text-[#bbb]">
+                  <p className="text-[11px] text-center text-slate-500">
                     Based on {adherence.total} logged dose{adherence.total !== 1 ? 's' : ''} over {adherence.days} days
                   </p>
                 </>
@@ -313,7 +313,7 @@ function InfoGrid({ items }: { items: { label: string; value: string }[] }) {
     <div className="grid sm:grid-cols-2 gap-3">
       {items.map(({ label, value }) => (
         <div key={label} className="p-3 rounded-xl bg-[#f8f6f2]">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#999] mb-0.5">{label}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">{label}</p>
           <p className="text-xs font-semibold text-[#333] leading-snug">{value}</p>
         </div>
       ))}

@@ -224,7 +224,7 @@ export const PatientPrivacyPage: React.FC = () => {
                 
                 {t('Decline')}
               </button>
-              <button onClick={() => setReviewing(r)} className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl shadow-md shadow-teal-500/20">
+              <button onClick={() => setReviewing(r)} className="px-4 py-2 text-xs font-bold text-white bg-[#1f4e8c] hover:bg-[#183f72] rounded-xl">
                 
                 {t('Review & approve')}
               </button>
@@ -408,7 +408,7 @@ const ApproveDialog: React.FC<{
           <button
             onClick={approve}
             disabled={!duration || included.size === 0 || saving}
-            className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 disabled:opacity-40"
+            className="px-5 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl disabled:opacity-40"
           >
             
             {t('Approve access')}

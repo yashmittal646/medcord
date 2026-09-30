@@ -130,7 +130,7 @@ export const PatientRecordsPage: React.FC = () => {
         </div>
         <button
           onClick={() => setIsUploadOpen(true)}
-          className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-xl shadow-md shadow-teal-500/20 hover:opacity-95 transition-all flex items-center gap-2 shrink-0"
+          className="px-4 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl hover:opacity-95 transition-all flex items-center gap-2 shrink-0"
         >
           <UploadCloud className="w-4 h-4" />
           {t('records.uploadBtn')}

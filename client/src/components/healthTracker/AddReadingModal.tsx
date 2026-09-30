@@ -95,7 +95,7 @@ export const AddReadingModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ini
       <div className="glass-card max-w-md w-full p-6 relative border-slate-200/90 shadow-2xl">
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
           <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-violet-600" aria-hidden="true" />
+            <Plus className="w-5 h-5 text-[#1f4e8c]" aria-hidden="true" />
             {t('Add a test result')}
           </h3>
           <button type="button" onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg" aria-label={t('Close')}>
@@ -159,7 +159,7 @@ export const AddReadingModal: React.FC<Props> = ({ isOpen, onClose, onSaved, ini
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs rounded-xl shadow-md shadow-violet-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-5 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {t('Save result')}

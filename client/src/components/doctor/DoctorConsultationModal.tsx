@@ -206,7 +206,7 @@ export const DoctorConsultationModal: React.FC<DoctorConsultationModalProps> = (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-xl hover:opacity-95 shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50 flex items-center gap-2"
+              className="px-6 py-2.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white font-bold text-xs rounded-xl hover:opacity-95 transition-all disabled:opacity-50 flex items-center gap-2"
             >
               <Stethoscope className="w-3.5 h-3.5" />
               {isSubmitting ? t('Saving...') : t('Save Consultation Record')}

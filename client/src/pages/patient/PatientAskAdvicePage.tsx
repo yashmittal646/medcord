@@ -366,7 +366,7 @@ export const PatientAskAdvicePage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 rounded-xl bg-[#1f4e8c] flex items-center justify-center shadow-md">
             <MessageSquareHeart className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -434,7 +434,7 @@ export const PatientAskAdvicePage: React.FC = () => {
         {!hasMessages ? (
           /* ── Empty State ─────────────────────────────────── */
           <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-50 to-indigo-50 border-2 border-dashed border-blue-200 flex items-center justify-center mb-6">
+            <div className="w-20 h-20 rounded-2xl bg-[#e9eff8] border-2 border-dashed border-blue-200 flex items-center justify-center mb-6">
               <Sparkles className="w-9 h-9 text-blue-600" />
             </div>
             <h2 className="text-lg font-bold text-slate-800 mb-2">
@@ -467,7 +467,7 @@ export const PatientAskAdvicePage: React.FC = () => {
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-[#1f4e8c] flex items-center justify-center shrink-0 shadow-sm">
                     <Bot className="w-4 h-4 text-white" />
                   </div>
                 )}
@@ -493,7 +493,7 @@ export const PatientAskAdvicePage: React.FC = () => {
             {/* Loading indicator */}
             {isLoading && (
               <div className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-8 h-8 rounded-lg bg-[#1f4e8c] flex items-center justify-center shrink-0 shadow-sm">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-bl-md px-4 py-3">
@@ -560,7 +560,7 @@ export const PatientAskAdvicePage: React.FC = () => {
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold bg-[#1f4e8c] text-white shadow-md hover:shadow-lg hover:bg-[#183f72] transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

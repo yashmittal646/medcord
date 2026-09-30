@@ -145,12 +145,12 @@ export const TrendChart: React.FC<Props> = ({ points, range, unit, compact = fal
       >
         <defs>
           <linearGradient id={`area-${gid}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+            <stop offset="0%" stopColor="#1f4e8c" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#1f4e8c" stopOpacity="0" />
           </linearGradient>
           <linearGradient id={`line-${gid}`} x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#14b8a6" />
+            <stop offset="0%" stopColor="#1f4e8c" />
+            <stop offset="100%" stopColor="#1f4e8c" />
           </linearGradient>
         </defs>
 
