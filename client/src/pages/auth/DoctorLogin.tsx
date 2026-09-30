@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { SignInRoleToggle } from '../../components/common/SignInRoleToggle.js';
 
 export const DoctorLogin: React.FC = () => {
   const { t, tn } = useLanguage();
-  const [email, setEmail] = useState('');
+  const { login, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [email, setEmail] = useState<string>((location.state as any)?.email ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { login, logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +38,8 @@ export const DoctorLogin: React.FC = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="glass-card max-w-md w-full p-8 relative border-slate-200 shadow-lg bg-white">
+        <SignInRoleToggle role="DOCTOR" email={email} />
+
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img
