@@ -15,6 +15,8 @@ export interface IUser {
   role: UserRole;
   publicId: string;
   status?: string;
+  /** Doctors only: whether this account may open patient data yet */
+  verified?: boolean;
 }
 
 export interface IAllergy {

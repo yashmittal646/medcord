@@ -15,6 +15,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { tr } from '../../context/LanguageContext.js';
+import { translateServerMessage } from '../../utils/serverMessage.js';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 interface ChatMessage {
@@ -38,7 +39,7 @@ const SPEECH_LANG_MAP: Record<LangCode, string> = {
 
 
 async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: string | null): Promise<string> {
-  if (!token) throw new Error('Not authenticated. Please log in and try again.');
+  if (!token) throw new Error(tr('Not authenticated. Please log in and try again.'));
 
   const res = await fetch('/api/ai/advice', {
     method: 'POST',
@@ -55,12 +56,12 @@ async function callAiAdvice(messages: ChatMessage[], langCode: LangCode, token: 
   if (!res.ok) {
     const errData = await res.json().catch(() => ({}));
     throw new Error(
-      errData?.message || tr('Server error {status}. Please try again.', { status: res.status })
+      translateServerMessage(errData?.message) || tr('Server error {status}. Please try again.', { status: res.status })
     );
   }
 
   const data = await res.json();
-  if (!data?.reply) throw new Error('No response received from the AI advisor.');
+  if (!data?.reply) throw new Error(tr('No response received from the AI advisor.'));
   return data.reply;
 }
 

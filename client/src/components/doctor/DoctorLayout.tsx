@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import type { IDoctorProfile } from '../../types/index.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 import { useLanguage, LANGUAGES } from '../../context/LanguageContext.js';
 import { IdentityBadge } from '../common/IdentityBadge.js';
 import { LanguagePickerModal } from '../common/LanguagePickerModal.js';
@@ -20,7 +22,8 @@ import {
 } from 'lucide-react';
 
 const DoctorLayoutInner: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth();
+  const specialization = (profile as IDoctorProfile | null)?.specialization;
   const { lang, t, showPicker } = useLanguage();
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -74,6 +77,9 @@ const DoctorLayoutInner: React.FC = () => {
             <div className="overflow-hidden">
               <p className="text-sm font-bold text-slate-900 truncate">{user?.name}</p>
               <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="sm" showLabel={false} />
+              {specialization && (
+                <p className="text-[11px] font-semibold text-indigo-700 mt-1 truncate">{enumLabel(specialization)}</p>
+              )}
             </div>
             <div className="ml-auto flex items-center gap-1">
               <NotificationBell role="DOCTOR" />
@@ -200,6 +206,17 @@ const DoctorLayoutInner: React.FC = () => {
 
         {/* Page Content */}
         <main className="flex-1 overflow-auto p-2 sm:p-4">
+          {user?.verified === false && (
+            <div className="max-w-6xl mx-auto mb-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+              <div>
+                <p className="font-bold">{t('Your doctor account is awaiting verification')}</p>
+                <p className="mt-0.5">
+                  {t('Until your medical license is verified you cannot look up patients or open their records. Please contact the FollowUp team to complete verification.')}
+                </p>
+              </div>
+            </div>
+          )}
           <Outlet />
         </main>
       </div>

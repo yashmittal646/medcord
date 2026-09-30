@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
+import type { IDoctorProfile } from '../../types/index.js';
+import { enumLabel } from '../../utils/enumLabel.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { api } from '../../services/api.js';
 import {
@@ -17,7 +19,8 @@ import { useLanguage, getLocale } from '../../context/LanguageContext.js';
 
 export const DoctorDashboard: React.FC = () => {
   const { t, tn } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const doctorProfile = profile as IDoctorProfile | null;
   const navigate = useNavigate();
   const [activity, setActivity] = useState<any[]>([]);
   const [healthPaths, setHealthPaths] = useState<any[]>([]);
@@ -74,6 +77,12 @@ export const DoctorDashboard: React.FC = () => {
             </h1>
             <div className="flex items-center gap-3 mt-3">
               <IdentityBadge id={user?.publicId || ''} type="DOCTOR" size="md" showLabel={false} />
+              {doctorProfile?.specialization && (
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#5eead4]/15 text-[#5eead4] border border-[#5eead4]/30">
+                  {enumLabel(doctorProfile.specialization)}
+                  {doctorProfile.hospitalAffiliation ? ` · ${doctorProfile.hospitalAffiliation}` : ''}
+                </span>
+              )}
               <p className="text-[#888] text-xs font-medium">{t('Clinical Command Portal · Patient Chart Access & Health Paths')}</p>
             </div>
           </div>

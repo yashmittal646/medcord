@@ -103,6 +103,9 @@ export const SERVER_MESSAGES = [
   tx('Unsupported specialization'),
   tx('Medicine name is required'),
   tx('Required'),
+  tx('The AI health advisor could not answer right now. Please try again in a minute.'),
+  tx('The AI health advisor is not configured on this server yet. Please try again later.'),
+  tx('Your message is too long. Please shorten it and try again.'),
 ];
 
 /** Messages with variable parts. `{name}` matches any text. */

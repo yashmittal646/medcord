@@ -8,6 +8,7 @@ import { normalizeSpecialization, Specialization } from '../config/taxonomy.js';
 import { AccessGrantService } from './accessGrant.service.js';
 import { AuditService } from './audit.service.js';
 import { AppError } from '../utils/appError.js';
+import { isDoctorVerified } from './doctorVerification.service.js';
 
 export type PolicyAction = 'READ' | 'DOWNLOAD';
 export type DecisionVia = 'OWNER' | 'UPLOADER' | 'CONSENT' | 'SPECIALIZATION';
@@ -57,7 +58,7 @@ export class AccessPolicy {
   static async getDoctorSpecialization(doctorUserId: string): Promise<{ verified: boolean; spec?: Specialization }> {
     const profile = await DoctorProfile.findOne({ user: doctorUserId }).lean();
     return {
-      verified: profile?.verificationStatus === 'VERIFIED',
+      verified: Boolean(profile) && isDoctorVerified(profile?.verificationStatus),
       spec: normalizeSpecialization(profile?.specialization),
     };
   }

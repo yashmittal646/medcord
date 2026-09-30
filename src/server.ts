@@ -2,11 +2,14 @@ import { createApp } from './app.js';
 import { connectDB } from './config/db.js';
 import { ENV } from './config/environment.js';
 import { ConsentService } from './services/consent.service.js';
+import { ensureDoctorProfiles } from './services/doctorVerification.service.js';
 import { AccessRequestService } from './services/accessRequest.service.js';
 
 const startServer = async () => {
   // Connect to MongoDB
   await connectDB();
+
+  await ensureDoctorProfiles().catch((e) => console.error('⚠️ Doctor profile repair failed:', e));
 
   const app = createApp();
 

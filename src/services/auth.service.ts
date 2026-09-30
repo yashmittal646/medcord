@@ -12,6 +12,9 @@ import {
   LoginInput,
 } from '../validators/auth.validator.js';
 import { IJwtPayload } from '../types/index.js';
+import { isDoctorVerified } from './doctorVerification.service.js';
+
+const doctorVerified = (profile: any) => (profile ? isDoctorVerified(profile.verificationStatus) : false);
 
 export class AuthService {
   private static generateToken(payload: IJwtPayload): string {
@@ -131,6 +134,7 @@ export class AuthService {
         phone: user.phone,
         role: user.role,
         publicId: user.publicId,
+        verified: doctorVerified(doctorProfile),
       },
       profile: doctorProfile,
       token,
@@ -174,6 +178,7 @@ export class AuthService {
         phone: user.phone,
         role: user.role,
         publicId: user.publicId,
+        ...(user.role === 'DOCTOR' && { verified: doctorVerified(profile) }),
       },
       profile,
       token,
@@ -202,6 +207,7 @@ export class AuthService {
         role: user.role,
         publicId: user.publicId,
         status: user.status,
+        ...(user.role === 'DOCTOR' && { verified: doctorVerified(profile) }),
       },
       profile,
     };

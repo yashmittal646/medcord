@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { AppError } from '../utils/appError.js';
 import { DoctorProfile } from '../models/DoctorProfile.js';
+import { isDoctorVerified } from '../services/doctorVerification.service.js';
 import { AuthenticatedRequest, UserRole } from '../types/index.js';
 
 export const authorizeRoles = (...allowedRoles: UserRole[]) => {
@@ -33,7 +34,7 @@ export const requireVerifiedDoctor = async (
       return next(new AppError('Forbidden: Doctor account required.', 403));
     }
     const profile = await DoctorProfile.findOne({ user: req.user.userId }).select('verificationStatus').lean();
-    if (!profile || profile.verificationStatus !== 'VERIFIED') {
+    if (!profile || !isDoctorVerified(profile.verificationStatus)) {
       return next(new AppError('Forbidden: Your doctor account is pending verification.', 403));
     }
     next();

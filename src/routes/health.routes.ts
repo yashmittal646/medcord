@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { aiProviderStatus } from '../controllers/aiAdvice.controller.js';
+import { ENV } from '../config/environment.js';
 
 const router = Router();
 
@@ -20,6 +22,11 @@ router.get('/health', (_req: Request, res: Response) => {
     database: {
       status: dbStatusMap[dbStatus] || 'unknown',
       connected: dbStatus === 1,
+    },
+    // Which features are configured (booleans only; no secrets)
+    config: {
+      ai: aiProviderStatus(),
+      autoVerifyDoctors: ENV.AUTO_VERIFY_DOCTORS,
     },
     uptime: process.uptime(),
   });

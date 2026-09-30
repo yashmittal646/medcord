@@ -6,6 +6,9 @@ import { MedicalRecord } from '../src/models/MedicalRecord.js';
 import { AccessGrant } from '../src/models/AccessGrant.js';
 import { ConsentGrant } from '../src/models/ConsentGrant.js';
 import { AuditLog } from '../src/models/AuditLog.js';
+import { User } from '../src/models/User.js';
+import { DoctorProfile } from '../src/models/DoctorProfile.js';
+import { ensureDoctorProfiles } from '../src/services/doctorVerification.service.js';
 
 // Keep tests offline and deterministic: the local keyword classifier runs, the LLM does not
 process.env.DISABLE_AI_CLASSIFICATION = 'true';
@@ -316,6 +319,35 @@ async function run() {
     const reviewNotes = await json(await call('GET', '/notifications', patient.token));
     ok(reviewNotes.data.items.some((n: any) => n.type === 'RECORD_NEEDS_REVIEW'), 'patient is asked to review new records');
     console.log('✅ Records are tagged automatically; patient edits win and apply immediately; text cannot widen access');
+
+    console.log('\n[13] Doctor profile repair, verification flag and AI availability');
+    const legacyDoc = await User.create({
+      name: 'Legacy Doc', email: 'legacy@example.com', passwordHash: 'x', role: 'DOCTOR', publicId: 'DOC-LEGACY01', status: 'ACTIVE',
+    });
+    await DoctorProfile.updateOne({ doctorId: cardio.publicId }, { specialization: 'Cardiologist' });
+    await ensureDoctorProfiles();
+    const repaired = await DoctorProfile.findOne({ user: legacyDoc._id }).lean();
+    ok(repaired?.specialization === 'GENERAL_PRACTICE', 'doctor without a profile gets one');
+    ok((await DoctorProfile.findOne({ doctorId: cardio.publicId }).lean())?.specialization === 'CARDIOLOGY', 'free-text specialization is normalized');
+    const me = await json(await call('GET', '/auth/me', cardio.token));
+    ok(me.data.user.verified === true && me.data.profile.specialization === 'CARDIOLOGY', '/auth/me reports verification and specialization');
+    await DoctorProfile.updateOne({ doctorId: cardio.publicId }, { verificationStatus: 'REJECTED' });
+    expectStatus('rejected doctor is blocked even with auto-verify', await call('GET', `/records/${r.ecg}`, cardio.token), 403);
+    ok((await json(await call('GET', '/auth/me', cardio.token))).data.user.verified === false, 'rejected doctor is reported as unverified');
+    await DoctorProfile.updateOne({ doctorId: cardio.publicId }, { verificationStatus: 'VERIFIED' });
+
+    const savedKeys = { g: process.env.GROQ_API_KEY, m: process.env.GEMINI_API_KEY, v: process.env.VITE_GEMINI_API_KEY };
+    delete process.env.GROQ_API_KEY; delete process.env.GEMINI_API_KEY; delete process.env.VITE_GEMINI_API_KEY;
+    const ai = await call('POST', '/ai/advice', patient.token, { messages: [{ role: 'user', content: 'what to do for a scratch' }] });
+    expectStatus('AI with no provider configured', ai, 503);
+    ok(!(await json(ai)).reply, 'no canned advice is returned when the AI is unavailable');
+    const health = await json(await call('GET', '/health'));
+    ok(health.config.ai.groq === false && health.config.ai.gemini === false, 'health endpoint reports AI configuration');
+    if (savedKeys.g) process.env.GROQ_API_KEY = savedKeys.g;
+    if (savedKeys.m) process.env.GEMINI_API_KEY = savedKeys.m;
+    if (savedKeys.v) process.env.VITE_GEMINI_API_KEY = savedKeys.v;
+    expectStatus('overlong AI message', await call('POST', '/ai/advice', patient.token, { messages: [{ role: 'user', content: 'x'.repeat(5000) }] }), 400);
+    console.log('✅ Legacy doctors repaired; verification and AI availability reported honestly');
 
     console.log('\n================================================================');
     console.log('🎉 ACCESS CONTROL SUITE PASSED');

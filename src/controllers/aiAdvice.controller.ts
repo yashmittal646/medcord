@@ -9,12 +9,16 @@ const GROQ_CANDIDATE_MODELS = [
   'allam-2-7b',
 ];
 
-const CANDIDATE_MODELS = [
-  'gemini-3.8-flash',
-  'gemini-3.6-flash',
-  'gemini-3.7-flash',
-  'gemini-flash-latest',
-];
+const CANDIDATE_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-3-flash-preview'];
+
+/** Which AI providers are configured (used by the health endpoint; key values are never exposed) */
+export const aiProviderStatus = () => ({
+  groq: Boolean(process.env.GROQ_API_KEY),
+  gemini: Boolean(process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY),
+});
+
+const MAX_TURNS = 20;
+const MAX_CHARS_PER_TURN = 4000;
 
 interface ChatTurn {
   role: 'user' | 'assistant';
@@ -52,21 +56,6 @@ CLINICAL INTERACTION PROTOCOL:
 8. STRICT BOUNDARY: ONLY answer questions related to health, medical conditions, symptoms, wellness, nutrition, and fitness. If a user asks a question completely unrelated to the medical field (e.g., programming, math, general trivia, unrelated tasks), politely decline to answer. Tell the user you are a specialized Health Advisor and ask them to ask relevant health-related questions only.`;
 }
 
-function getFallbackAdvice(userText: string, langCode: string): string {
-  const isHindi = langCode === 'hi';
-  const isTelugu = langCode === 'te';
-  const isTamil = langCode === 'ta';
-  const isKannada = langCode === 'kn';
-
-  if (isHindi) {
-    return `***⚠️ [ज़रूरी सूचना: यह एआई स्वास्थ्य सलाह है और डॉक्टर के इलाज का विकल्प नहीं है। गंभीर समस्या होने पर तुरंत डॉक्टर से संपर्क करें।]***\n\nनमस्ते! आपकी सेहत से जुड़ी जानकारी समझने के लिए धन्यवाद।\n\nआपकी समस्या ("${userText}") के संबंध में सामान्य सलाह:\n1. **आराम और हाइडे्रशन**: पर्याप्त पानी पिएं और शरीर को पूरा आराम दें।\n2. **लक्षणों पर नज़र रखें**: यदि बुखार, सिरदर्द या दर्द बढ़ रहा हो तो इसे नोट करें।\n3. **डॉक्टर से परामर्श**: अगर लक्षण 24-48 घंटों से अधिक बने रहते हैं, तो कृपया फ़ॉलो-अप पोर्टल के माध्यम से अपॉइंटमेंट बुक करें।\n\nक्या आप बता सकते हैं कि यह समस्या कितने समय से है या कोई अन्य लक्षण भी हैं?`;
-  }
-  if (isTelugu) {
-    return `***⚠️ [ముఖ్య గమనిక: ఇది AI సాధారణ ఆరోగ్య సూచన మాత్రమే. తీవ్రమైన సమస్యలకు అనుభవజ్ఞుడైన డాక్టర్‌ను సంప్రదించండి.]***\n\nనమస్కారం! మీ ఆరోగ్య పరిస్థితిని తెలిపినందుకు ధన్యవాదాలు.\n\nమీ సమస్య ("${userText}") కోసం సాధారణ సలహాలు:\n1. **విశ్రాంతి & మంచి నీరు**: తగినంత విశ్రాంతి తీసుకోండి, పుష్కలంగా నీరు తాగండి.\n2. **లక్షణాలను గమనించండి**: సమస్య పెరుగుతుందా లేదా అనేది గమనించండి.\n3. **డాక్టర్ సలహా**: లక్షణాలు 1-2 రోజులు మించి ఉంటే అనుభవజ్ఞుడైన డాక్టర్‌ను సంప్రదించండి.\n\nఈ సమస్య ఎంతకాలంగా ఉందో లేదా మరిన్ని వివరాలు చెప్పగలరా?`;
-  }
-  return `***⚠️ [Important Note: This is general AI health guidance and is not a substitute for a real doctor's treatment. For any severe condition, please consult a qualified doctor.]***\n\nHello! Thank you for sharing your concern.\n\nRegarding "${userText}":\n1. **Rest & Hydration**: Ensure plenty of fluids and adequate rest.\n2. **Monitor Symptoms**: Keep track of any changes or accompanying symptoms.\n3. **Consultation**: If symptoms persist for more than 24-48 hours, please book a follow-up consultation with a doctor.\n\nCould you share how long you have experienced this or if there are any other symptoms?`;
-}
-
 export const getAiAdvice = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { messages, langCode = 'en' } = req.body as {
@@ -77,6 +66,10 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return next(new AppError('Messages array is required', 400));
     }
+    if (messages.length > MAX_TURNS || messages.some((m) => typeof m?.content !== 'string' || m.content.length > MAX_CHARS_PER_TURN)) {
+      return next(new AppError('Your message is too long. Please shorten it and try again.', 400));
+    }
+    const failures: string[] = [];
 
     const groqApiKey = process.env.GROQ_API_KEY;
     const lastMessage = messages[messages.length - 1];
@@ -115,9 +108,11 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
             }
           } else {
             const errText = await response.text();
-            console.warn(`Groq model ${modelName} returned ${response.status}: ${errText}`);
+            failures.push(`groq:${modelName}:${response.status}`);
+            console.warn(`Groq model ${modelName} returned ${response.status}: ${errText.slice(0, 300)}`);
           }
         } catch (e: any) {
+          failures.push(`groq:${modelName}:error`);
           console.warn(`Groq model ${modelName} error:`, e?.message);
         }
       }
@@ -160,15 +155,27 @@ export const getAiAdvice = async (req: Request, res: Response, next: NextFunctio
             return res.json({ reply: text, model: modelName });
           }
         } catch (e: any) {
+          failures.push(`gemini:${modelName}:error`);
           console.warn(`Gemini model ${modelName} attempt failed:`, e?.message);
           continue;
         }
       }
     }
 
-    // 3. Graceful local fallback if both remote APIs fail/are unconfigured
-    const fallbackReply = getFallbackAdvice(lastMessage?.content || 'Health inquiry', langCode);
-    return res.json({ reply: fallbackReply, model: 'fallback-advisor' });
+    // 3. Neither provider answered
+    // A generic canned answer to every question (including serious ones) is worse than an honest error
+    const status = aiProviderStatus();
+    console.error(
+      `⚠️ AI advisor unavailable. groqKey=${status.groq} geminiKey=${status.gemini} attempts=${failures.join(',') || 'none'}`
+    );
+    return next(
+      new AppError(
+        status.groq || status.gemini
+          ? 'The AI health advisor could not answer right now. Please try again in a minute.'
+          : 'The AI health advisor is not configured on this server yet. Please try again later.',
+        503
+      )
+    );
   } catch (err) {
     return next(err);
   }

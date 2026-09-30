@@ -333,10 +333,10 @@ async function runMasterE2ETests() {
     await expectStatus('doctor audit logs', await call('GET', '/audit/logs', doctorToken), 403);
     await expectStatus('patient audit logs', await call('GET', '/audit/logs', patientToken), 403);
 
-    // A doctor pending verification cannot use doctor-only endpoints (incl. emergency access)
-    await DoctorProfile.updateOne({ doctorId: doc2Res.data.user.publicId }, { verificationStatus: 'PENDING' });
-    await expectStatus('pending doctor emergency', await call('GET', `/emergency/${patientId}`, doctor2Token), 403);
-    await expectStatus('pending doctor lookup', await call('GET', `/doctor/patient/${patientId}`, doctor2Token), 403);
+    // A doctor whose verification was rejected cannot use doctor-only endpoints (incl. emergency access)
+    await DoctorProfile.updateOne({ doctorId: doc2Res.data.user.publicId }, { verificationStatus: 'REJECTED' });
+    await expectStatus('rejected doctor emergency', await call('GET', `/emergency/${patientId}`, doctor2Token), 403);
+    await expectStatus('rejected doctor lookup', await call('GET', `/doctor/patient/${patientId}`, doctor2Token), 403);
     console.log('✅ Cross-account read/download/delete/modify all blocked; audit logs and unverified doctors locked out');
 
     console.log('\n================================================================');
