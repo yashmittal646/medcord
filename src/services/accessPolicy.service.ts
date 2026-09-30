@@ -4,7 +4,13 @@ import { IConsentScope } from '../models/AccessRequest.js';
 import { ConsentGrant, IConsentGrant } from '../models/ConsentGrant.js';
 import { DoctorProfile } from '../models/DoctorProfile.js';
 import { User } from '../models/User.js';
-import { normalizeSpecialization, Specialization } from '../config/taxonomy.js';
+import {
+  CATEGORY_DEFAULTS,
+  RecordCategory,
+  categoriesVisibleTo,
+  normalizeSpecialization,
+  Specialization,
+} from '../config/taxonomy.js';
 import { AccessGrantService } from './accessGrant.service.js';
 import { AuditService } from './audit.service.js';
 import { AppError } from '../utils/appError.js';
@@ -100,8 +106,13 @@ export class AccessPolicy {
     }
 
     const c = record.classification;
-    if (!c || c.source === 'UNCLASSIFIED') return deny('UNCLASSIFIED');
-    if (c.sensitivityLevel === 'HIGHLY_CONFIDENTIAL') return deny('SENSITIVE_REQUIRES_CONSENT');
+    if (c?.sensitivityLevel === 'HIGHLY_CONFIDENTIAL') return deny('SENSITIVE_REQUIRES_CONSENT');
+    if (!c || c.source === 'UNCLASSIFIED') {
+      // Not tagged yet: visible to the specialties its document type implies (e.g. lab report -> General Practice).
+      // "Other" documents have no default audience and stay with the patient until tagged.
+      const defaults = CATEGORY_DEFAULTS[(c?.category ?? 'OTHER') as RecordCategory] ?? [];
+      return spec && defaults.includes(spec) ? allow('SPECIALIZATION', 'CATEGORY_DEFAULT') : deny('UNCLASSIFIED');
+    }
     if (spec && c.targetSpecializations.includes(spec)) return allow('SPECIALIZATION', 'SPECIALIZATION_MATCH');
     return deny('OUT_OF_SPECIALIZATION');
   }
@@ -127,6 +138,12 @@ export class AccessPolicy {
         'classification.targetSpecializations': spec,
         'classification.sensitivityLevel': { $ne: 'HIGHLY_CONFIDENTIAL' },
         'classification.source': { $nin: ['UNCLASSIFIED', null] },
+      });
+      // Untagged records: same rule as evaluate() - the document type's default audience
+      or.push({
+        'classification.source': 'UNCLASSIFIED',
+        'classification.sensitivityLevel': { $ne: 'HIGHLY_CONFIDENTIAL' },
+        'classification.category': { $in: categoriesVisibleTo(spec) },
       });
     }
     for (const grant of await this.activeConsents(user.userId, patientId)) {

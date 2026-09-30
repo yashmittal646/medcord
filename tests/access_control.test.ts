@@ -9,6 +9,7 @@ import { AuditLog } from '../src/models/AuditLog.js';
 import { User } from '../src/models/User.js';
 import { DoctorProfile } from '../src/models/DoctorProfile.js';
 import { ensureDoctorProfiles } from '../src/services/doctorVerification.service.js';
+import { ClassificationService } from '../src/services/classification.service.js';
 
 // Keep tests offline and deterministic: the local keyword classifier runs, the LLM does not
 process.env.DISABLE_AI_CLASSIFICATION = 'true';
@@ -348,6 +349,46 @@ async function run() {
     if (savedKeys.v) process.env.VITE_GEMINI_API_KEY = savedKeys.v;
     expectStatus('overlong AI message', await call('POST', '/ai/advice', patient.token, { messages: [{ role: 'user', content: 'x'.repeat(5000) }] }), 400);
     console.log('✅ Legacy doctors repaired; verification and AI availability reported honestly');
+
+    console.log('\n[14] Legacy records (created before tagging) are visible to the right doctors');
+    const legacyPatient = await register('patient', 'Arjun Legacy', 'arjun.legacy@example.com');
+    const legacyUserId = new mongoose.Types.ObjectId(legacyPatient.userId);
+    const legacyDocs = [
+      { recordType: 'CHECKUP', title: 'Annual Physical Examination', tags: ['annual', 'checkup', 'diabetes', 'hypertension'] },
+      { recordType: 'LAB_REPORT', title: 'HbA1c & Lipid Panel', tags: ['hba1c', 'lipid', 'labs', 'diabetes'] },
+      { recordType: 'LAB_REPORT', title: 'Lumbar Spine MRI Report', tags: ['mri', 'spine', 'back-pain', 'radiology'] },
+      { recordType: 'PRESCRIPTION', title: 'Prescription - Diabetes & BP Review', tags: ['prescription'] },
+      { recordType: 'LAB_REPORT', title: 'Routine blood work', tags: [] },
+      { recordType: 'OTHER', title: 'Miscellaneous scan', tags: [] },
+    ];
+    // Inserted raw, without a classification field, exactly like documents written by the old seed script
+    await MedicalRecord.collection.insertMany(
+      legacyDocs.map((d) => ({
+        ...d, patient: legacyUserId, patientId: legacyPatient.publicId, uploadedBy: legacyUserId,
+        uploaderRole: 'PATIENT', recordDate: new Date(), createdAt: new Date(), updatedAt: new Date(),
+      }))
+    );
+    await connect(gp, legacyPatient);
+    await AccessGrant.updateMany({ doctorId: gp.publicId }, { $unset: { expiresAt: 1 } });
+    await ClassificationService.backfillLegacyRecords();
+
+    const gpList = await json(await call('GET', `/records?patientId=${legacyPatient.publicId}`, gp.token));
+    ok(gpList.pagination.total === 5 && gpList.data.length === 5, `GP sees 5 of 6 legacy records (got ${gpList.pagination.total})`);
+    ok(!gpList.data.some((d: any) => d.title === 'Miscellaneous scan'), '"Other" documents without tags stay with the patient');
+    const gpTimeline = await json(await call('GET', `/doctor/patient/${legacyPatient.publicId}/timeline`, gp.token));
+    ok(gpTimeline.data.length === 5, 'timeline shows the same records');
+    const mri = await MedicalRecord.findOne({ patientId: legacyPatient.publicId, title: 'Lumbar Spine MRI Report' }).lean();
+    ok(mri?.classification.source === 'AI' && mri.classification.targetSpecializations.includes('ORTHOPEDICS'), 'hyphenated tags ("back-pain") are recognized');
+    const blood = await MedicalRecord.findOne({ patientId: legacyPatient.publicId, title: 'Routine blood work' }).lean();
+    ok(blood?.classification.source === 'UNCLASSIFIED' && blood.classification.category === 'BLOOD_WORK', 'untaggable record keeps its type-derived category');
+    expectStatus('GP opens untagged blood work', await call('GET', `/records/${blood!._id}`, gp.token), 200);
+    await MedicalRecord.updateOne({ _id: blood!._id }, { 'classification.sensitivityLevel': 'HIGHLY_CONFIDENTIAL' });
+    expectStatus('confidential untagged record stays private', await call('GET', `/records/${blood!._id}`, gp.token), 403);
+    const before = await MedicalRecord.findOne({ patientId: legacyPatient.publicId, title: 'HbA1c & Lipid Panel' }).lean();
+    await ClassificationService.backfillLegacyRecords();
+    const after = await MedicalRecord.findOne({ patientId: legacyPatient.publicId, title: 'HbA1c & Lipid Panel' }).lean();
+    ok(JSON.stringify(before?.classification) === JSON.stringify(after?.classification), 'backfill is idempotent');
+    console.log('✅ Legacy records follow their type\'s default audience; auto-tagged where possible');
 
     console.log('\n================================================================');
     console.log('🎉 ACCESS CONTROL SUITE PASSED');

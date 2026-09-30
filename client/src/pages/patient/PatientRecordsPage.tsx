@@ -4,7 +4,7 @@ import { useLanguage, getLocale } from '../../context/LanguageContext.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import { MedicalDocumentModal } from '../../components/common/MedicalDocumentModal.js';
 import { RecordTagsModal } from '../../components/patient/RecordTagsModal.js';
-import { prettify } from '../../components/common/TagPicker.js';
+import { prettify, useTaxonomy } from '../../components/common/TagPicker.js';
 import {
   Tags,
   Lock,
@@ -36,10 +36,16 @@ const typeConfig: Record<string, { label: string; color: string; Icon: any }> = 
 /** One-line summary of who can open a record, with a prompt when tags need attention */
 const VisibilityBadge: React.FC<{ classification?: any }> = ({ classification: c }) => {
   const { t } = useLanguage();
+  const taxonomy = useTaxonomy();
   if (!c || c.source === 'UNCLASSIFIED') {
+    // Untagged records are visible to their document type's default audience (mirrors the server policy)
+    const defaults: string[] = taxonomy?.categoryDefaults[c?.category ?? 'OTHER'] ?? [];
     return (
       <p className="text-[10px] mt-1 font-semibold text-amber-700 flex items-center gap-1">
-        <Tags className="w-3 h-3" />  {t('Needs tags · only you can open this')}
+        <Tags className="w-3 h-3" />{' '}
+        {c?.sensitivityLevel !== 'HIGHLY_CONFIDENTIAL' && defaults.length
+          ? t('Needs tags · visible to: {specialties}', { specialties: defaults.map(prettify).join(', ') })
+          : t('Needs tags · only you can open this')}
       </p>
     );
   }

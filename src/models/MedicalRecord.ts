@@ -1,6 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
 import { IMedicalRecord } from '../types/index.js';
-import { RECORD_CATEGORIES, SPECIALIZATIONS, SENSITIVITY_LEVELS, CLASSIFICATION_SOURCES } from '../config/taxonomy.js';
+import {
+  RECORD_CATEGORIES,
+  RECORD_TYPE_TO_CATEGORY,
+  SPECIALIZATIONS,
+  SENSITIVITY_LEVELS,
+  CLASSIFICATION_SOURCES,
+} from '../config/taxonomy.js';
 
 const ClassificationSchema = new Schema(
   {
@@ -94,7 +100,8 @@ const MedicalRecordSchema = new Schema<IMedicalRecord>(
     },
     file: FileAttachmentSchema,
     tags: [{ type: String, trim: true }],
-    // Absent on legacy documents; treated as UNCLASSIFIED (patient + uploader only) by the access policy
+    // Absent on legacy documents until the startup backfill runs. UNCLASSIFIED records are visible to the
+    // default audience of their category (see CATEGORY_DEFAULTS); "Other" documents stay with the patient.
     classification: { type: ClassificationSchema, default: () => ({}) },
   },
   {
@@ -103,6 +110,16 @@ const MedicalRecordSchema = new Schema<IMedicalRecord>(
 );
 
 // Compound indexes for fast timeline and filtered queries
+// An untagged record takes its category from its record type (e.g. LAB_REPORT -> BLOOD_WORK), so the
+// default-audience rule for untagged records applies even when a caller creates one without tags.
+MedicalRecordSchema.pre('validate', function (next) {
+  const c = (this as any).classification;
+  if (c && c.source === 'UNCLASSIFIED' && (!c.category || c.category === 'OTHER')) {
+    c.category = RECORD_TYPE_TO_CATEGORY[(this as any).recordType] ?? 'OTHER';
+  }
+  next();
+});
+
 MedicalRecordSchema.index({ patientId: 1, recordDate: -1 });
 MedicalRecordSchema.index({ patientId: 1, recordType: 1 });
 MedicalRecordSchema.index({ patientId: 1, 'classification.targetSpecializations': 1 });

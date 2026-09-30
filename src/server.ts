@@ -3,6 +3,7 @@ import { connectDB } from './config/db.js';
 import { ENV } from './config/environment.js';
 import { ConsentService } from './services/consent.service.js';
 import { ensureDoctorProfiles } from './services/doctorVerification.service.js';
+import { ClassificationService } from './services/classification.service.js';
 import { AccessRequestService } from './services/accessRequest.service.js';
 
 const startServer = async () => {
@@ -10,6 +11,7 @@ const startServer = async () => {
   await connectDB();
 
   await ensureDoctorProfiles().catch((e) => console.error('⚠️ Doctor profile repair failed:', e));
+  await ClassificationService.backfillLegacyRecords().catch((e) => console.error('⚠️ Record backfill failed:', e));
 
   const app = createApp();
 

@@ -127,6 +127,11 @@ export const CATEGORY_DEFAULTS: Record<RecordCategory, Specialization[]> = {
   OTHER: [],
 };
 
+/** Categories whose default audience includes this specialty (used for records nobody has tagged yet) */
+export function categoriesVisibleTo(spec: Specialization): RecordCategory[] {
+  return RECORD_CATEGORIES.filter((c) => CATEGORY_DEFAULTS[c].includes(spec));
+}
+
 /** Legacy `recordType` values -> classification category */
 export const RECORD_TYPE_TO_CATEGORY: Record<string, RecordCategory> = {
   PRESCRIPTION: 'PRESCRIPTION',

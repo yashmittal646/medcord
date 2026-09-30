@@ -9,6 +9,7 @@ import { IJwtPayload } from '../types/index.js';
 import {
   CONDITION_ROUTING,
   RECORD_CATEGORIES,
+  RECORD_TYPE_TO_CATEGORY,
   RecordCategory,
   deriveClassification,
 } from '../config/taxonomy.js';
@@ -79,8 +80,9 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export class ClassificationService {
   /** Deterministic, offline fallback. Also the whole pipeline when no LLM key is configured. */
   static keywordSuggest(meta: RecordMetadata): Suggestion {
-    const strong = `${meta.title} ${meta.diagnosis ?? ''}`.toLowerCase();
-    const weak = `${meta.description ?? ''} ${meta.tags.join(' ')} ${meta.fileName ?? ''}`.toLowerCase();
+    const flat = (s: string) => s.toLowerCase().replace(/[-_]+/g, ' ');
+    const strong = flat(`${meta.title} ${meta.diagnosis ?? ''}`);
+    const weak = flat(`${meta.description ?? ''} ${meta.tags.join(' ')} ${meta.fileName ?? ''}`);
 
     const hits: { key: string; strong: boolean }[] = [];
     for (const [key, rule] of Object.entries(CONDITION_ROUTING)) {
@@ -155,6 +157,71 @@ export class ClassificationService {
       return { ...parsed.data, conditions: parsed.data.conditions.filter((c) => c in CONDITION_ROUTING) };
     } catch {
       return null;
+    }
+  }
+
+  /**
+   * Startup repair for records created before tagging existed. Gives legacy documents a classification
+   * derived from their record type, then tags untagged records with the local keyword classifier (no LLM
+   * call, so no record data leaves the server; no notifications). Idempotent and conditional: a patient's
+   * own tags are never overwritten.
+   */
+  static async backfillLegacyRecords(): Promise<void> {
+    let initialized = 0;
+    for (const [recordType, category] of Object.entries(RECORD_TYPE_TO_CATEGORY)) {
+      const res = await MedicalRecord.collection.updateMany(
+        { recordType, 'classification.source': { $exists: false } },
+        {
+          $set: {
+            classification: {
+              category,
+              associatedConditions: [],
+              targetSpecializations: [],
+              sensitivityLevel: 'STANDARD',
+              source: 'UNCLASSIFIED',
+              patientReviewed: false,
+            },
+          },
+        }
+      );
+      initialized += res.modifiedCount;
+      // Untagged records created with the model default category ('OTHER') get their type-derived category
+      if (category !== 'OTHER') {
+        const fix = await MedicalRecord.collection.updateMany(
+          { recordType, 'classification.source': 'UNCLASSIFIED', 'classification.category': 'OTHER' },
+          { $set: { 'classification.category': category } }
+        );
+        initialized += fix.modifiedCount;
+      }
+    }
+
+    let tagged = 0;
+    const untagged = await MedicalRecord.find({
+      'classification.source': 'UNCLASSIFIED',
+      'classification.patientReviewed': { $ne: true },
+    }).limit(5000);
+    for (const record of untagged) {
+      const s = this.keywordSuggest({
+        title: record.title,
+        recordType: record.recordType,
+        description: record.description,
+        diagnosis: record.diagnosis,
+        tags: record.tags ?? [],
+        facilityName: record.facilityName,
+        doctorName: record.doctorName,
+        fileName: record.file?.originalName,
+      });
+      if (s.confidence < AUTO_APPLY_CONFIDENCE || !s.conditions.length) continue;
+      const category = s.category === 'OTHER' ? record.classification.category : s.category;
+      const derived = deriveClassification({ category, conditions: s.conditions, forceSensitive: s.sensitive });
+      const res = await MedicalRecord.updateOne(
+        { _id: record._id, 'classification.source': 'UNCLASSIFIED', 'classification.patientReviewed': { $ne: true } },
+        { $set: { classification: { ...derived, source: 'AI', confidence: s.confidence, patientReviewed: false } } }
+      );
+      tagged += res.modifiedCount;
+    }
+    if (initialized || tagged) {
+      console.log(`🏷️  Legacy records: ${initialized} initialized, ${tagged} auto-tagged`);
     }
   }
 
