@@ -246,13 +246,21 @@ export const PatientDashboard: React.FC = () => {
                 <p className="text-[11px] text-[#999]">{critical?.currentMedications?.length || 0} {t('dash.active')}</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsMedicationOpen(true)}
-              className="w-7 h-7 rounded-xl bg-[#e3f4f0] flex items-center justify-center hover:bg-[#c5ebe3] transition-colors"
-              title={t('Add Medication')}
-            >
-              <Plus className="w-3.5 h-3.5 text-[#0c8b77]" />
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/patient/medications"
+                className="text-[11px] font-bold text-[#0c8b77] hover:text-[#0a7566] flex items-center gap-1 transition-colors"
+              >
+                Manage <ArrowUpRight className="w-3 h-3" />
+              </Link>
+              <button
+                onClick={() => setIsMedicationOpen(true)}
+                className="w-7 h-7 rounded-xl bg-[#e3f4f0] flex items-center justify-center hover:bg-[#c5ebe3] transition-colors"
+                title={t('Add Medication')}
+              >
+                <Plus className="w-3.5 h-3.5 text-[#0c8b77]" />
+              </button>
+            </div>
           </div>
 
           {critical?.currentMedications && critical.currentMedications.length > 0 ? (

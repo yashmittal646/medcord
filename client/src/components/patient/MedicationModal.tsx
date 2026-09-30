@@ -73,9 +73,9 @@ export const MedicationModal: React.FC<MedicationModalProps> = ({
       };
 
       if (isEditing) {
-        await api.updateMedication(existingMedication._id, payload);
+        await api.updateProfileMedication(existingMedication._id, payload);
       } else {
-        await api.addMedication(payload);
+        await api.addProfileMedication(payload);
       }
       onSuccess();
       onClose();

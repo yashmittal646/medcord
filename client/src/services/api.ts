@@ -79,9 +79,9 @@ export const api = {
   deleteCondition: (id: string) => request<any>(`/patient/conditions/${id}`, { method: 'DELETE' }),
 
   // Medications
-  addMedication: (body: any) => request<any>('/patient/medications', { method: 'POST', body: JSON.stringify(body) }),
-  updateMedication: (id: string, body: any) => request<any>(`/patient/medications/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
-  deleteMedication: (id: string) => request<any>(`/patient/medications/${id}`, { method: 'DELETE' }),
+  addProfileMedication: (body: any) => request<any>('/patient/medications', { method: 'POST', body: JSON.stringify(body) }),
+  updateProfileMedication: (id: string, body: any) => request<any>(`/patient/medications/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+  deleteProfileMedication: (id: string) => request<any>(`/patient/medications/${id}`, { method: 'DELETE' }),
 
   // Medical Records
   uploadRecord: (formData: FormData) => request<any>('/records/upload', { method: 'POST', body: formData }),
@@ -163,6 +163,23 @@ export const api = {
   listMyConsents: () => request<any>('/consent/mine'),
   revokeConsent: (id: string, reason?: string) =>
     request<any>(`/consent/${id}/revoke`, { method: 'DELETE', body: JSON.stringify({ reason }) }),
+
+  // ── Full Medication Management ────────────────────────────────────────────
+  listMedications: (params: Record<string, any> = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request<any>(`/medications?${query}`);
+  },
+  getMedication: (id: string) => request<any>(`/medications/${id}`),
+  createMedication: (body: any) => request<any>('/medications', { method: 'POST', body: JSON.stringify(body) }),
+  updateMedication: (id: string, body: any) => request<any>(`/medications/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  discontinueMedication: (id: string) => request<any>(`/medications/${id}`, { method: 'DELETE' }),
+  logDose: (id: string, body: any) => request<any>(`/medications/${id}/dose`, { method: 'POST', body: JSON.stringify(body) }),
+  getDoseLogs: (id: string, params: Record<string, any> = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return request<any>(`/medications/${id}/dose-logs?${query}`);
+  },
+  getTodaySchedule: () => request<any>('/medications/schedule/today'),
+  getMedicationAdherence: (id: string, days = 30) => request<any>(`/medications/${id}/adherence?days=${days}`),
 
   // Notifications
   listNotifications: () => request<any>('/notifications'),

@@ -101,7 +101,7 @@ export const PatientProfilePage: React.FC = () => {
 
   const handleDeleteMedication = async (id: string) => {
     if (!confirm(t('Delete this medication record?'))) return;
-    await api.deleteMedication(id);
+    await api.deleteProfileMedication(id);
     await fetchProfile();
   };
 

@@ -21,6 +21,7 @@ import aiAdviceRouter from './routes/aiAdvice.routes.js';
 import metaRouter from './routes/meta.routes.js';
 import notificationRouter from './routes/notification.routes.js';
 import { accessRequestRoutes, consentRoutes } from './routes/consent.routes.js';
+import medicationRouter from './routes/medication.routes.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -74,6 +75,7 @@ export const createApp = (): Application => {
   app.use('/api/access-requests', accessRequestRoutes);
   app.use('/api/consent', consentRoutes);
   app.use('/api/notifications', notificationRouter);
+  app.use('/api/medications', medicationRouter);
 
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');
