@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { Mail, Lock, User, Building2, Award, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { EcgBackground } from '../../components/common/EcgBackground.js';
 
 export const DoctorRegister: React.FC = () => {
   const { t, tn } = useLanguage();
@@ -45,8 +46,9 @@ export const DoctorRegister: React.FC = () => {
 
   if (registeredDoctorId) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <div className="glass-card max-w-lg w-full p-8 text-center border-slate-200 shadow-xl bg-white animate-in fade-in zoom-in duration-300">
+      <div className="relative isolate min-h-[80vh] flex items-center justify-center px-4 py-12">
+        <EcgBackground />
+        <div className="relative glass-card max-w-lg w-full p-8 text-center border-slate-200 shadow-xl !bg-white/90 backdrop-blur-md animate-in fade-in zoom-in duration-300">
           <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-200 flex items-center justify-center mx-auto mb-4 text-indigo-600">
             <CheckCircle2 className="w-8 h-8 text-indigo-600" />
           </div>
@@ -78,10 +80,11 @@ export const DoctorRegister: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="glass-card max-w-lg w-full p-8 relative border-slate-200 shadow-lg bg-white">
+    <div className="relative isolate min-h-[85vh] flex items-center justify-center px-4 py-12">
+      <EcgBackground />
+      <div className="glass-card max-w-lg w-full p-8 relative border-slate-200/80 shadow-xl shadow-indigo-500/5 !bg-white/90 backdrop-blur-md">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
+          <div className="ecg-heartbeat relative w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img
               src="/logo.png"
               alt={t('FollowUp Logo')}
@@ -120,7 +123,7 @@ export const DoctorRegister: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">{t('Work Email *')}</label>
               <div className="relative flex items-center">
@@ -155,7 +158,7 @@ export const DoctorRegister: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">{t('Medical License Number *')}</label>
               <div className="relative flex items-center">
