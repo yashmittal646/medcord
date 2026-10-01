@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { Mail, Lock, User, Building2, Award, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { SignInRoleToggle } from '../../components/common/SignInRoleToggle.js';
 import { EcgBackground } from '../../components/common/EcgBackground.js';
 
 export const DoctorRegister: React.FC = () => {
@@ -83,6 +84,8 @@ export const DoctorRegister: React.FC = () => {
     <div className="relative isolate min-h-[85vh] flex items-center justify-center px-4 py-12">
       <EcgBackground />
       <div className="glass-card max-w-lg w-full p-8 relative border-slate-200/80 shadow-xl shadow-indigo-500/5 !bg-white/90 backdrop-blur-md">
+        <SignInRoleToggle role="DOCTOR" mode="register" />
+
         <div className="text-center mb-6">
           <div className="ecg-heartbeat relative w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img

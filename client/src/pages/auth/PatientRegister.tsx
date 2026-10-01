@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { Mail, Lock, User, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { SignInRoleToggle } from '../../components/common/SignInRoleToggle.js';
+import { EcgBackground } from '../../components/common/EcgBackground.js';
 
 export const PatientRegister: React.FC = () => {
   const { t, tn } = useLanguage();
@@ -64,8 +66,9 @@ export const PatientRegister: React.FC = () => {
 
   if (registeredPatientId) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-        <div className="glass-card max-w-lg w-full p-8 text-center border-slate-200 shadow-xl bg-white animate-in fade-in zoom-in duration-300">
+      <div className="relative isolate min-h-[80vh] flex items-center justify-center px-4 py-12">
+        <EcgBackground />
+        <div className="relative glass-card max-w-lg w-full p-8 text-center border-slate-200 shadow-xl !bg-white/90 backdrop-blur-md animate-in fade-in zoom-in duration-300">
           <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center mx-auto mb-4 text-blue-600">
             <CheckCircle2 className="w-8 h-8 text-blue-600" />
           </div>
@@ -97,10 +100,13 @@ export const PatientRegister: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="glass-card max-w-lg w-full p-8 relative border-slate-200 shadow-lg bg-white">
+    <div className="relative isolate min-h-[85vh] flex items-center justify-center px-4 py-12">
+      <EcgBackground />
+      <div className="glass-card max-w-lg w-full p-8 relative border-slate-200/80 shadow-xl shadow-indigo-500/5 !bg-white/90 backdrop-blur-md">
+        <SignInRoleToggle role="PATIENT" mode="register" />
+
         <div className="text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
+          <div className="ecg-heartbeat relative w-14 h-14 rounded-2xl bg-black border border-slate-800 overflow-hidden flex items-center justify-center mx-auto mb-3 shadow-md">
             <img
               src="/logo.png"
               alt={t('FollowUp Logo')}

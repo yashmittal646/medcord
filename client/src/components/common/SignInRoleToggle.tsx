@@ -5,20 +5,23 @@ import { useLanguage } from '../../context/LanguageContext.js';
 
 type Role = 'PATIENT' | 'DOCTOR';
 
-const PATHS: Record<Role, string> = { PATIENT: '/patient/login', DOCTOR: '/doctor/login' };
+const PATHS: Record<'signin' | 'register', Record<Role, string>> = {
+  signin: { PATIENT: '/patient/login', DOCTOR: '/doctor/login' },
+  register: { PATIENT: '/patient/register', DOCTOR: '/doctor/register' },
+};
 
 /**
  * Patient / Doctor switch at the top of the sign-in box. Switching keeps whatever email was typed
  * (and any "return to" location) so nobody has to start over.
  */
-export const SignInRoleToggle: React.FC<{ role: Role; email?: string }> = ({ role, email }) => {
+export const SignInRoleToggle: React.FC<{ role: Role; email?: string; mode?: 'signin' | 'register' }> = ({ role, email, mode = 'signin' }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
   const go = (next: Role) => {
     if (next === role) return;
-    navigate(PATHS[next], { replace: true, state: { ...(location.state as object | null), email } });
+    navigate(PATHS[mode][next], { replace: true, state: { ...(location.state as object | null), email } });
   };
 
   const options: { role: Role; label: string; Icon: React.ElementType; active: string }[] = [
@@ -27,7 +30,7 @@ export const SignInRoleToggle: React.FC<{ role: Role; email?: string }> = ({ rol
   ];
 
   return (
-    <div role="tablist" aria-label={t('Sign in as')} className="relative mb-7 grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1">
+    <div role="tablist" aria-label={mode === 'register' ? t('Register as') : t('Sign in as')} className="relative mb-7 grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1">
       {/* sliding highlight */}
       <span
         aria-hidden="true"
