@@ -23,6 +23,8 @@ import notificationRouter from './routes/notification.routes.js';
 import { accessRequestRoutes, consentRoutes } from './routes/consent.routes.js';
 import medicationRouter from './routes/medication.routes.js';
 import healthTrackerRouter from './routes/healthTracker.routes.js';
+import { medicineRoutes, labTestRoutes, adminMedicineRoutes } from './routes/medicine.routes.js';
+import { prescriptionRoutes, patientPrescriptionRoutes } from './routes/prescription.routes.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -78,6 +80,11 @@ export const createApp = (): Application => {
   app.use('/api/notifications', notificationRouter);
   app.use('/api/medications', medicationRouter);
   app.use('/api/health-tracker', healthTrackerRouter);
+  app.use('/api/medicines', medicineRoutes);
+  app.use('/api/lab-tests', labTestRoutes);
+  app.use('/api/admin/medicines', adminMedicineRoutes);
+  app.use('/api/prescriptions', prescriptionRoutes);
+  app.use('/api/patient-prescriptions', patientPrescriptionRoutes);
 
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');

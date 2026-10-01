@@ -5,6 +5,7 @@ import { ConsentService } from './services/consent.service.js';
 import { ensureDoctorProfiles } from './services/doctorVerification.service.js';
 import { ClassificationService } from './services/classification.service.js';
 import { AccessRequestService } from './services/accessRequest.service.js';
+import { LabTestService } from './services/labTest.service.js';
 
 const startServer = async () => {
   // Connect to MongoDB
@@ -12,6 +13,7 @@ const startServer = async () => {
 
   await ensureDoctorProfiles().catch((e) => console.error('⚠️ Doctor profile repair failed:', e));
   await ClassificationService.backfillLegacyRecords().catch((e) => console.error('⚠️ Record backfill failed:', e));
+  await LabTestService.ensureSeeded().catch((e) => console.error('⚠️ Lab test catalogue seed failed:', e));
 
   const app = createApp();
 

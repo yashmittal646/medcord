@@ -29,3 +29,7 @@ Thumbs.db
 .idea/
 .gemini/
 .agents/
+
+# Medicine import: the full dataset and the skipped-rows report stay local
+data/medicines.csv
+data/*.import-skipped.csv

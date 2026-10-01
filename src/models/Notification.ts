@@ -8,7 +8,8 @@ export type NotificationType =
   | 'CONSENT_EXPIRING'
   | 'RECORD_NEEDS_REVIEW'
   | 'CONNECTION_REQUESTED'
-  | 'CONNECTION_RESPONDED';
+  | 'CONNECTION_RESPONDED'
+  | 'PRESCRIPTION_ISSUED';
 
 export interface INotification extends Document {
   user: Types.ObjectId;

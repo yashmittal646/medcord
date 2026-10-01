@@ -60,6 +60,8 @@ const AuditLogSchema = new Schema<IAuditLog>(
         'CONNECTION_APPROVED',
         'CONNECTION_REJECTED',
         'CONNECTION_REVOKED',
+        'PRESCRIPTION_ISSUED',
+        'PRESCRIPTION_AMENDED',
       ],
       required: true,
       index: true,

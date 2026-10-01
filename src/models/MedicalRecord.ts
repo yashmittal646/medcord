@@ -103,6 +103,8 @@ const MedicalRecordSchema = new Schema<IMedicalRecord>(
     // Absent on legacy documents until the startup backfill runs. UNCLASSIFIED records are visible to the
     // default audience of their category (see CATEGORY_DEFAULTS); "Other" documents stay with the patient.
     classification: { type: ClassificationSchema, default: () => ({}) },
+    // Set when this record represents a prescription written in the app (see Prescription)
+    prescription: { type: Schema.Types.ObjectId, ref: 'Prescription' },
     // Health Tracker: whether test values have been read out of this report (only when the patient asks)
     labExtraction: {
       status: { type: String, enum: ['DONE', 'NO_VALUES', 'FAILED', 'UNSUPPORTED'] },

@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { isAdminEmail } from '../utils/admin.js';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { PatientProfile } from '../models/PatientProfile.js';
@@ -179,6 +180,7 @@ export class AuthService {
         role: user.role,
         publicId: user.publicId,
         ...(user.role === 'DOCTOR' && { verified: doctorVerified(profile) }),
+        ...(isAdminEmail(user.email) && { isAdmin: true }),
       },
       profile,
       token,
@@ -208,6 +210,7 @@ export class AuthService {
         publicId: user.publicId,
         status: user.status,
         ...(user.role === 'DOCTOR' && { verified: doctorVerified(profile) }),
+        ...(isAdminEmail(user.email) && { isAdmin: true }),
       },
       profile,
     };

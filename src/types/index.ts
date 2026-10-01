@@ -38,7 +38,9 @@ export type AuditActionType =
   | 'CONNECTION_REQUESTED'
   | 'CONNECTION_APPROVED'
   | 'CONNECTION_REJECTED'
-  | 'CONNECTION_REVOKED';
+  | 'CONNECTION_REVOKED'
+  | 'PRESCRIPTION_ISSUED'
+  | 'PRESCRIPTION_AMENDED';
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
@@ -152,6 +154,7 @@ export interface IMedicalRecord extends Document {
   file?: IFileAttachment;
   tags?: string[];
   classification: IRecordClassification;
+  prescription?: Types.ObjectId;
   labExtraction?: {
     status?: 'DONE' | 'NO_VALUES' | 'FAILED' | 'UNSUPPORTED';
     extractedAt?: Date;
