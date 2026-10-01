@@ -6,6 +6,7 @@ import { LanguageProvider } from './context/LanguageContext.js';
 import { Navbar } from './components/common/Navbar.js';
 import { Footer } from './components/common/Footer.js';
 import { ProtectedRoute } from './components/common/ProtectedRoute.js';
+import { ScrollToTop } from './components/common/ScrollToTop.js';
 import { LandingPage } from './pages/LandingPage.js';
 import { PatientLogin } from './pages/auth/PatientLogin.js';
 import { PatientRegister } from './pages/auth/PatientRegister.js';
@@ -59,6 +60,7 @@ export const App: React.FC = () => {
       <ToastProvider>
         <LanguageProvider>
           <Router>
+            <ScrollToTop />
             <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800">
               <Routes>
 
