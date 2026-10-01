@@ -213,10 +213,22 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
 .lp-serif { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -0.02em; }
 .lp-grotesk { font-family: 'Space Grotesk', 'Inter', sans-serif; letter-spacing: -0.035em; }
 .lp-mono { font-family: 'DM Mono', ui-monospace, monospace; letter-spacing: 0.08em; }
-.lp-ring { stroke-dasharray: 1600; stroke-dashoffset: 1600; transition: stroke-dashoffset 2.2s cubic-bezier(.2,.7,.2,1); }
-.is-in .lp-ring { stroke-dashoffset: 0; }
-.lp-ring-dot { opacity: 0; transform: scale(.4); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
-.is-in .lp-ring-dot { opacity: 1; transform: none; }
+/* Rings figure, scrubbed by scroll (--p from useScrollProgress): circle i grows out of the shared touch
+   point while its outline draws, outermost first; dot i follows once its circle is mostly there */
+.lp-ring {
+  --k: clamp(0, (var(--p) - .1 - var(--i) * .075) * 6.5, 1);
+  transform-box: view-box;
+  transform: scale(calc(.08 + .92 * var(--k)));
+  opacity: calc(.15 + .85 * var(--k));
+  stroke-dasharray: 1600;
+  stroke-dashoffset: calc(1600 * (1 - var(--k)));
+  will-change: transform;
+}
+.lp-ring-dot {
+  --k: clamp(0, (var(--p) - .2 - var(--i) * .075) * 8, 1);
+  opacity: var(--k);
+  transform: translateY(calc((1 - var(--k)) * 10px)) scale(calc(.5 + .5 * var(--k)));
+}
 .lp-ring-pulse { animation: lp-ring-pulse 2.4s ease-out infinite; }
 @keyframes lp-ring-pulse { 0% { transform: scale(1); opacity: .55 } 100% { transform: scale(2.8); opacity: 0 } }
 
@@ -272,7 +284,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover { filter: opacity(0.
   .lp-aurora > i, .lp-orb, .lp-ecg path { animation: none !important; }
   .lp-reveal { opacity: 1; transform: none; filter: none; transition: none; }
   .lp-word { color: var(--lp-ink); }
-  .lp-ring { stroke-dashoffset: 0; transition: none; }
+  .lp-ring { stroke-dashoffset: 0; transform: none; opacity: 1; }
   .lp-ring-dot { opacity: 1; transform: none; transition: none; }
   .lp-ring-pulse { animation: none; }
 }

@@ -228,8 +228,14 @@ const RINGS = [
   return { r, cx, cy, dx: cx + r * Math.cos(a), dy: cy + r * Math.sin(a) };
 });
 
-const RingsFigure: React.FC<{ labels: string[]; inView: boolean }> = ({ labels, inView }) => (
-  <div className={`relative mx-auto aspect-square w-full max-w-[440px] ${inView ? 'is-in' : ''}`}>
+/**
+ * Scroll-driven: as the figure travels up the screen the circles grow out of their shared touch point one
+ * after another (outermost first), then each labelled dot appears. Scrolling back reverses it.
+ */
+const RingsFigure: React.FC<{ labels: string[] }> = ({ labels }) => {
+  const ref = useScrollProgress<HTMLDivElement>('through');
+  return (
+  <div ref={ref} className="lp-rings relative mx-auto aspect-square w-full max-w-[440px]" style={{ ['--p' as any]: 0 }}>
     <svg viewBox="0 0 500 500" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
       <defs>
         <radialGradient id="lp-ring-fill" cx="70%" cy="30%" r="80%">
@@ -249,7 +255,7 @@ const RingsFigure: React.FC<{ labels: string[]; inView: boolean }> = ({ labels, 
           stroke="#0b0b12"
           strokeOpacity={0.12}
           strokeWidth={1}
-          style={{ transitionDelay: `${i * 180}ms` }}
+          style={{ ['--i' as any]: i, transformOrigin: `${RING_TANGENT.x}px ${RING_TANGENT.y}px` }}
         />
       ))}
     </svg>
@@ -258,9 +264,9 @@ const RingsFigure: React.FC<{ labels: string[]; inView: boolean }> = ({ labels, 
         key={ring.r}
         className="lp-ring-dot absolute flex items-start gap-2"
         style={{
+          ['--i' as any]: i,
           left: `${(ring.dx / 500) * 100}%`,
           top: `${(ring.dy / 500) * 100}%`,
-          transitionDelay: `${900 + i * 200}ms`,
           transformOrigin: '0 0',
         }}
       >
@@ -272,7 +278,8 @@ const RingsFigure: React.FC<{ labels: string[]; inView: boolean }> = ({ labels, 
       </div>
     ))}
   </div>
-);
+  );
+};
 
 const Stats: React.FC = () => {
   const { t } = useLanguage();
@@ -290,7 +297,6 @@ const Stats: React.FC = () => {
           <Stat value={0} label={t('Records ever sold')} start={inView} delay={450} />
         </div>
         <RingsFigure
-          inView={inView}
           labels={[t('Patient-Controlled Data'), t('Secure Healthcare Platform'), t('Medication History'), t('Health Timeline')]}
         />
       </div>
