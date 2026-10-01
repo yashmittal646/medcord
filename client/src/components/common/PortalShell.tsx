@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Globe, LogOut, Menu, X } from 'lucide-react';
 import { useLanguage, LANGUAGES } from '../../context/LanguageContext.js';
 import { LanguagePickerModal } from './LanguagePickerModal.js';
 import { NotificationBell } from './NotificationBell.js';
 import { IdentityBadge } from './IdentityBadge.js';
+import { preloadDoctorPortal, preloadPatientPortal } from '../../routes/pages.js';
 
 export interface PortalNavItem {
   to: string;
@@ -43,6 +44,12 @@ export const PortalShell: React.FC<Props> = ({ role, portalName, groups, user, s
   const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Fetch the other portal pages in the background so moving between them is instant
+  useEffect(() => {
+    if (role === 'DOCTOR') preloadDoctorPortal();
+    else preloadPatientPortal();
+  }, [role]);
 
   // Portal pages read one step larger (rem-based sizes scale with the root)
   useEffect(() => {
@@ -183,7 +190,15 @@ export const PortalShell: React.FC<Props> = ({ role, portalName, groups, user, s
           {banner}
           {/* re-keyed per route: a short fade so the content change is noticed, nothing more */}
           <div key={location.pathname} className="portal-page">
-            <Outlet />
+            <Suspense
+              fallback={
+                <div className="flex min-h-[50vh] items-center justify-center" role="status" aria-live="polite">
+                  <span className="h-7 w-7 animate-spin rounded-full border-2 border-[var(--pr-line)] border-t-[var(--pr-primary)]" />
+                </div>
+              }
+            >
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

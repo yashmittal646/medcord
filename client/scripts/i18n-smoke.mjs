@@ -43,6 +43,7 @@ try {
 
   for (const lang of ['en', 'hi', 'kn', 'ta', 'te']) {
     store['FollowUp_language'] = lang;
+    await (await server.ssrLoadModule('/src/i18n/index.ts')).loadLanguage(lang);
     store['FollowUp_lang_picker_shown'] = 'true';
     const out = {};
 
@@ -176,6 +177,7 @@ try {
   const ALLOWED = /^(FollowUp|HIPAA|GDPR|TLS|AES|PAT|DOC|IST|PDF|CBC|WBC|GitHub|Bengaluru|India|Tech|Hub|Innovation|Corridor|Labs|Health|Sarah|Jenkins|Connor|Leonard|McCoy|Metro|General|Hospital|Amoxicillin|Penicillin|David|Marcus|Reed|Emily|Chen|Sharma|Apollo|SNOMED|PHI|BAA|RBAC|EMR|MRI|Innovation|Senior|Lead|Architect|Sovereign|Vault|SHA|US|Mon|Fri|Sat|Sun|Dr|Sign|Unspecified|Hackathon|Follow|Node|Express|React|Tailwind|TypeScript|Distributed|State|Yash|Mittal|yashmittal|gmail|XXXX+|XXXXXX+|mccoy|hospital|example|asynchealth|demo|doctor|mail|Robert|Chen|City|Priya|Arjun|Mehta|Clinic|Diagnostic|Centre|Penicillin|Metformin|Lisinopril|Atorvastatin|Amoxicillin|Chest|Latex|Aspirin|Rx|name|WebP|English|Hindi|Kannada|Tamil|Telugu|Sample|Medical|Profile|Timeline|Care|Plan|CBC|Follow|Stable|Metformin|Amlodipine|Active|Influenza|Routine|Hypertension|Severe|Rao|MBBS)$/i; // (the last five are English terms kept in parentheses by the existing Tamil nav labels)
   for (const lang of ['hi', 'kn', 'ta', 'te']) {
     store['FollowUp_language'] = lang;
+    await (await server.ssrLoadModule('/src/i18n/index.ts')).loadLanguage(lang);
     for (const [name, [file, exp, props]] of Object.entries(PAGES)) {
       const mod = await server.ssrLoadModule(file);
       const Page = mod[exp];
@@ -232,6 +234,7 @@ try {
   const { NotificationProvider } = await server.ssrLoadModule('/src/context/NotificationContext.tsx');
   for (const lang of ['hi', 'kn', 'ta', 'te']) {
     store['FollowUp_language'] = lang;
+    await (await server.ssrLoadModule('/src/i18n/index.ts')).loadLanguage(lang);
     for (const portal of Object.values(PORTAL)) {
       store['async_health_token'] = 'test-token';
       store['async_health_login_time'] = String(Date.now());

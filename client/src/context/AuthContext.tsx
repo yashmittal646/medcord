@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { IUser, IPatientProfile, IDoctorProfile } from '../types/index.js';
 import { api } from '../services/api.js';
 
@@ -63,7 +63,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  // Set when a sign-in or registration just returned the user, so the follow-up /auth/me can be skipped
+  const justSignedIn = useRef(false);
+
   const refreshUserData = async () => {
+    if (justSignedIn.current) {
+      justSignedIn.current = false;
+      setIsLoading(false);
+      return;
+    }
     if (!token || isSessionExpired()) {
       logout();
       setIsLoading(false);
@@ -130,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token]);
 
   const saveSession = (newToken: string, newUser: IUser, newProfile: any) => {
+    justSignedIn.current = true;
     const now = Date.now().toString();
     localStorage.setItem('async_health_token', newToken);
     localStorage.setItem('async_health_user', JSON.stringify(newUser));

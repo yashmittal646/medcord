@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
 import { isAdminEmail } from '../utils/admin.js';
+import { hashPassword, needsRehash } from '../utils/password.js';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import { PatientProfile } from '../models/PatientProfile.js';
@@ -38,8 +38,7 @@ export class AuthService {
       collisionCheck = await User.findOne({ publicId: patientId });
     }
 
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(data.password, salt);
+    const passwordHash = await hashPassword(data.password);
 
     const user = await User.create({
       name: data.name,
@@ -98,8 +97,7 @@ export class AuthService {
       collisionCheck = await User.findOne({ publicId: doctorId });
     }
 
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(data.password, salt);
+    const passwordHash = await hashPassword(data.password);
 
     const user = await User.create({
       name: data.name,
@@ -155,6 +153,16 @@ export class AuthService {
 
     if (user.status !== 'ACTIVE') {
       throw new AppError('Your account has been suspended or deactivated. Contact support.', 403);
+    }
+
+    // Upgrade an old, slower hash after the response is on its way (never delays this sign-in)
+    if (needsRehash(user.passwordHash)) {
+      const password = data.password;
+      setImmediate(() => {
+        hashPassword(password)
+          .then((passwordHash) => User.updateOne({ _id: user._id }, { $set: { passwordHash } }))
+          .catch((e) => console.warn('Password rehash failed:', e?.message));
+      });
     }
 
     let profile: any = null;

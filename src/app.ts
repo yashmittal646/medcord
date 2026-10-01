@@ -89,7 +89,19 @@ export const createApp = (): Application => {
   // ─── Serve client build in production ───────────────────────
   const clientDistPath = path.resolve(process.cwd(), 'client', 'dist');
   if (fs.existsSync(clientDistPath)) {
-    app.use(express.static(clientDistPath));
+    // Vite fingerprints files under /assets (index-AbC123.js), so they can be cached for a year;
+    // index.html must always be revalidated so a new deploy is picked up immediately.
+    app.use(
+      '/assets',
+      express.static(path.join(clientDistPath, 'assets'), { immutable: true, maxAge: '365d', index: false })
+    );
+    app.use(
+      express.static(clientDistPath, {
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+        },
+      })
+    );
 
     // Client-side routing: serve index.html for any non-API route
     app.get('*', (_req: Request, res: Response) => {

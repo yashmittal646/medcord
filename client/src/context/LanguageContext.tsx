@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { extraTranslations } from '../i18n/index.js';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { extraTranslations, isLanguageLoaded, loadLanguage } from '../i18n/index.js';
 
 /* ─── Supported languages ────────────────────────────────────── */
 export type LangCode = 'en' | 'hi' | 'kn' | 'ta' | 'te';
@@ -913,9 +913,21 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   currentLocale = LOCALE_MAP[lang] || 'en-US';
   currentLang = lang;
 
+  // The chosen language's dictionary is downloaded on demand; until it arrives the current language stays
+  const [ready, setReady] = useState(() => isLanguageLoaded(lang));
+  useEffect(() => {
+    if (ready) return;
+    loadLanguage(lang)
+      .catch((e) => console.warn('Could not load language', lang, e))
+      .finally(() => setReady(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const setLang = useCallback((code: LangCode) => {
-    setLangState(code);
     localStorage.setItem(STORAGE_KEY, code);
+    loadLanguage(code)
+      .catch((e) => console.warn('Could not load language', code, e))
+      .finally(() => setLangState(code));
   }, []);
 
   const setShowPickerWrapped = useCallback((show: boolean) => {
@@ -970,6 +982,9 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     },
     [lang]
   );
+
+  // First paint waits for the saved language (a few KB) so the page never flashes in English first
+  if (!ready) return null;
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t, tn, formatDate, showPicker, setShowPicker: setShowPickerWrapped }}>

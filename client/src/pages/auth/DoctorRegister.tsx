@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.js';
 import { IdentityBadge } from '../../components/common/IdentityBadge.js';
 import { Mail, Lock, User, Building2, Award, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext.js';
+import { preloadDoctorEntry } from '../../routes/pages.js';
 import { SignInRoleToggle } from '../../components/common/SignInRoleToggle.js';
 import { EcgBackground } from '../../components/common/EcgBackground.js';
 
 export const DoctorRegister: React.FC = () => {
   const { t, tn } = useLanguage();
+  // the portal is the next screen: fetch its code while the form is being filled in
+  useEffect(() => preloadDoctorEntry(), []);
   const [formData, setFormData] = useState({
     name: '',
     email: '',

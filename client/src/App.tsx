@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.js';
 import { ToastProvider } from './context/ToastContext.js';
@@ -8,42 +8,24 @@ import { Footer } from './components/common/Footer.js';
 import { ProtectedRoute } from './components/common/ProtectedRoute.js';
 import { ScrollToTop } from './components/common/ScrollToTop.js';
 import { LandingPage } from './pages/LandingPage.js';
-import { PatientLogin } from './pages/auth/PatientLogin.js';
-import { PatientRegister } from './pages/auth/PatientRegister.js';
-import { DoctorLogin } from './pages/auth/DoctorLogin.js';
-import { DoctorRegister } from './pages/auth/DoctorRegister.js';
-import { EmergencyPage } from './pages/EmergencyPage.js';
-import { ContactPage } from './pages/ContactPage.js';
-import { TeamPage } from './pages/TeamPage.js';
-import { FAQPage } from './pages/FAQPage.js';
+import {
+  PatientLogin, PatientRegister, DoctorLogin, DoctorRegister, EmergencyPage, ContactPage, TeamPage, FAQPage,
+  PrescriptionPrintPage, AdminMedicinesPage,
+  PatientLayout, PatientDashboard, PatientProfilePage, PatientRecordsPage, PatientTimelinePage, PatientHealthPathsPage,
+  PatientActivityPage, PatientAskAdvicePage, PatientPrivacyPage, PatientMedicationsPage, PatientHealthTrackerPage,
+  PatientPrescriptionsPage, PatientPrescriptionViewPage,
+  DoctorLayout, DoctorDashboard, DoctorPatientLookupPage, DoctorPatientChartPage, DoctorHealthPathsPage, DoctorActivityPage,
+  DoctorEmergencyPage, DoctorPrescriptionsPage, DoctorPrescriptionViewPage, DoctorPrescriptionEditorPage,
+  DoctorPrescriptionNewPage, DoctorLetterheadPage,
+  preloadAuth,
+} from './routes/pages.js';
 
-// Patient Portal
-import { PatientLayout } from './components/patient/PatientLayout.js';
-import { PatientDashboard } from './pages/patient/PatientDashboard.js';
-import { PatientProfilePage } from './pages/patient/PatientProfilePage.js';
-import { PatientRecordsPage } from './pages/patient/PatientRecordsPage.js';
-import { PatientTimelinePage } from './pages/patient/PatientTimelinePage.js';
-import { PatientHealthPathsPage } from './pages/patient/PatientHealthPathsPage.js';
-import { PatientActivityPage } from './pages/patient/PatientActivityPage.js';
-import { PatientAskAdvicePage } from './pages/patient/PatientAskAdvicePage.js';
-import { PatientPrivacyPage } from './pages/patient/PatientPrivacyPage.js';
-import { PatientMedicationsPage } from './pages/patient/PatientMedicationsPage.js';
-import { PatientHealthTrackerPage } from './pages/patient/PatientHealthTrackerPage.js';
-import { PatientPrescriptionsPage, PatientPrescriptionViewPage } from './pages/patient/PatientPrescriptionsPage.js';
-import { DoctorPrescriptionsPage, DoctorPrescriptionViewPage } from './pages/doctor/DoctorPrescriptionsPage.js';
-import { DoctorPrescriptionEditorPage, DoctorPrescriptionNewPage } from './pages/doctor/DoctorPrescriptionEditorPage.js';
-import { DoctorLetterheadPage } from './pages/doctor/DoctorLetterheadPage.js';
-import { PrescriptionPrintPage } from './pages/PrescriptionPrintPage.js';
-import { AdminMedicinesPage } from './pages/AdminMedicinesPage.js';
-
-// Doctor Portal
-import { DoctorLayout }              from './components/doctor/DoctorLayout.js';
-import { DoctorDashboard }           from './pages/doctor/DoctorDashboard.js';
-import { DoctorPatientLookupPage }   from './pages/doctor/DoctorPatientLookupPage.js';
-import { DoctorPatientChartPage }    from './pages/doctor/DoctorPatientChartPage.js';
-import { DoctorHealthPathsPage }     from './pages/doctor/DoctorHealthPathsPage.js';
-import { DoctorActivityPage }        from './pages/doctor/DoctorActivityPage.js';
-import { DoctorEmergencyPage }       from './pages/doctor/DoctorEmergencyPage.js';
+/** Shown for the moment a page's code is still downloading */
+const PageLoading: React.FC = () => (
+  <div className="flex min-h-[60vh] flex-1 items-center justify-center" role="status" aria-live="polite">
+    <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-[#1f4e8c]" />
+  </div>
+);
 
 /* Wrapper that injects the public Navbar and Footer around any page */
 const PublicShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -55,6 +37,11 @@ const PublicShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 export const App: React.FC = () => {
+  // Most visitors start on the landing page and go to sign-in next: fetch those pages in the background
+  useEffect(() => {
+    preloadAuth();
+  }, []);
+
   return (
     <AuthProvider>
       <ToastProvider>
@@ -62,6 +49,7 @@ export const App: React.FC = () => {
           <Router>
             <ScrollToTop />
             <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800">
+              <Suspense fallback={<PageLoading />}>
               <Routes>
 
                 {/* ── Public / Auth routes (all with Navbar & Footer) ── */}
@@ -140,6 +128,7 @@ export const App: React.FC = () => {
                 <Route path="*" element={<Navigate to="/" replace />} />
 
               </Routes>
+              </Suspense>
             </div>
           </Router>
         </LanguageProvider>

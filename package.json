@@ -10,7 +10,7 @@
     "render-build": "npm install --include=dev && npm run build && cd client && npm install --include=dev && npm run build",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/master_e2e.test.ts && tsx tests/access_control.test.ts && tsx tests/health_tracker.test.ts && tsx tests/import_medicines.test.ts && tsx tests/prescriptions.test.ts",
+    "test": "tsx tests/master_e2e.test.ts && tsx tests/access_control.test.ts && tsx tests/health_tracker.test.ts && tsx tests/import_medicines.test.ts && tsx tests/prescriptions.test.ts && tsx tests/auth_rehash.test.ts",
     "doctor:verify": "tsx src/scripts/verify-doctor.ts",
     "medicines:import": "tsx src/scripts/import-medicines.ts"
   },
