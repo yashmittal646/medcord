@@ -176,15 +176,16 @@ const Hero: React.FC = () => {
 const Mission: React.FC = () => {
   const { t } = useLanguage();
   return (
-    <section className="relative mx-auto max-w-7xl px-5 sm:px-8 py-24 sm:py-32">
-      <Orb className="right-[4%] top-10 h-28 w-28 sm:h-40 sm:w-40" />
-      <Orb variant="teal" className="right-[22%] bottom-10 h-14 w-14 [animation-delay:-3s]" />
+    <section className="relative mx-auto max-w-7xl px-5 sm:px-8 py-20 sm:py-28">
+      <Orb className="right-[3%] top-6 h-24 w-24 sm:h-36 sm:w-36" />
+      <Orb variant="teal" className="right-[18%] bottom-6 h-12 w-12 [animation-delay:-3s]" />
       <Reveal>
-        <p className="mb-8 lp-mono text-[11px] font-medium uppercase tracking-[0.2em] text-violet-600">{t('Our mission')}</p>
+        <p className="mb-6 lp-mono text-xs font-medium uppercase tracking-[0.22em] text-violet-600">{t('Our mission')}</p>
       </Reveal>
       <ScrollWords
-        className="lp-serif max-w-5xl text-[clamp(2.1rem,4.8vw,4.4rem)] leading-[1.05]"
-        text={t('We give every patient one lifelong medical record that they own, and every doctor exactly the part of it they need, only when the patient says yes.')}
+        className="lp-serif max-w-6xl text-[clamp(2.6rem,6.6vw,6.25rem)] leading-[1.0] tracking-[-0.01em] [text-wrap:balance]"
+        highlightEnd={0.4}
+        text={t('Because your health deserves to be understood, not just recorded.')}
       />
     </section>
   );
