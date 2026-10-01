@@ -10,6 +10,7 @@ const PATIENT_ROUTES: Record<string, string> = {
   ACCESS_REQUEST_RECEIVED: '/patient/privacy',
   CONNECTION_REQUESTED: '/patient/privacy',
   RECORD_NEEDS_REVIEW: '/patient/records',
+  PRESCRIPTION_ISSUED: '/patient/prescriptions',
 };
 
 export const NotificationBell: React.FC<{ role: 'PATIENT' | 'DOCTOR' }> = ({ role }) => {
@@ -30,7 +31,8 @@ export const NotificationBell: React.FC<{ role: 'PATIENT' | 'DOCTOR' }> = ({ rol
   const onSelect = async (n: AppNotification) => {
     await markRead(n);
     setOpen(false);
-    if (role === 'PATIENT' && PATIENT_ROUTES[n.type]) navigate(PATIENT_ROUTES[n.type]);
+    if (role === 'PATIENT' && n.type === 'PRESCRIPTION_ISSUED' && (n as any).data?.prescriptionId) navigate(`/patient/prescriptions/${(n as any).data.prescriptionId}`);
+    else if (role === 'PATIENT' && PATIENT_ROUTES[n.type]) navigate(PATIENT_ROUTES[n.type]);
   };
 
   return (

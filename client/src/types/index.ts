@@ -17,6 +17,8 @@ export interface IUser {
   status?: string;
   /** Doctors only: whether this account may open patient data yet */
   verified?: boolean;
+  /** Accounts listed in ADMIN_EMAILS on the server */
+  isAdmin?: boolean;
 }
 
 export interface IAllergy {

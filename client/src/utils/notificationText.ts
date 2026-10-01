@@ -61,6 +61,13 @@ export function notificationText(n: NotificationLike): { title: string; body: st
             title: tr('Please tag your new record'),
             body: tr('Add tags so the right specialists can see it. Until then only you can open it.'),
           };
+    case 'PRESCRIPTION_ISSUED':
+      if (d.doctorName)
+        return {
+          title: tr(d.amended === 'true' ? 'Prescription updated' : 'New prescription'),
+          body: tr(d.amended === 'true' ? '{doctor} updated your prescription.' : '{doctor} sent you a prescription.', { doctor: d.doctorName }),
+        };
+      break;
     case 'CONNECTION_REQUESTED':
       if (d.doctorName)
         return {

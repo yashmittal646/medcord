@@ -40,4 +40,14 @@ export const DYNAMIC_LABELS = [
   tx('Liver disease'), tx('Irritable bowel syndrome'), tx('Vision disorder'), tx('Hearing loss'), tx('Sinusitis'),
   tx('Anemia'), tx('Infection'), tx('Allergy'), tx('Depression'), tx('Anxiety'), tx('Substance use'), tx('HIV'),
   tx('Sexually transmitted infection'), tx('Pregnancy / prenatal'), tx('Reproductive health'), tx('Genetic testing'),
+  // Prescriptions: dosage forms (enumLabel of the medicine form)
+  tx('Tablet'), tx('Capsule'), tx('Syrup'), tx('Suspension'), tx('Solution'), tx('Drops'), tx('Injection'), tx('Cream'),
+  tx('Ointment'), tx('Gel'), tx('Lotion'), tx('Shampoo'), tx('Spray'), tx('Inhaler'), tx('Powder'), tx('Sachet'),
+  tx('Soap'), tx('Serum'), tx('Kit'),
+  // Lab test catalogue categories
+  tx('Blood'), tx('Heart'), tx('Liver'), tx('Kidney'), tx('Iron'), tx('Minerals'), tx('Urine'), tx('Stool'),
+  tx('Imaging'), tx('Women'), tx('Men'), tx('Hormones'), tx('Skin'),
+  // Prescription audit events and notifications
+  tx('Prescription Issued'), tx('Prescription Amended'), tx('Prescription updated'),
+  tx('{doctor} updated your prescription.'), tx('{doctor} sent you a prescription.'),
 ];

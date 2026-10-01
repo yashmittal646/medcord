@@ -193,6 +193,38 @@ export const api = {
   getHealthInsights: (langCode: string, refresh = false) =>
     request<any>('/health-tracker/insights', { method: 'POST', body: JSON.stringify({ langCode, refresh }) }),
 
+  // ── Medicines & lab tests ─────────────────────────────────────────────────
+  searchMedicines: (q: string) => request<any>(`/medicines/search?q=${encodeURIComponent(q)}`),
+  recentMedicines: () => request<any>('/medicines/recent'),
+  addMedicine: (body: { brandName: string; strength?: string; form: string; genericName?: string }) =>
+    request<any>('/medicines', { method: 'POST', body: JSON.stringify(body) }),
+  setMedicineFavourite: (id: string, favourite: boolean) =>
+    request<any>(`/medicines/${id}/favourite`, { method: 'POST', body: JSON.stringify({ favourite }) }),
+  searchLabTests: (q: string) => request<any>(`/lab-tests/search?q=${encodeURIComponent(q)}`),
+  pendingMedicines: () => request<any>('/admin/medicines/pending'),
+  promoteMedicine: (id: string) => request<any>(`/admin/medicines/${id}/promote`, { method: 'POST' }),
+  rejectMedicine: (id: string) => request<any>(`/admin/medicines/${id}/reject`, { method: 'POST' }),
+
+  // ── Prescriptions ─────────────────────────────────────────────────────────
+  getLetterhead: () => request<any>('/prescriptions/template'),
+  saveLetterhead: (body: any) => request<any>('/prescriptions/template', { method: 'PUT', body: JSON.stringify(body) }),
+  lockLetterhead: (body?: any) => request<any>('/prescriptions/template/lock', { method: 'POST', body: JSON.stringify(body ?? {}) }),
+  unlockLetterhead: () => request<any>('/prescriptions/template/unlock', { method: 'POST', body: JSON.stringify({ confirm: true }) }),
+  prescriptionPatients: () => request<any>('/prescriptions/patients'),
+  listPrescriptions: (params: Record<string, string> = {}) => request<any>(`/prescriptions?${new URLSearchParams(params).toString()}`),
+  createPrescription: (body: any) => request<any>('/prescriptions', { method: 'POST', body: JSON.stringify(body) }),
+  getPrescription: (id: string) => request<any>(`/prescriptions/${id}`),
+  updatePrescription: (id: string, body: any) => request<any>(`/prescriptions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deletePrescription: (id: string) => request<any>(`/prescriptions/${id}`, { method: 'DELETE' }),
+  issuePrescription: (id: string) => request<any>(`/prescriptions/${id}/issue`, { method: 'POST' }),
+  amendPrescription: (id: string) => request<any>(`/prescriptions/${id}/amend`, { method: 'POST' }),
+  duplicatePrescription: (id: string, patientId?: string) =>
+    request<any>(`/prescriptions/${id}/duplicate`, { method: 'POST', body: JSON.stringify(patientId ? { patientId } : {}) }),
+  myPrescriptions: () => request<any>('/patient-prescriptions'),
+  myTestsToDo: () => request<any>('/patient-prescriptions/tests-to-do'),
+  setMyTestStatus: (id: string, testId: string, status: string) =>
+    request<any>(`/patient-prescriptions/${id}/tests/${testId}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+
   // Notifications
   listNotifications: () => request<any>('/notifications'),
   markNotificationRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'POST' }),

@@ -28,6 +28,12 @@ import { PatientAskAdvicePage } from './pages/patient/PatientAskAdvicePage.js';
 import { PatientPrivacyPage } from './pages/patient/PatientPrivacyPage.js';
 import { PatientMedicationsPage } from './pages/patient/PatientMedicationsPage.js';
 import { PatientHealthTrackerPage } from './pages/patient/PatientHealthTrackerPage.js';
+import { PatientPrescriptionsPage, PatientPrescriptionViewPage } from './pages/patient/PatientPrescriptionsPage.js';
+import { DoctorPrescriptionsPage, DoctorPrescriptionViewPage } from './pages/doctor/DoctorPrescriptionsPage.js';
+import { DoctorPrescriptionEditorPage, DoctorPrescriptionNewPage } from './pages/doctor/DoctorPrescriptionEditorPage.js';
+import { DoctorLetterheadPage } from './pages/doctor/DoctorLetterheadPage.js';
+import { PrescriptionPrintPage } from './pages/PrescriptionPrintPage.js';
+import { AdminMedicinesPage } from './pages/AdminMedicinesPage.js';
 
 // Doctor Portal
 import { DoctorLayout }              from './components/doctor/DoctorLayout.js';
@@ -83,6 +89,8 @@ export const App: React.FC = () => {
                   <Route path="records" element={<PatientRecordsPage />} />
                   <Route path="timeline" element={<PatientTimelinePage />} />
                   <Route path="health-tracker" element={<PatientHealthTrackerPage />} />
+                  <Route path="prescriptions" element={<PatientPrescriptionsPage />} />
+                  <Route path="prescriptions/:id" element={<PatientPrescriptionViewPage />} />
                   <Route path="health-paths" element={<PatientHealthPathsPage />} />
                   <Route path="ask-advice" element={<PatientAskAdvicePage />} />
                   <Route path="privacy" element={<PatientPrivacyPage />} />
@@ -107,8 +115,24 @@ export const App: React.FC = () => {
                   <Route path="patient/:patientId" element={<DoctorPatientChartPage />} />
                   <Route path="health-paths" element={<DoctorHealthPathsPage />} />
                   <Route path="activity" element={<DoctorActivityPage />} />
+                  <Route path="prescriptions" element={<DoctorPrescriptionsPage />} />
+                  <Route path="prescriptions/new" element={<DoctorPrescriptionNewPage />} />
+                  <Route path="prescriptions/:id" element={<DoctorPrescriptionViewPage />} />
+                  <Route path="prescriptions/:id/edit" element={<DoctorPrescriptionEditorPage />} />
+                  <Route path="letterhead" element={<DoctorLetterheadPage />} />
+                  <Route path="admin/medicines" element={<AdminMedicinesPage />} />
                   <Route path="*" element={<Navigate to="dashboard" replace />} />
                 </Route>
+
+                {/* Prescription print view (A4, no portal chrome) */}
+                <Route
+                  path="/print/prescription/:id"
+                  element={
+                    <ProtectedRoute allowedRoles={['PATIENT', 'DOCTOR']}>
+                      <PrescriptionPrintPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

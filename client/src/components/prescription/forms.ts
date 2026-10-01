@@ -1,0 +1,23 @@
+/** Dosage forms (mirror of src/config/medicineForms.ts on the server) */
+export const MEDICINE_FORM_OPTIONS = [
+  'TABLET',
+  'CAPSULE',
+  'SYRUP',
+  'SUSPENSION',
+  'SOLUTION',
+  'DROPS',
+  'INJECTION',
+  'CREAM',
+  'OINTMENT',
+  'GEL',
+  'LOTION',
+  'SHAMPOO',
+  'SPRAY',
+  'INHALER',
+  'POWDER',
+  'SACHET',
+  'SOAP',
+  'SERUM',
+  'KIT',
+  'OTHER',
+] as const;

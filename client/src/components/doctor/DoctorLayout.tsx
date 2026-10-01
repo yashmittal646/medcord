@@ -6,7 +6,7 @@ import { enumLabel } from '../../utils/enumLabel.js';
 import { useLanguage } from '../../context/LanguageContext.js';
 import { NotificationProvider } from '../../context/NotificationContext.js';
 import { PortalShell, PortalNavGroup } from '../common/PortalShell.js';
-import { LayoutDashboard, Search, HeartPulse, Shield, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, Search, HeartPulse, Shield, AlertTriangle, ClipboardList, Settings2, PackageCheck } from 'lucide-react';
 
 const DoctorLayoutInner: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -20,8 +20,16 @@ const DoctorLayoutInner: React.FC = () => {
       items: [
         { to: '/doctor/dashboard', label: t('nav.dashboard'), Icon: LayoutDashboard },
         { to: '/doctor/lookup', label: t('nav.patientLookup'), Icon: Search },
+        { to: '/doctor/prescriptions', label: t('Prescriptions'), Icon: ClipboardList },
         { to: '/doctor/health-paths', label: t('nav.healthPaths'), Icon: HeartPulse },
         { to: '/doctor/activity', label: t('nav.myActivityLog'), Icon: Shield },
+      ],
+    },
+    {
+      label: t('Settings'),
+      items: [
+        { to: '/doctor/letterhead', label: t('Letterhead'), Icon: Settings2 },
+        ...(user?.isAdmin ? [{ to: '/doctor/admin/medicines', label: t('Medicine review'), Icon: PackageCheck }] : []),
       ],
     },
     {

@@ -15,6 +15,7 @@ import {
   Activity,
   ShieldCheck,
   Pill,
+  ClipboardList,
 } from 'lucide-react';
 
 const PatientLayoutInner: React.FC = () => {
@@ -34,6 +35,7 @@ const PatientLayoutInner: React.FC = () => {
         { to: '/patient/timeline', label: t('nav.timeline'), Icon: Clock },
         { to: '/patient/health-tracker', label: t('Health Tracker'), Icon: Activity },
         { to: '/patient/health-paths', label: t('nav.healthPaths'), Icon: HeartPulse },
+        { to: '/patient/prescriptions', label: t('Prescriptions'), Icon: ClipboardList },
         { to: '/patient/medications', label: t('Medications'), Icon: Pill },
         { to: '/patient/ask-advice', label: t('nav.askAdvice'), Icon: MessageSquareHeart },
       ],

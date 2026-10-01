@@ -149,6 +149,17 @@ try {
       isOpen: true, onClose() {}, onSaved() {}, initialKey: 'OTHER',
       catalog: [{ key: 'GLUCOSE_FASTING', name: 'Fasting Blood Sugar', group: 'DIABETES', unit: 'mg/dL' }, { key: 'VITAMIN_B12', name: 'Vitamin B12', group: 'VITAMINS', unit: 'pg/mL' }],
     }],
+    // Prescription sheet and editor pieces with sample data (medicine names are never translated)
+    PrescriptionSheet: ['/src/components/prescription/PrescriptionDocument.tsx', 'PrescriptionDocument', { doc: {
+      date: '2026-04-01', patient: { name: 'Priya', age: 34, gender: 'FEMALE', patientId: 'PAT-ABC123' }, complaints: '…', diagnosis: '…', comorbidities: ['Diabetes', 'Hypertension'],
+      medicines: [{ key: 'a', medicineId: 'x', name: 'Metformin', strength: '500 mg', dosage: { morning: 1, afternoon: 0, night: 1 }, frequency: 'DAILY', duration: { value: 3, unit: 'MONTHS' }, timing: '…', note: '…' },
+        { key: 'b', medicineId: 'y', name: 'Amlodipine', dosage: { morning: 0, afternoon: 0, night: 0 }, frequency: 'SOS', duration: null }],
+      labTests: [{ key: 'c', name: 'CBC', note: '…' }], nextVisitDate: '2026-04-29',
+      letterhead: { header: { doctorName: 'Dr. Rao', qualification: 'MBBS', registrationNumber: 'MMC-1' }, footer: { clinicName: 'Apollo Clinic', clinicAddress: 'Bengaluru', phone: '98765' } } } }],
+    MedicineRows: ['/src/components/prescription/MedicineRows.tsx', 'MedicineRows', { onChange() {}, rows: [
+      { key: 'a', medicineId: 'x', name: 'Metformin', strength: '500 mg', dosage: { morning: 1, afternoon: 0, night: 1 }, frequency: 'CUSTOM', duration: { value: 5, unit: 'DAYS' } },
+      { key: 'b', medicineId: '', name: '', dosage: { morning: 0, afternoon: 0, night: 0 }, frequency: 'DAILY', duration: { value: 5, unit: 'WEEKS' } }] }],
+    LabTestPicker: ['/src/components/prescription/LabTestPicker.tsx', 'LabTestPicker', { onChange() {}, tests: [{ key: 'a', name: 'CBC', note: '' }] }],
     // Dialogs, rendered open
     AllergyModal: ['/src/components/patient/AllergyModal.tsx', 'AllergyModal', { isOpen: true, onClose() {}, onSuccess() {} }],
     ConditionModal: ['/src/components/patient/ConditionModal.tsx', 'ConditionModal', { isOpen: true, onClose() {}, onSuccess() {} }],
@@ -162,7 +173,7 @@ try {
     MedicalDocumentModal: ['/src/components/common/MedicalDocumentModal.tsx', 'MedicalDocumentModal', { isOpen: true, onClose() {}, record: { _id: 'abc12345', title: 'Sample', recordType: 'PRESCRIPTION', recordDate: '2026-01-05', file: { originalName: 'x.pdf' } } }],
   };
   // Words that are legitimately the same in every language (brands, acronyms, sample data)
-  const ALLOWED = /^(FollowUp|HIPAA|GDPR|TLS|AES|PAT|DOC|IST|PDF|CBC|WBC|GitHub|Bengaluru|India|Tech|Hub|Innovation|Corridor|Labs|Health|Sarah|Jenkins|Connor|Leonard|McCoy|Metro|General|Hospital|Amoxicillin|Penicillin|David|Marcus|Reed|Emily|Chen|Sharma|Apollo|SNOMED|PHI|BAA|RBAC|EMR|MRI|Innovation|Senior|Lead|Architect|Sovereign|Vault|SHA|US|Mon|Fri|Sat|Sun|Dr|Sign|Unspecified|Hackathon|Follow|Node|Express|React|Tailwind|TypeScript|Distributed|State|Yash|Mittal|yashmittal|gmail|XXXX+|XXXXXX+|mccoy|hospital|example|asynchealth|demo|doctor|mail|Robert|Chen|City|Priya|Arjun|Mehta|Clinic|Diagnostic|Centre|Penicillin|Metformin|Lisinopril|Atorvastatin|Amoxicillin|Chest|Latex|Aspirin|Rx|name|WebP|English|Hindi|Kannada|Tamil|Telugu|Sample|Medical|Profile|Timeline|Care|Plan|CBC|Follow|Stable|Metformin|Amlodipine|Active|Influenza|Routine|Hypertension|Severe|Rao)$/i; // (the last five are English terms kept in parentheses by the existing Tamil nav labels)
+  const ALLOWED = /^(FollowUp|HIPAA|GDPR|TLS|AES|PAT|DOC|IST|PDF|CBC|WBC|GitHub|Bengaluru|India|Tech|Hub|Innovation|Corridor|Labs|Health|Sarah|Jenkins|Connor|Leonard|McCoy|Metro|General|Hospital|Amoxicillin|Penicillin|David|Marcus|Reed|Emily|Chen|Sharma|Apollo|SNOMED|PHI|BAA|RBAC|EMR|MRI|Innovation|Senior|Lead|Architect|Sovereign|Vault|SHA|US|Mon|Fri|Sat|Sun|Dr|Sign|Unspecified|Hackathon|Follow|Node|Express|React|Tailwind|TypeScript|Distributed|State|Yash|Mittal|yashmittal|gmail|XXXX+|XXXXXX+|mccoy|hospital|example|asynchealth|demo|doctor|mail|Robert|Chen|City|Priya|Arjun|Mehta|Clinic|Diagnostic|Centre|Penicillin|Metformin|Lisinopril|Atorvastatin|Amoxicillin|Chest|Latex|Aspirin|Rx|name|WebP|English|Hindi|Kannada|Tamil|Telugu|Sample|Medical|Profile|Timeline|Care|Plan|CBC|Follow|Stable|Metformin|Amlodipine|Active|Influenza|Routine|Hypertension|Severe|Rao|MBBS)$/i; // (the last five are English terms kept in parentheses by the existing Tamil nav labels)
   for (const lang of ['hi', 'kn', 'ta', 'te']) {
     store['FollowUp_language'] = lang;
     for (const [name, [file, exp, props]] of Object.entries(PAGES)) {
@@ -198,6 +209,7 @@ try {
         PatientPrivacy: ['/src/pages/patient/PatientPrivacyPage.tsx', 'PatientPrivacyPage'],
         PatientAskAdvice: ['/src/pages/patient/PatientAskAdvicePage.tsx', 'PatientAskAdvicePage'],
         PatientHealthTracker: ['/src/pages/patient/PatientHealthTrackerPage.tsx', 'PatientHealthTrackerPage'],
+        PatientPrescriptions: ['/src/pages/patient/PatientPrescriptionsPage.tsx', 'PatientPrescriptionsPage'],
       },
     },
     DOCTOR: {
@@ -210,6 +222,10 @@ try {
         DoctorHealthPaths: ['/src/pages/doctor/DoctorHealthPathsPage.tsx', 'DoctorHealthPathsPage'],
         DoctorActivity: ['/src/pages/doctor/DoctorActivityPage.tsx', 'DoctorActivityPage'],
         DoctorChart: ['/src/pages/doctor/DoctorPatientChartPage.tsx', 'DoctorPatientChartPage'],
+        DoctorPrescriptions: ['/src/pages/doctor/DoctorPrescriptionsPage.tsx', 'DoctorPrescriptionsPage'],
+        DoctorPrescriptionNew: ['/src/pages/doctor/DoctorPrescriptionEditorPage.tsx', 'DoctorPrescriptionNewPage'],
+        DoctorLetterhead: ['/src/pages/doctor/DoctorLetterheadPage.tsx', 'DoctorLetterheadPage'],
+        AdminMedicines: ['/src/pages/AdminMedicinesPage.tsx', 'AdminMedicinesPage'],
       },
     },
   };

@@ -11,6 +11,7 @@ import { ConditionModal } from '../../components/patient/ConditionModal.js';
 import { UploadRecordModal } from '../../components/patient/UploadRecordModal.js';
 import { DoctorAccessRequestsModal } from '../../components/patient/DoctorAccessRequestsModal.js';
 import { greeting } from '../../utils/greeting.js';
+import { TestsToDo } from './PatientPrescriptionsPage.js';
 import { enumLabel } from '../../utils/enumLabel.js';
 import {
   AlertTriangle,
@@ -189,6 +190,8 @@ export const PatientDashboard: React.FC = () => {
           </Link>
         ))}
       </div>
+
+      <TestsToDo compact />
 
       {/* ── Critical Information: 3-col ── */}
       <div className="grid md:grid-cols-5 gap-4">

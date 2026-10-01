@@ -1,4 +1,6 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.js';
 import {
   X,
   Printer,
@@ -28,6 +30,16 @@ export const MedicalDocumentModal: React.FC<MedicalDocumentModalProps> = ({
   onClose,
 }) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  // Prescriptions written in the app open in their own A4 view
+  const rxLink = record?.prescription
+    ? user?.role === 'PATIENT'
+      ? `/patient/prescriptions/${record.prescription}`
+      : String(record.uploadedBy) === String(user?.id)
+      ? `/doctor/prescriptions/${record.prescription}`
+      : null
+    : null;
   const openFile = useOpenRecordFile();
   if (!isOpen || !record) return null;
 
@@ -115,6 +127,19 @@ ${rule}
           </div>
 
           <div className="flex items-center gap-2">
+            {rxLink && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate(rxLink);
+                }}
+                className="px-3 py-1.5 bg-[#1f4e8c] hover:bg-[#183f72] text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-colors"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>{t('Open prescription')}</span>
+              </button>
+            )}
             {record.file && (
               <button
                 type="button"
