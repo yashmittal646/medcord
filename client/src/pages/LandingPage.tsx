@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Siren,
   Sparkles,
+  Star,
   Stethoscope,
   UploadCloud,
   UserRound,
@@ -635,6 +636,85 @@ const Showcase: React.FC = () => {
   );
 };
 
+/* ─────────────────────────────── Reviews ─────────────────────────────── */
+
+// Sample content until real reviews are collected; flip off (or delete the label) once they are real
+const REVIEWS_ARE_SAMPLES = true;
+
+const Reviews: React.FC = () => {
+  const { t } = useLanguage();
+  const reviews = [
+    { name: 'Ananya Rao', role: t('Patient'), city: t('Bengaluru'), rating: 5, quote: t('My mother sees three specialists. For the first time every report is in one place, and she decides who gets to see what.') },
+    { name: 'Dr. Karthik Subramanian', role: t('Cardiologist'), city: t('Chennai'), rating: 5, quote: t("I get the cardiac history I need before the patient sits down, and nothing I shouldn't see. It saves me ten minutes a consult."), featured: true },
+    { name: 'Ravi Teja', role: t('Patient'), city: t('Hyderabad'), rating: 5, quote: t("The emergency page gave the ambulance team my allergies when I couldn't speak. That alone made it worth it.") },
+    { name: 'Priya Mishra', role: t('Caregiver'), city: t('Lucknow'), rating: 4, quote: t('Being able to read everything in Hindi made my father comfortable using it on his own.') },
+    { name: 'Dr. Meenakshi Nagaraj', role: t('General Physician'), city: t('Mysuru'), rating: 5, quote: t('Health paths keep my diabetic patients on track between visits. I can see who is slipping and call them early.') },
+    { name: 'Sameer Kulkarni', role: t('Patient'), city: t('Pune'), rating: 5, quote: t('The health tracker turned years of lab PDFs into one graph. I finally understood why my doctor kept bringing up my vitamin D.') },
+  ];
+  const initials = (name: string) =>
+    name.replace(/^Dr\.\s*/, '').split(/\s+/).slice(0, 2).map((w) => w[0]).join('');
+
+  return (
+    <section className="mx-auto max-w-7xl px-5 sm:px-8 pt-16 sm:pt-20">
+      <Reveal className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="lp-mono text-[11px] font-medium uppercase tracking-[0.2em] text-violet-600">{t('From our users')}</p>
+          <h2 className="lp-serif mt-4 max-w-3xl text-[clamp(2.6rem,5.4vw,4.4rem)] leading-[1.02] text-[#0b0b12]">{t('People who stopped carrying folders')}</h2>
+        </div>
+        <div className="max-w-sm">
+          <p className="text-sm leading-relaxed text-[#6b6b80]">{t('Patients, caregivers and doctors on what changed once their records lived in one place.')}</p>
+          {REVIEWS_ARE_SAMPLES && (
+            <p className="mt-3 lp-mono text-[10px] uppercase tracking-[0.18em] text-[#9a9aac]">{t('Sample reviews')}</p>
+          )}
+        </div>
+      </Reveal>
+
+      <div className="mt-12 columns-1 gap-5 md:columns-2 lg:columns-3">
+        {reviews.map((r, i) => (
+          <Reveal key={r.name} delay={(i % 3) * 120} className="mb-5 break-inside-avoid">
+            <figure
+              className={`rounded-[28px] border p-7 ${
+                r.featured
+                  ? 'border-[#0b0b12] bg-[#0b0b12] text-white shadow-[0_30px_70px_-40px_rgba(40,30,120,.7)]'
+                  : 'border-white bg-white/75 text-[#0b0b12] shadow-[0_24px_60px_-40px_rgba(40,30,120,.35)]'
+              }`}
+            >
+              <div className="flex gap-0.5" role="img" aria-label={t('Rated {n} out of 5', { n: String(r.rating) })}>
+                {Array.from({ length: 5 }, (_, s) => (
+                  <Star
+                    key={s}
+                    aria-hidden="true"
+                    className={`h-4 w-4 ${s < r.rating ? 'fill-violet-500 text-violet-500' : r.featured ? 'text-white/25' : 'text-[#0b0b12]/15'}`}
+                  />
+                ))}
+              </div>
+              <blockquote className={`lp-serif mt-5 leading-[1.25] ${r.featured ? 'text-[1.7rem]' : 'text-[1.4rem]'}`}>
+                “{r.quote}”
+              </blockquote>
+              <figcaption className="mt-7 flex items-center gap-3">
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                    r.featured ? 'bg-white/10 text-violet-200' : 'bg-violet-100 text-violet-700'
+                  }`}
+                  aria-hidden="true"
+                >
+                  {initials(r.name)}
+                </span>
+                <span>
+                  <span className="lp-grotesk block text-sm font-semibold">{r.name}</span>
+                  <span className={`block text-xs ${r.featured ? 'text-white/55' : 'text-[#6b6b80]'}`}>
+                    {r.role} · {r.city}
+                  </span>
+                </span>
+              </figcaption>
+            </figure>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 /* ──────────────────────────────── FAQ ──────────────────────────────── */
 
 const Faq: React.FC = () => {
@@ -700,6 +780,7 @@ export const LandingPage: React.FC = () => {
       <div className="overflow-hidden py-10 text-[#0b0b12]">
         <Marquee reverse accent items={[t('Your health'), t('Your records'), t('Your consent'), t('Your timeline')]} />
       </div>
+      <Reviews />
       <Faq />
     </div>
   );
